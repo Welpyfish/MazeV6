@@ -3,6 +3,8 @@ package model.weapon;
 import model.*;
 import model.Character;
 
+import java.awt.*;
+
 public class Weapon extends Sprite {
     // Pointing direction
     private double angle;
@@ -26,6 +28,8 @@ public class Weapon extends Sprite {
 
     private Team team;
 
+    private boolean pressed;
+
     protected Map map;
 
     public Weapon(Team team, Map map){
@@ -36,19 +40,19 @@ public class Weapon extends Sprite {
 
     // Start the first state if cooldown is finished
     public void startCharge(){
-        if(chargeFrame ==0 && cooldownFrame == 0) {
-            chargeFrame = 1;
-            getAnimation().play();
-        }
+        chargeFrame = 1;
+        getAnimation().play();
+    }
+
+    protected boolean charged(){
+        return chargeFrame >= chargeTime;
     }
 
     // Start the attack state if the weapon is charged (subject to change)
     public void startAttack(){
-        if(attackFrame ==0 && chargeFrame >= chargeTime) {
-            attackFrame = 1;
-            chargeFrame = 0;
-            getAnimation().play();
-        }
+        attackFrame = 1;
+        chargeFrame = 0;
+        getAnimation().play();
     }
 
     // Called from update() during the charge state
@@ -69,12 +73,11 @@ public class Weapon extends Sprite {
         getAnimation().reset();
     }
 
-    // Update the target of this weapon
-    public void setTarget(int tx, int ty){
+    public void setTarget(Point p){
         // Set the aiming angle
-        angle = Math.atan2(ty-getY(), tx-getX());
+        angle = Math.atan2(p.y-getY(), p.x-getX());
         // Update the target distance
-        distance = Math.hypot(ty-getY(), getX()-tx);
+        distance = Math.hypot(p.y-getY(), getX()-p.x);
     }
 
     // Update weapon given target location
@@ -82,6 +85,10 @@ public class Weapon extends Sprite {
         // Set location to center of character
         setX(x);
         setY(y);
+
+        if(pressed){
+            pressAction();
+        }
 
         // If attack is started, run attack state
         if(attackFrame > 0) {
@@ -111,8 +118,24 @@ public class Weapon extends Sprite {
         getAnimation().update();
     }
 
+    // Shooter methods
+
+    public void setProjectile(ProjectileType projectileType){}
+
+    public int ammoUsed(){
+        return 0;
+    }
+
+    public boolean compatibleWith(ProjectileType type){
+        return false;
+    }
+
     public double getAngle() {
         return angle;
+    }
+
+    protected void setAngle(double angle) {
+        this.angle = angle;
     }
 
     protected int getDamage() {
@@ -152,5 +175,24 @@ public class Weapon extends Sprite {
 
     public Team getTeam() {
         return team;
+    }
+
+    public void setPressed(boolean pressed) {
+        if(!pressed && this.pressed){
+            releaseAction();
+        }
+        this.pressed = pressed;
+    }
+
+    protected void pressAction(){
+        if(chargeFrame ==0 && cooldownFrame == 0) {
+            startCharge();
+        }
+    }
+
+    protected void releaseAction(){
+        if(attackFrame ==0 && charged()) {
+            startAttack();
+        }
     }
 }

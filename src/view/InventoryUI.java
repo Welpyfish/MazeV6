@@ -10,8 +10,9 @@ import model.weapon.ProjectileType;
 import javax.swing.*;
 import javax.swing.border.LineBorder;
 import java.awt.*;
+import java.util.LinkedHashMap;
 
-public class GameUI extends JPanel {
+public class InventoryUI extends JPanel {
     private GameEngine gameEngine;
     private Map map;
     private Inventory inventory;
@@ -19,6 +20,7 @@ public class GameUI extends JPanel {
     private GridBagLayout gridBagLayout;
 
     private HealthBar hp;
+    //private LinkedHashMap<ProjectileType, InventoryItem> arrows;
     private InventoryItem arrows;
     private InventoryItem bombArrows;
     private InventoryItem bullets;
@@ -27,7 +29,7 @@ public class GameUI extends JPanel {
     private JButton bow;
     private JButton gun;
 
-    public GameUI(GameEngine gameEngine){
+    public InventoryUI(GameEngine gameEngine){
         this.gameEngine = gameEngine;
         map = gameEngine.mapManager.map;
         player = map.player;

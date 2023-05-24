@@ -27,6 +27,10 @@ public class TileObject extends Sprite{
         return (int) rect.getCenterY();
     }
 
+    protected Point getCenter(){
+        return new Point((int) rect.getCenterX(), (int) rect.getCenterY());
+    }
+
     protected void changeX(double dx){
         super.changeX(dx);
         rect.translate((int) dx, 0);
@@ -47,6 +51,7 @@ public class TileObject extends Sprite{
         rect.setLocation(getX(), (int) y);
     }
 
+    // not good
     protected Rectangle getRect() {
         return rect;
     }

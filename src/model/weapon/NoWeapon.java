@@ -4,20 +4,32 @@ import model.*;
 import model.Character;
 
 public class NoWeapon extends Shooter{
-    private final int maxRange = GameConstants.tileSize*5;
+    private int currentRange;
 
     public NoWeapon(Team team, Map map){
         super(team, map);
         addProjectileType(ProjectileType.BOMB);
         setAnimation(new Animation(ImageLoader.hand));
+        setRange(GameConstants.tileSize*5);
         setWeaponType(WeaponType.NONE);
         setDamage(0);
         setAttackTime(2, 2, 10);
     }
 
+    // Launch the loaded projectiles
     @Override
-    protected void charge(int chargeFrame, int chargeTime){
+    protected void attack(int attackFrame, int attackTime){
+        // Temporary fix; may add min and max range as properties at some point
+        int temp = getRange();
+        setRange(currentRange);
+        super.attack(attackFrame, attackTime);
+        setRange(temp);
+    }
+
+    // When charging, set range depending on target location
+    @Override
+    public void charge(int chargeFrame, int chargeTime){
         super.charge(chargeFrame, chargeTime);
-        setRange((int) Math.min(maxRange, getDistance()));
+        currentRange = (int) (Math.min(getRange(), getDistance()));
     }
 }

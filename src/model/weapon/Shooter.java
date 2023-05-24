@@ -3,6 +3,7 @@ package model.weapon;
 import model.*;
 import model.Character;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 
 // A weapon the fires projectiles
@@ -33,6 +34,7 @@ public class Shooter extends Weapon{
     }
 
     // Set the current projectile
+    @Override
     public void setProjectile(ProjectileType projectileType){
         if(this.projectileType != projectileType){
             reset();
@@ -41,19 +43,25 @@ public class Shooter extends Weapon{
     }
 
     // Return the number of projectiles fired in the current frame
+    @Override
     public int ammoUsed(){
         int temp = ammoCount;
         ammoCount = 0;
         return temp;
+    }// 62 classes
+
+    @Override
+    public void startCharge(){
+        super.startCharge();
+        // Create a new projectile if there wasn't one originally
+        if(projectileType != null && projectile == null){
+            projectile = createProjectile();
+        }
     }
 
     // Create a projectile to load
     @Override
     protected void charge(int attackFrame, int attackTime){
-        // Create a new projectile if there wasn't one originally
-        if(projectileType != null && projectile == null){
-            projectile = createProjectile();
-        }
         // Update any loaded projectile
         if(projectile != null) {
             projectile.updateWhenLoaded((int) (getX()+ Math.cos(getAngle())*getCurrentImage().getWidth()/2),
@@ -75,8 +83,17 @@ public class Shooter extends Weapon{
     }
 
     // Check if a projectile type is compatible
+    @Override
     public boolean compatibleWith(ProjectileType type){
         return projectileTypes.contains(type);
+    }
+
+    @Override
+    protected double getDistance() {
+        if(projectile != null){
+            return super.getDistance()-projectile.getCurrentImage().getWidth();
+        }
+        return super.getDistance();
     }
 
     // Create a projectile based on projectile type

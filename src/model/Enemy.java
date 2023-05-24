@@ -2,6 +2,8 @@ package model;
 
 import model.weapon.Weapon;
 
+import java.awt.*;
+
 public class Enemy extends Character {
     // Frames of delay between attacking
     private int attackDelay;
@@ -20,7 +22,7 @@ public class Enemy extends Character {
     public void update(){
         super.update();
         // Move if the player is in sight
-        if(map.inLineOfSight(this, map.player, getSightRange())) {
+        if(map.findClosestTarget(getCenter(), getSightRange(), Team.ENEMY) != null) {
             move();
         }
     }
@@ -43,11 +45,16 @@ public class Enemy extends Character {
     @Override
     public void updateWeapon(){
         // When the player is in sight, continually try to charge weapon and attack
-        if(map.inLineOfSight(this, map.player, getSightRange())){
-            startCharge();
-            startAttack();
+        Point target = map.findClosestTarget(getCenter(), getSightRange(), Team.ENEMY);
+        if(target != null){
+            // Only attack if the delay time is finished
+            if(attackDelay <= 0) {
+                startAttack();
+            }
             // Aim at player when in sight
-            getWeapon().setTarget(map.player.getCenterX(), map.player.getCenterY());
+            getWeapon().setTarget(target);
+        }else{
+            getWeapon().setPressed(false);
         }
         if(attackDelay > 0) {
             // Count down the delay
@@ -61,24 +68,15 @@ public class Enemy extends Character {
         super.changeHp(c);
         // Start charging attack if hit and player is in sight
         // Makes it hard to avoid trading hp
-        if(getHp()>0 && c < 0 && map.inLineOfSight(this, map.player, getSightRange())){
-            startCharge();
-            attackDelay-=GameConstants.fps;
+        if(getHp()>0 && c < 0 && map.findClosestTarget(getCenter(), getSightRange(), Team.ENEMY)!=null){
+            attackDelay-=2*GameConstants.fps;
         }
-    }
-
-    // Charge the weapon
-    protected void startCharge(){
-        getWeapon().startCharge();
     }
 
     protected void startAttack(){
-        // Only attack if the delay time is finished
-        if(attackDelay <= 0) {
-            getWeapon().startAttack();
-            // Wait a short time before allowing another attack
-            attackDelay = (int) (GameConstants.fps*5 + Math.random()*GameConstants.fps);
-        }
+        getWeapon().setPressed(true);
+        // Wait a short time before allowing another attack
+        attackDelay = (int) (GameConstants.fps*5 + Math.random()*GameConstants.fps);
     }
 
     // Move towards a point

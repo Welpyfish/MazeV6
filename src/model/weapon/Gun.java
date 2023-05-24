@@ -16,6 +16,12 @@ public class Gun extends Shooter{
         setAttackTime(2, 2, 50);
     }
 
+    @Override
+    protected void pressAction(){
+        super.pressAction();
+        super.releaseAction();
+    }
+
     public double getSpread() {
         return Math.toRadians(spread*(Math.random()-0.5));
     }

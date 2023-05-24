@@ -54,47 +54,30 @@ public class Player extends Character {
                 changeHp(((HpItem) item).getAmount());
             }
         }
-        // If attack button is held, charge weapon
-        if(attacking){
-            if(getWeapon() instanceof Shooter) {
-                ((Shooter)getWeapon()).setProjectile(inventory.getProjectile((Shooter) getWeapon()));
-            }
-            getWeapon().startCharge();
-            if(getWeapon() instanceof Gun) {
-                getWeapon().startAttack();
-            }
-        }
     }
 
     @Override
     protected void updateWeapon(){
+        // If attack button is held, load weapon
+        if(attacking){
+            getWeapon().setProjectile(inventory.getProjectile(getWeapon()));
+        }
         if(autoAim){
             // If using auto aim, target the nearest enemy
-            Enemy closest = null;
-            for(Enemy enemy : map.enemies){
-                // Distance to the enemy
-                double t = Math.hypot(enemy.getX()-getX(), enemy.getY()-getY());
-                // If there is no enemy yet or the new enemy is closer and in sight range
-                if((closest==null||t < Math.hypot(closest.getX()-getX(), closest.getY()-getY())) &&
-                        map.inLineOfSight(this, enemy, getSightRange())){
-                    closest = enemy;
-                }
-            }
+            Point target = map.findClosestTarget(getCenter(), getSightRange(), Team.PLAYER);
             // If there is no target then point towards mouse
-            if(closest == null){
-                getWeapon().setTarget(map.getMouse().x, map.getMouse().y);
+            if(target == null){
+                getWeapon().setTarget(map.getMouse());
             }else{
-                getWeapon().setTarget(closest.getCenterX(), closest.getCenterY());
+                getWeapon().setTarget(target);
             }
         }else {
             // When not using auto aim, aim towards mouse
-            getWeapon().setTarget(map.getMouse().x, map.getMouse().y);
+            getWeapon().setTarget(map.getMouse());
         }
         super.updateWeapon();
-        // If a shooter weapon launched any projectiles, subtract them from inventory
-        if(getWeapon() instanceof Shooter){
-            inventory.changeProjectile(inventory.getSelectedProjectile(), -((Shooter) getWeapon()).ammoUsed());
-        }
+        // If a weapon launched any projectiles, subtract them from inventory
+        inventory.changeProjectile(inventory.getSelectedProjectile(), - getWeapon().ammoUsed());
     }
 
     public void setAutoAim(boolean autoAim) {
@@ -110,12 +93,7 @@ public class Player extends Character {
     }
 
     public void setAttacking(boolean attacking) {
-        if(!attacking && this.attacking){
-            // Attack on release weapons
-            if(getWeapon() instanceof Bow || getWeapon() instanceof NoWeapon) {
-                getWeapon().startAttack();
-            }
-        }
+        getWeapon().setPressed(attacking);
         this.attacking = attacking;
     }
 

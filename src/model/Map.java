@@ -132,7 +132,7 @@ public class Map {
                     // rgb(245, 0, 0)
                     case -720896 -> {
                         ShooterEnemy newEnemy = new ShooterEnemy(tileMap[x][y],
-                                new Bow(Team.ENEMY, this),
+                                new EnemyBow(Team.ENEMY, this),
                                 ProjectileType.ARROW,
                                 this);
                         tileMap[x][y].collider = newEnemy;
@@ -141,7 +141,7 @@ public class Map {
                     // rgb(241, 0, 0)
                     case -983040 -> {
                         ShooterEnemy newEnemy = new ShooterEnemy(tileMap[x][y],
-                                new Bow(Team.ENEMY, this),
+                                new EnemyBow(Team.ENEMY, this),
                                 ProjectileType.BOMB_ARROW,
                                 this);
                         tileMap[x][y].collider = newEnemy;
@@ -150,7 +150,7 @@ public class Map {
                     // rgb(235, 0, 0)
                     case -1376256 -> {
                         ShooterEnemy newEnemy = new ShooterEnemy(tileMap[x][y],
-                                new NoWeapon(Team.ENEMY, this),
+                                new EnemyNoWeapon(Team.ENEMY, this),
                                 ProjectileType.BOMB,
                                 this);
                         tileMap[x][y].collider = newEnemy;
@@ -261,14 +261,37 @@ public class Map {
     }
 
     // To be refactored to not use character references
-    public boolean inLineOfSight(Character c1, Character c2, double sightRange){
-        Line2D line = new Line2D.Float(c1.getCenterX(), c1.getCenterY(), c2.getCenterX(), c2.getCenterY());
+    private boolean inLineOfSight(Point p1, Point p2, double sightRange){
+        Line2D line = new Line2D.Float(p1.x, p1.y, p2.x, p2.y);
         for(TileObject collider : gameElements){
             if(line.intersects(collider.getRect())){
                 return false;
             }
         }
-        return Math.hypot(c1.getX()-c2.getX(), c1.getY()-c2.getY())<sightRange;
+        return Math.hypot(p1.x - p2.x, p1.y - p2.y)<sightRange;
+    }
+
+    public Point findClosestTarget(Point center, double sightRange, Team team){
+        Character closest = null;
+        if(team == Team.PLAYER){
+            for(Enemy enemy : enemies){
+                // Distance to the enemy
+                double t = Math.hypot(enemy.getX()-player.getX(), enemy.getY()-player.getY());
+                // If there is no enemy yet or the new enemy is closer and in sight range
+                if((closest==null||t < Math.hypot(closest.getX()-player.getX(), closest.getY()-player.getY())) &&
+                        inLineOfSight(center, enemy.getCenter(), sightRange)){
+                    closest = enemy;
+                }
+            }
+        }else if(team == Team.ENEMY){
+            if(inLineOfSight(center, player.getCenter(), sightRange)){
+                closest = player;
+            }
+        }
+        if(closest == null){
+            return null;
+        }
+        return new Point(closest.getCenterX(), closest.getCenterY());
     }
 
     // Return the end of a portal if applicable

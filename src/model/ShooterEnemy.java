@@ -14,27 +14,9 @@ public class ShooterEnemy extends Enemy {
     }
 
     @Override
-    protected void startCharge(){
+    protected void startAttack(){
         // Add a projectile when charging
         getWeapon().setProjectile(projectileType);
-        super.startCharge();
-    }
-
-    @Override
-    protected void startAttack(){
-        if(getWeapon() instanceof Bow){
-            // Bows only attack at max range when used by enemies
-            if(((Bow)getWeapon()).charged()) {
-                super.startAttack();
-            }
-        }else{
-            super.startAttack();
-        }
-    }
-
-    // Return a shooter for convenience
-    @Override
-    public Shooter getWeapon(){
-        return (Shooter)super.getWeapon();
+        super.startAttack();
     }
 }
