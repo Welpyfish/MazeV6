@@ -18,12 +18,7 @@ public class Inventory {
         weapons = new LinkedHashMap<>();
         projectiles = new LinkedHashMap<>();
 
-        // Starting amount of projectiles
-        projectiles.put(ProjectileType.ARROW, 1);
-        projectiles.put(ProjectileType.BOMB_ARROW, 1);
-        projectiles.put(ProjectileType.BULLET, 5);
-        projectiles.put(ProjectileType.BOMB, 0);
-        selectedProjectile = ProjectileType.ARROW;
+        selectedProjectile = null;
     }
 
     // Called by player to load a projectile onto a shooter weapon
@@ -60,8 +55,8 @@ public class Inventory {
         }
     }
 
-    public LinkedHashMap getProjectileList(WeaponClass weaponClass){
-        LinkedHashMap<ProjectileType, Integer> result = new LinkedHashMap<>();
+    public ConcurrentHashMap<ProjectileType, Integer> getProjectileList(WeaponClass weaponClass){
+        ConcurrentHashMap<ProjectileType, Integer> result = new ConcurrentHashMap<>();
         for(ProjectileType type : projectiles.keySet()){
             if(WeaponID.compatible(weaponClass, type)){
                 result.put(type, projectiles.get(type));

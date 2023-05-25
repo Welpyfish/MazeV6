@@ -183,6 +183,12 @@ public class Map {
                                 tileMap[x][y].getY()+GameConstants.tileSize/2,
                                 ProjectileType.BOMB_ARROW, 3));
                     }
+                    // rgb(105, 105, 105)
+                    case -9868951 -> {
+                        items.add(new ProjectileItem(tileMap[x][y].getX()+GameConstants.tileSize/2,
+                                tileMap[x][y].getY()+GameConstants.tileSize/2,
+                                ProjectileType.BULLET, 5));
+                    }
                     // rgb(0, 245, 245)
                     case -16714251 -> {
                         items.add(new WeaponItem(tileMap[x][y].getX()+GameConstants.tileSize/2,

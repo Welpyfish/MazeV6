@@ -80,7 +80,7 @@ public class Enemy extends Character {
     }
 
     // Move towards a point
-    void moveTowards(int x, int y){
+    private void moveTowards(int x, int y){
         if(Math.abs(x-this.getX())>Math.abs(this.getY()-y)){
             updateMovement(Integer.signum(x-this.getX()), 0);
         }else{
@@ -89,7 +89,7 @@ public class Enemy extends Character {
     }
 
     // Move away from a point
-    void moveAway(int x, int y){
+    private void moveAway(int x, int y){
         if(Math.abs(x-this.getX())>Math.abs(this.getY()-y)){
             updateMovement(-Integer.signum(x-this.getX()), 0);
         }else{

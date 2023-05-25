@@ -13,6 +13,8 @@ public class ClickButton extends AbstractAction {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        button.doClick();
+        if(button!=null) {
+            button.doClick();
+        }
     }
 }

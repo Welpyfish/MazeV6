@@ -2,7 +2,7 @@ package controller;
 
 import controller.action.*;
 import model.Map;
-import view.UIButton;
+import model.weapon.ProjectileType;
 import view.UIManager;
 
 import javax.swing.*;
@@ -41,8 +41,8 @@ public class KeyBindings {
         uiManager.getActionMap().put("Move right", new MoveRight(map.player));
         uiManager.getActionMap().put("Stop move right", new StopMoveRight(map.player));
 
-        uiManager.getActionMap().put("Select arrow", new ClickButton(uiManager.getButton(UIButton.ARROW)));
-        uiManager.getActionMap().put("Select bomb arrow", new ClickButton(uiManager.getButton(UIButton.BOMB_ARROW)));
+        uiManager.getActionMap().put("Select arrow", new ClickButton(uiManager.getButton(ProjectileType.ARROW)));
+        uiManager.getActionMap().put("Select bomb arrow", new ClickButton(uiManager.getButton(ProjectileType.BOMB_ARROW)));
 
         uiManager.getActionMap().put("Auto aim", new AbstractAction() {
             @Override

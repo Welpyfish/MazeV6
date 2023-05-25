@@ -21,6 +21,17 @@ public class SelectAmmo extends AbstractAction {
         }
     }
 
+    public SelectAmmo(Player player, ProjectileType ammoType){
+        super("0");
+        this.player = player;
+        projectileType = ammoType;
+        switch (ammoType){
+            case ARROW -> putValue(Action.LARGE_ICON_KEY, ImageLoader.loadIcon("arrow", 36, 36));
+            case BOMB_ARROW -> putValue(Action.LARGE_ICON_KEY, ImageLoader.loadIcon("bombarrow", 36, 36));
+            case BULLET -> putValue(Action.LARGE_ICON_KEY, ImageLoader.loadIcon("bullet", 36, 36));
+        }
+    }
+
     @Override
     public void actionPerformed(ActionEvent e) {
         player.inventory.setSelectedProjectile(projectileType);

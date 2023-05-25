@@ -1,6 +1,7 @@
 package view;
 
 import controller.GameEngine;
+import model.weapon.ProjectileType;
 
 import javax.swing.*;
 
@@ -22,7 +23,8 @@ public class UIManager extends JPanel {
         repaint();
     }
 
-    public JButton getButton(UIButton button){
+    public JButton getButton(ProjectileType button){
+        System.out.println(inventoryUI.getButton(button));
         return inventoryUI.getButton(button);
     }
 }
