@@ -1,16 +1,13 @@
 package model;
 
-import model.weapon.ProjectileType;
-import model.weapon.Shooter;
-import model.weapon.Weapon;
-import model.weapon.WeaponType;
+import model.weapon.*;
 
 import java.util.LinkedHashMap;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class Inventory {
     // Dictionary of all weapons by weapon type
-    private LinkedHashMap<WeaponType, Weapon> weapons;
+    private LinkedHashMap<WeaponID, Weapon> weapons;
     // Dictionary of the amount of each projectile type
     private LinkedHashMap<ProjectileType, Integer> projectiles;
     // Current selected projectile
@@ -22,29 +19,28 @@ public class Inventory {
         projectiles = new LinkedHashMap<>();
 
         // Starting amount of projectiles
-        //projectiles.put(ProjectileType.ARROW, 10);
+        projectiles.put(ProjectileType.ARROW, 1);
         projectiles.put(ProjectileType.BOMB_ARROW, 1);
         projectiles.put(ProjectileType.BULLET, 5);
-        //projectiles.put(ProjectileType.BOMB, 0);
+        projectiles.put(ProjectileType.BOMB, 0);
         selectedProjectile = ProjectileType.ARROW;
     }
 
     // Called by player to load a projectile onto a shooter weapon
     public ProjectileType getProjectile(Weapon weapon){
         // Auto select an appropriate ammo type (subject to change)
-        if(projectiles.get(selectedProjectile)<=0 || !weapon.compatibleWith(selectedProjectile)) {
+        if(!projectiles.containsKey(selectedProjectile) ||
+                !WeaponID.compatible(weapon.getWeaponID(), selectedProjectile)) {
+            selectedProjectile = null;
             for (ProjectileType type : projectiles.keySet()) {
-                if (projectiles.get(type)>0 && weapon.compatibleWith(type)){
+                if (WeaponID.compatible(weapon.getWeaponID(), type)){
                     selectedProjectile = type;
                     break;
                 }
             }
         }
         // Return either an available and compatible projectile type or null
-        if(projectiles.get(selectedProjectile) > 0 && weapon.compatibleWith(selectedProjectile)){
-            return selectedProjectile;
-        }
-        return null;
+        return selectedProjectile;
     }
 
     // Return the select projectile type
@@ -59,9 +55,19 @@ public class Inventory {
             if(projectiles.get(type) <= 0){
                 projectiles.remove(type);
             }
-        }else{
+        }else if(amount > 0){
             projectiles.put(type, amount);
         }
+    }
+
+    public LinkedHashMap getProjectileList(WeaponClass weaponClass){
+        LinkedHashMap<ProjectileType, Integer> result = new LinkedHashMap<>();
+        for(ProjectileType type : projectiles.keySet()){
+            if(WeaponID.compatible(weaponClass, type)){
+                result.put(type, projectiles.get(type));
+            }
+        }
+        return result;
     }
 
     //
@@ -77,10 +83,15 @@ public class Inventory {
     }
 
     public Weapon getWeapon(WeaponType weaponType) {
-        return weapons.get(weaponType);
+        for(WeaponID id : weapons.keySet()){
+            if(id.weaponType() == weaponType){
+                return weapons.get(id);
+            }
+        }
+        return null;
     }
 
     public void addWeapon(Weapon weapon) {
-        weapons.put(weapon.getWeaponType(), weapon);
+        weapons.put(weapon.getWeaponID(), weapon);
     }
 }

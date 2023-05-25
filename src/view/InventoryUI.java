@@ -19,8 +19,10 @@ public class InventoryUI extends JPanel {
     private Player player;
     private GridBagLayout gridBagLayout;
 
+    private LinkedHashMap<ProjectileType, Integer> arrowValues;
+    private JPanel arrowList;
+
     private HealthBar hp;
-    //private LinkedHashMap<ProjectileType, InventoryItem> arrows;
     private InventoryItem arrows;
     private InventoryItem bombArrows;
     private InventoryItem bullets;
@@ -58,6 +60,8 @@ public class InventoryUI extends JPanel {
 
         bombs = new InventoryItem(new SelectProjectile(player, "bomb"));
         this.add(bombs, new ConstraintBuilder(0, 5));
+
+        // New stuff here
 
         setBorder(new LineBorder(Color.black, 3, false));
         //setFocusable(true);

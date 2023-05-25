@@ -3,15 +3,14 @@ package model.weapon;
 import model.*;
 import model.Character;
 
-public class NoWeapon extends Shooter{
+public final class NoWeapon extends Shooter{
     private int currentRange;
 
     public NoWeapon(Team team, Map map){
         super(team, map);
-        addProjectileType(ProjectileType.BOMB);
         setAnimation(new Animation(ImageLoader.hand));
         setRange(GameConstants.tileSize*5);
-        setWeaponType(WeaponType.NONE);
+        setWeaponID(new WeaponID(WeaponClass.THROW, WeaponType.NONE));
         setDamage(0);
         setAttackTime(2, 2, 10);
     }

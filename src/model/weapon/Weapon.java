@@ -15,7 +15,7 @@ public class Weapon extends Sprite {
     // Base damage added to projectiles
     private int damage;
     // Weapon id
-    private WeaponType weaponType;
+    private WeaponID weaponID;
 
     // Frame is which frame the state is currently on
     // Time is the number of frame for that state
@@ -126,10 +126,6 @@ public class Weapon extends Sprite {
         return 0;
     }
 
-    public boolean compatibleWith(ProjectileType type){
-        return false;
-    }
-
     public double getAngle() {
         return angle;
     }
@@ -161,12 +157,12 @@ public class Weapon extends Sprite {
         this.range = range;
     }
 
-    public WeaponType getWeaponType() {
-        return weaponType;
+    public WeaponID getWeaponID() {
+        return weaponID;
     }
 
-    protected void setWeaponType(WeaponType weaponType) {
-        this.weaponType = weaponType;
+    protected void setWeaponID(WeaponID weaponID) {
+        this.weaponID = weaponID;
     }
 
     protected double getDistance() {

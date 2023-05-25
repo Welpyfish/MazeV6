@@ -1,9 +1,8 @@
 package model.weapon;
 
-public enum WeaponType {
+public enum WeaponClass {
     SWORD,
     BOW,
     GUN,
-    NONE
+    THROW
 }
-

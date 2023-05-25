@@ -22,9 +22,9 @@ public class Player extends Character {
         createWeapon(WeaponType.NONE);
         createWeapon(WeaponType.BOW);
         createWeapon(WeaponType.GUN);
-        setWeapon(inventory.getWeapon(WeaponType.BOW));
+        setWeapon(inventory.getWeapon(WeaponType.NONE));
 
-        changeHp(5);
+        changeHp(50);
         setSightRange(GameConstants.tileSize*15);
         movementDirection = new Point(0, 0);
     }

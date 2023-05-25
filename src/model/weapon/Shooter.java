@@ -8,8 +8,6 @@ import java.util.HashSet;
 
 // A weapon the fires projectiles
 public class Shooter extends Weapon{
-    // Compatible projectile types
-    private HashSet<ProjectileType> projectileTypes;
     // Current projectile type
     private ProjectileType projectileType;
     // Current loaded projectile
@@ -20,7 +18,6 @@ public class Shooter extends Weapon{
     // Creates a shooter
     public Shooter(Team team, Map map){
         super(team, map);
-        projectileTypes = new HashSet<>();
     }
 
     @Override
@@ -82,12 +79,6 @@ public class Shooter extends Weapon{
         }
     }
 
-    // Check if a projectile type is compatible
-    @Override
-    public boolean compatibleWith(ProjectileType type){
-        return projectileTypes.contains(type);
-    }
-
     @Override
     protected double getDistance() {
         if(projectile != null){
@@ -106,9 +97,5 @@ public class Shooter extends Weapon{
             case BOMB -> result = new Bomb(getTeam(), map);
         }
         return result;
-    }
-
-    protected void addProjectileType(ProjectileType projectileType){
-        projectileTypes.add(projectileType);
     }
 }

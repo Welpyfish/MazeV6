@@ -18,7 +18,6 @@ public class InventoryItem extends JButton {
         if(amount!=value){
             amount = value;
             getAction().putValue(Action.NAME, ""+amount);
-            setVisible(value != 0);
         }
     }
 }

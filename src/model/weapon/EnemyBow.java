@@ -11,12 +11,9 @@ public class EnemyBow extends Shooter {
     public EnemyBow(Team team, Map map){
         super(team, map);
         setAnimation(new Animation(ImageLoader.bow));
-        // Add compatible projectile types (arrows)
-        addProjectileType(ProjectileType.ARROW);
-        addProjectileType(ProjectileType.BOMB_ARROW);
+        setWeaponID(new WeaponID(WeaponClass.BOW, WeaponType.BOW));
         spread = 0;
         setRange(GameConstants.tileSize*9);
-        setWeaponType(WeaponType.BOW);
         setAttackTime(20, 2, 1);
     }
 

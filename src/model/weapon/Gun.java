@@ -8,11 +8,10 @@ public class Gun extends Shooter{
 
     public Gun(Team team, Map map){
         super(team, map);
-        addProjectileType(ProjectileType.BULLET);
         setAnimation(new Animation(ImageLoader.gun));
         setRange(GameConstants.tileSize*12);
         spread = 0;
-        setWeaponType(WeaponType.GUN);
+        setWeaponID(new WeaponID(WeaponClass.GUN, WeaponType.GUN));
         setAttackTime(2, 2, 50);
     }
 
