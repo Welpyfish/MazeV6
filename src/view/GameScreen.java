@@ -1,6 +1,7 @@
 package view;
 
 import model.*;
+import model.Character;
 import model.item.*;
 import model.weapon.Projectile;
 
@@ -43,17 +44,17 @@ public class GameScreen extends JPanel {
             }
         }
 
-        drawPlayer(g2, map.player);
         g2.setTransform(reset);
         AffineTransform transform = new AffineTransform();
-        for(Enemy enemy : map.enemies) {
-            drawEnemy(g2, enemy);
+        for(Character character : map.characters) {
+            drawCharacter(g2, character);
             g2.setTransform(reset);
         }
+        drawPlayer(g2, map.player);
 
         for(Projectile projectile : map.projectiles){
             transform = new AffineTransform();
-            transform.rotate(projectile.angle, projectile.getX(), projectile.getY());
+            transform.rotate(projectile.getAngle(), projectile.getX(), projectile.getY());
             g2.transform(transform);
             g2.drawImage(projectile.getCurrentImage(), projectile.getX()-projectile.getCurrentImage().getWidth(),
                     projectile.getY()-projectile.getCurrentImage().getHeight()/2, null);
@@ -88,30 +89,21 @@ public class GameScreen extends JPanel {
         g2.drawString(player.getHp()+" ", player.getX(), player.getY());
         g2.setColor(Color.GREEN);
         g2.fillRect(player.getX(), player.getY(), GameConstants.tileSize, GameConstants.tileSize);
-        AffineTransform transform = new AffineTransform();
-        transform.rotate(player.getWeapon().getAngle(),
-                player.getWeapon().getX(),
-                player.getWeapon().getY());
-        g2.transform(transform);
-        g2.drawImage(player.getWeapon().getCurrentImage(),
-                player.getWeapon().getX(),
-                player.getWeapon().getY()-player.getWeapon().getCurrentImage().getHeight()/2,
-                null);
         g2.setColor(Color.BLACK);
     }
 
-    private void drawEnemy(Graphics2D g2, Enemy enemy){
+    private void drawCharacter(Graphics2D g2, Character character){
         AffineTransform transform = new AffineTransform();
-        g2.drawString(enemy.getHp()+" ", enemy.getX(), enemy.getY());
+        g2.drawString(character.getHp()+" ", character.getX(), character.getY());
         g2.setColor(Color.RED);
-        g2.fillRect(enemy.getX(), enemy.getY(), GameConstants.tileSize, GameConstants.tileSize);
-        transform.rotate(enemy.getWeapon().getAngle(),
-                enemy.getWeapon().getX(),
-                enemy.getWeapon().getY());
+        g2.fillRect(character.getX(), character.getY(), GameConstants.tileSize, GameConstants.tileSize);
+        transform.rotate(character.getWeapon().getAngle(),
+                character.getWeapon().getX(),
+                character.getWeapon().getY());
         g2.transform(transform);
-        g2.drawImage(enemy.getWeapon().getCurrentImage(),
-                enemy.getWeapon().getX(),
-                enemy.getWeapon().getY()-enemy.getWeapon().getCurrentImage().getHeight()/2,
+        g2.drawImage(character.getWeapon().getCurrentImage(),
+                character.getWeapon().getX(),
+                character.getWeapon().getY()-character.getWeapon().getCurrentImage().getHeight()/2,
                 null);
         g2.setColor(Color.BLACK);
     }

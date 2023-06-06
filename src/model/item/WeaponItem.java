@@ -15,8 +15,6 @@ public class WeaponItem extends Item {
         switch (weaponType){
             case BOW -> setAnimation(new Animation(ImageLoader.bow));
             case GUN -> setAnimation(new Animation(ImageLoader.gun));
-            case NONE -> setAnimation(new Animation(ImageLoader.hand));
-            case SWORD -> setAnimation(new Animation(ImageLoader.arrow));
         }
     }
 

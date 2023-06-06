@@ -6,7 +6,7 @@ import model.weapon.*;
 public class ShooterEnemy extends Enemy {
     private ProjectileType projectileType;
 
-    public ShooterEnemy(Tile tile, Shooter shooter, ProjectileType projectileType, Map map) {
+    public ShooterEnemy(Tile tile, Weapon shooter, ProjectileType projectileType, Map map) {
         super(tile, shooter, map);
         // Add spread to shooters later
         // getWeapon().setSpread(5);

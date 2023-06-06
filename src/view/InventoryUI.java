@@ -6,7 +6,9 @@ import controller.action.SelectProjectile;
 import controller.action.SelectWeapon;
 import model.*;
 import model.weapon.ProjectileType;
+import model.weapon.Weapon;
 import model.weapon.WeaponClass;
+import model.weapon.WeaponType;
 
 import javax.swing.*;
 import javax.swing.border.LineBorder;
@@ -22,17 +24,15 @@ public class InventoryUI extends JPanel {
     private Player player;
     private GridBagLayout gridBagLayout;
 
-    private LinkedHashMap<ProjectileType, InventoryItem> arrowButtons;
-    private JPanel arrowPanel;
+    private ProjectileList arrows;
+    private ProjectileList bullets;
+    private ProjectileList projectiles;
 
-    private LinkedHashMap<ProjectileType, InventoryItem> bulletButtons;
-    private JPanel bulletPanel;
+    private WeaponList swords;
+    private WeaponList bows;
+    private WeaponList guns;
 
     private HealthBar hp;
-    private InventoryItem bombs;
-
-    private JButton bow;
-    private JButton gun;
 
     public InventoryUI(GameEngine gameEngine){
         this.gameEngine = gameEngine;
@@ -46,22 +46,23 @@ public class InventoryUI extends JPanel {
         hp = new HealthBar();
         this.add(hp, new ConstraintBuilder(0, 0).setW(5));
 
-        bow = new JButton(new SelectWeapon(player, "bow"));
-        this.add(bow, new ConstraintBuilder(0, 1));
+        swords = new WeaponList(player);
+        this.add(swords, new ConstraintBuilder(0, 1));
 
-        arrowButtons = new LinkedHashMap<>();
-        arrowPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        this.add(arrowPanel, new ConstraintBuilder(1, 1));
+        bows = new WeaponList(player);
+        this.add(bows, new ConstraintBuilder(0, 2));
 
-        gun = new JButton(new SelectWeapon(player, "gun"));
-        this.add(gun, new ConstraintBuilder(0, 2));
+        arrows = new ProjectileList(player);
+        this.add(arrows, new ConstraintBuilder(1, 2));
 
-        bulletButtons = new LinkedHashMap<>();
-        bulletPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        this.add(bulletPanel, new ConstraintBuilder(1, 2));
+        guns = new WeaponList(player);
+        this.add(guns, new ConstraintBuilder(0, 3));
 
-        bombs = new InventoryItem(new SelectProjectile(player, "bomb"));
-        this.add(bombs, new ConstraintBuilder(0, 5));
+        bullets = new ProjectileList(player);
+        this.add(bullets, new ConstraintBuilder(1, 3));
+
+        projectiles = new ProjectileList(player);
+        this.add(projectiles, new ConstraintBuilder(0, 4));
 
         setBorder(new LineBorder(Color.black, 3, false));
         //setFocusable(true);
@@ -72,51 +73,17 @@ public class InventoryUI extends JPanel {
 
     public void update(){
         hp.update(player.getHp());
-        bombs.update(inventory.getProjectileCount(ProjectileType.BOMB));
 
-        updateProjectiles(arrowPanel, arrowButtons, inventory.getProjectileList(WeaponClass.BOW));
-        updateProjectiles(bulletPanel, bulletButtons, inventory.getProjectileList(WeaponClass.GUN));
-    }
+        swords.updateItems(inventory.getWeaponList(WeaponClass.SWORD));
+        bows.updateItems(inventory.getWeaponList(WeaponClass.BOW));
+        guns.updateItems(inventory.getWeaponList(WeaponClass.GUN));
 
-    private void updateProjectiles(JPanel panel,
-                                   LinkedHashMap<ProjectileType, InventoryItem> items,
-                              ConcurrentHashMap<ProjectileType, Integer> valueList){
-
-        ArrayList<ProjectileType> removed = new ArrayList<>();
-        // Remove all projectile buttons that are not in inventory
-        for(ProjectileType type : items.keySet()){
-            if(!valueList.containsKey(type)){
-                panel.remove(items.get(type));
-                removed.add(type);
-            }
-        }
-        for(ProjectileType type : removed){
-            items.remove(type);
-        }
-
-        // Match projectile button values to those in inventory
-        for(ProjectileType type : valueList.keySet()){
-            if(!items.containsKey(type)){
-                InventoryItem newProjectile = new InventoryItem(
-                        new SelectAmmo(player, type));
-                items.put(type, newProjectile);
-                panel.add(newProjectile);
-            }
-            items.get(type).update(valueList.get(type));
-        }
+        arrows.updateItems(inventory.getProjectileList(WeaponClass.BOW));
+        bullets.updateItems(inventory.getProjectileList(WeaponClass.GUN));
+        projectiles.updateItems(inventory.getProjectileList(WeaponClass.THROW));
     }
 
     public JButton getButton(ProjectileType projectileType){
-        switch (projectileType){
-            case ARROW -> {
-                return arrowButtons.get(ProjectileType.ARROW);
-            }
-            case BOMB_ARROW -> {
-                return arrowButtons.get(ProjectileType.BOMB);
-            }
-            default -> {
-                return null;
-            }
-        }
+        return null;
     }
 }

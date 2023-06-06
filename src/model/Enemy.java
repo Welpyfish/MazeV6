@@ -14,7 +14,7 @@ public class Enemy extends Character {
         super(tile, map);
         setWeapon(weapon);
         changeHp(3);
-        setSightRange(Math.max(GameConstants.tileSize*10, getWeapon().getRange()+GameConstants.tileSize*3));
+        setSightRange(Math.max(GameConstants.tileSize*10, getWeapon().getMaxRange()+GameConstants.tileSize*3));
     }
 
     //
@@ -29,9 +29,9 @@ public class Enemy extends Character {
 
     public void move(){
         if(movementDelay <= 0) {
-            if (Math.hypot(getX() - map.player.getX(), getY() - map.player.getY()) > getWeapon().getRange()-GameConstants.tileSize*2) {
+            if (Math.hypot(getX() - map.player.getX(), getY() - map.player.getY()) > getWeapon().getMaxRange()-GameConstants.tileSize*2) {
                 moveTowards(map.player.getX(), map.player.getY());
-            } else if (Math.hypot(getX() - map.player.getX(), getY() - map.player.getY()) < GameConstants.tileSize*4) {
+            } else if (Math.hypot(getX() - map.player.getX(), getY() - map.player.getY()) < getWeapon().getMinRange()) {
                 moveAway(map.player.getX(), map.player.getY());
             }else{
                 updateMovement(0, 0);
@@ -54,7 +54,7 @@ public class Enemy extends Character {
             // Aim at player when in sight
             getWeapon().setTarget(target);
         }else{
-            getWeapon().setPressed(false);
+            getWeapon().setTrigger(false);
         }
         if(attackDelay > 0) {
             // Count down the delay
@@ -74,7 +74,7 @@ public class Enemy extends Character {
     }
 
     protected void startAttack(){
-        getWeapon().setPressed(true);
+        getWeapon().setTrigger(true);
         // Wait a short time before allowing another attack
         attackDelay = (int) (GameConstants.fps*5 + Math.random()*GameConstants.fps);
     }

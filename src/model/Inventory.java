@@ -2,6 +2,7 @@ package model;
 
 import model.weapon.*;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -65,6 +66,16 @@ public class Inventory {
         return result;
     }
 
+    public ArrayList<WeaponType> getWeaponList(WeaponClass weaponClass){
+        ArrayList<WeaponType> result = new ArrayList<>();
+        for(WeaponID id : weapons.keySet()){
+            if(id.weaponClass() == weaponClass){
+                result.add(id.weaponType());
+            }
+        }
+        return result;
+    }
+
     //
     public void setSelectedProjectile(ProjectileType selectedProjectile) {
         this.selectedProjectile = selectedProjectile;
@@ -87,6 +98,8 @@ public class Inventory {
     }
 
     public void addWeapon(Weapon weapon) {
-        weapons.put(weapon.getWeaponID(), weapon);
+        if(!weapons.containsKey(weapon.getWeaponID())) {
+            weapons.put(weapon.getWeaponID(), weapon);
+        }
     }
 }

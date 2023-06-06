@@ -5,6 +5,7 @@ import model.weapon.*;
 
 import java.awt.*;
 import java.awt.geom.Line2D;
+import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.util.*;
 
@@ -12,7 +13,7 @@ import java.util.*;
 public class Map {
     public Tile[][] tileMap;
     public Player player;
-    public ArrayList<Enemy> enemies;
+    public ArrayList<Character> characters;
     public ArrayList<TileObject> gameElements;
     public ArrayList<Projectile> projectiles;
     public ArrayList<Item> items;
@@ -23,11 +24,13 @@ public class Map {
     private Map(){
         gameElements = new ArrayList<>();
         projectiles = new ArrayList<>();
-        enemies = new ArrayList<>();
+        characters = new ArrayList<>();
         items = new ArrayList<>();
         effects = new ArrayList<>();
         portals = new ArrayList<>();
         mouse = new Point(0, 0);
+        new WeaponFactory(this);
+        ImageLoader.loadResources();
     }
 
     public Map(String[] levelMap){
@@ -43,33 +46,74 @@ public class Map {
     }
 
     public void update(){
-        for(int i= projectiles.size()-1; i>=0; i--){
-            if(projectiles.get(i).isHit()){
+        updateObjects();
+        manageInteractions();
+        removeObjects();
+    }
+
+    private void updateObjects(){
+        for(Projectile projectile : projectiles){
+            projectile.update();
+        }
+
+        for(Character character : characters){
+            character.update();
+        }
+
+        for(VisualEffect effect : effects){
+            effect.update();
+        }
+
+        for(TileObject element : gameElements){
+            element.update();
+        }
+
+        for(Item item : items){
+            item.update();
+        }
+    }
+
+    private void manageInteractions(){
+        for(Projectile projectile : projectiles){
+            projectileCollision(projectile);
+        }
+
+        for(Character character : characters){
+            if(character.getWeapon() instanceof Melee){
+                weaponCollision((Melee) character.getWeapon());
+            }
+        }
+    }
+
+    private void removeObjects(){
+        for(int i=projectiles.size()-1; i>=0; i--){
+            if(projectiles.get(i).removed()){
+                if(projectiles.get(i).getHitRadius() > 0){
+                    createExplosion(projectiles.get(i));
+                }
                 projectiles.remove(i);
-            }else {
-                projectiles.get(i).update();
             }
         }
 
-        if(player.getHp()<=0){
-            System.exit(0);
-        }
-        player.update();
-
-        for(int i= enemies.size()-1; i>=0; i--){
-            if(enemies.get(i).getHp()<=0){
-                enemies.get(i).getWeapon().reset();
-                enemies.remove(i);
-            }else {
-                enemies.get(i).update();
+        for(int i=characters.size()-1; i>=0; i--){
+            if(characters.get(i).removed()){
+                WeaponType weaponType = characters.get(i).getWeapon().getWeaponID().weaponType();
+                if(player.inventory.getWeapon(weaponType)==null && weaponType!=WeaponType.NONE) {
+                    items.add(new WeaponItem(characters.get(i).getX(), characters.get(i).getY(), weaponType));
+                }
+                characters.remove(i);
             }
         }
 
-        for(int i= effects.size()-1; i>=0; i--){
-            if(effects.get(i).finished()){
+        for(int i=effects.size()-1; i>=0; i--){
+            if(effects.get(i).removed()){
                 effects.remove(i);
-            }else {
-                effects.get(i).update();
+            }
+        }
+
+        for(int i=items.size()-1; i>=0; i--){
+            if(items.get(i).removed()){
+                items.remove(i);
             }
         }
     }
@@ -128,42 +172,43 @@ public class Map {
                     case -14503604 -> {
                         player = new Player(tileMap[x][y], this);
                         tileMap[x][y].collider = player;
+                        characters.add(player);
                     }
                     // rgb(245, 0, 0)
                     case -720896 -> {
                         ShooterEnemy newEnemy = new ShooterEnemy(tileMap[x][y],
-                                new EnemyBow(Team.ENEMY, this),
+                                WeaponFactory.createWeapon(WeaponType.BOW, Team.ENEMY),
                                 ProjectileType.ARROW,
                                 this);
                         tileMap[x][y].collider = newEnemy;
-                        enemies.add(newEnemy);
+                        characters.add(newEnemy);
                     }
                     // rgb(241, 0, 0)
                     case -983040 -> {
                         ShooterEnemy newEnemy = new ShooterEnemy(tileMap[x][y],
-                                new EnemyBow(Team.ENEMY, this),
+                                WeaponFactory.createWeapon(WeaponType.BOW, Team.ENEMY),
                                 ProjectileType.BOMB_ARROW,
                                 this);
                         tileMap[x][y].collider = newEnemy;
-                        enemies.add(newEnemy);
+                        characters.add(newEnemy);
                     }
                     // rgb(235, 0, 0)
                     case -1376256 -> {
                         ShooterEnemy newEnemy = new ShooterEnemy(tileMap[x][y],
-                                new EnemyNoWeapon(Team.ENEMY, this),
+                                WeaponFactory.createWeapon(WeaponType.NONE, Team.ENEMY),
                                 ProjectileType.BOMB,
                                 this);
                         tileMap[x][y].collider = newEnemy;
-                        enemies.add(newEnemy);
+                        characters.add(newEnemy);
                     }
                     // rgb(225, 0, 0)
                     case -2031616 -> {
                         ShooterEnemy newEnemy = new ShooterEnemy(tileMap[x][y],
-                                new Gun(Team.ENEMY, this),
+                                WeaponFactory.createWeapon(WeaponType.GUN, Team.ENEMY),
                                 ProjectileType.BULLET,
                                 this);
                         tileMap[x][y].collider = newEnemy;
-                        enemies.add(newEnemy);
+                        characters.add(newEnemy);
                     }
                     // rgb(0, 0, 0)
                     case -16777216 -> {
@@ -179,6 +224,12 @@ public class Map {
                     }
                     // rgb(33, 33, 33)
                     case -14606047 -> {
+                        items.add(new ProjectileItem(tileMap[x][y].getX()+GameConstants.tileSize/2,
+                                tileMap[x][y].getY()+GameConstants.tileSize/2,
+                                ProjectileType.ELECTRIC_ARROW, 3));
+                    }
+                    // rgb(43, 43, 43)
+                    case -0 -> {
                         items.add(new ProjectileItem(tileMap[x][y].getX()+GameConstants.tileSize/2,
                                 tileMap[x][y].getY()+GameConstants.tileSize/2,
                                 ProjectileType.BOMB_ARROW, 3));
@@ -244,48 +295,70 @@ public class Map {
         this.mouse = mouse;
     }
 
-    // Check if a projectile hit a character
-    // May change to not return a tile object and manage projectile destruction in map
-    public TileObject projectileCollision(int x, int y, Team team){
+    // Check projectile collisions
+    private void projectileCollision(Projectile projectile){
         for (TileObject collider : gameElements) {
-            if (collider.getRect().contains(x, y)) {
-                return collider;
+            if (collider.getRect().contains(projectile.getX(), projectile.getY())) {
+                projectile.remove();
             }
         }
-        if(team != Team.ENEMY) {
-            for (Enemy enemy : enemies) {
-                if (enemy.getRect().contains(x, y)) {
-                    return enemy;
-                }
-            }
-        }else if(team != Team.PLAYER){
-            if (player.getRect().contains(x, y)) {
-                return player;
+        for(Character character : characters){
+            if (projectile.getTeam() != character.getWeapon().getTeam() &&
+                    character.getRect().contains(projectile.getX(), projectile.getY())) {
+                projectile.remove();
+                character.changeHp(-projectile.getDamage());
             }
         }
-        return null;
+    }
+
+    private void createExplosion(Projectile projectile){
+        for(Character character : characters){
+            if(character.distance(projectile.getX(), projectile.getY()) <= projectile.getHitRadius()){
+                character.changeHp(-projectile.getExplosionDamage());
+            }
+        }
+        effects.add(new VisualEffect(projectile.getX(), projectile.getY(), ImageLoader.getAnimation("explosion")));
+    }
+
+    // Check if a weapon hit a character
+    private void weaponCollision(Melee weapon){
+        Line2D.Double weaponLine = new Line2D.Double(weapon.getX(), weapon.getY(),
+                weapon.getX()+weapon.getCurrentRange()*Math.cos(weapon.getAngle()),
+                weapon.getY()+weapon.getCurrentRange()*Math.sin(weapon.getAngle()));
+        for (Character character : characters) {
+            if (weapon.getTeam() != character.getWeapon().getTeam() &&
+                weaponLine.intersects(character.getRect()) &&
+                    inLineOfSight(weaponLine.getP1(), character.getCenter()) &&
+                    weapon.addTarget(character)) {
+                character.changeHp(-weapon.getDamage());
+            }
+        }
+    }
+
+    private boolean inLineOfSight(Point2D p1, Point2D p2) {
+        Line2D line = new Line2D.Double(p1.getX(), p1.getY(), p2.getX(), p2.getY());
+        for (TileObject collider : gameElements) {
+            if (line.intersects(collider.getRect())) {
+                return false;
+            }
+        }
+        return true;
     }
 
     // To be refactored to not use character references
     private boolean inLineOfSight(Point p1, Point p2, double sightRange){
-        Line2D line = new Line2D.Float(p1.x, p1.y, p2.x, p2.y);
-        for(TileObject collider : gameElements){
-            if(line.intersects(collider.getRect())){
-                return false;
-            }
-        }
-        return Math.hypot(p1.x - p2.x, p1.y - p2.y)<sightRange;
+        return inLineOfSight(p1, p2) && Math.hypot(p1.x - p2.x, p1.y - p2.y)<sightRange;
     }
 
     public Point findClosestTarget(Point center, double sightRange, Team team){
         Character closest = null;
         if(team == Team.PLAYER){
-            for(Enemy enemy : enemies){
+            for(Character enemy : characters){
                 // Distance to the enemy
                 double t = Math.hypot(enemy.getX()-player.getX(), enemy.getY()-player.getY());
                 // If there is no enemy yet or the new enemy is closer and in sight range
                 if((closest==null||t < Math.hypot(closest.getX()-player.getX(), closest.getY()-player.getY())) &&
-                        inLineOfSight(center, enemy.getCenter(), sightRange)){
+                        inLineOfSight(center, enemy.getCenter(), sightRange) && enemy.getWeapon().getTeam()!=Team.PLAYER){
                     closest = enemy;
                 }
             }
@@ -314,9 +387,8 @@ public class Map {
     public Item checkItems(Rectangle playerRectangle){
         for(Item item : items){
             if(playerRectangle.contains(item.getX(), item.getY())){
-                Item temp = item;
-                items.remove(item);
-                return temp;
+                item.remove();
+                return item;
             }
         }
         return null;

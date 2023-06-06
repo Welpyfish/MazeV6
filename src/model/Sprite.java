@@ -5,14 +5,29 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Deque;
 
+// done round one uml
+
 // basic object
 public class Sprite {
     private double x, y;
+    private boolean remove;
     private Animation animation;
 
     public Sprite(double x, double y){
         this.x = x;
         this.y = y;
+    }
+
+    public Sprite(double x, double y, Animation animation){
+        this.x = x;
+        this.y = y;
+        this.animation = animation;
+    }
+
+    public void update(){
+        if(animation!=null){
+            animation.update();
+        }
     }
 
     public int getX() {
@@ -21,6 +36,14 @@ public class Sprite {
 
     public int getY() {
         return (int) y;
+    }
+
+    public boolean removed(){
+        return remove;
+    }
+
+    public BufferedImage getCurrentImage() {
+        return animation.getImage();
     }
 
     protected void changeX(double dx){
@@ -39,15 +62,16 @@ public class Sprite {
         this.y = y;
     }
 
-    public BufferedImage getCurrentImage() {
-        return animation.getImage();
-    }
-
-    protected void setAnimation(Animation animation) {
-        this.animation = animation;
+    public void remove(){
+        remove = true;
     }
 
     protected Animation getAnimation(){
         return animation;
+    }
+
+    // to be removed
+    protected void setAnimation(Animation animation) {
+        this.animation = animation;
     }
 }

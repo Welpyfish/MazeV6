@@ -1,31 +1,35 @@
 package model.weapon;
 
-import model.Map;
-import model.Team;
+import model.*;
+import model.Character;
 
+import java.awt.geom.Line2D;
+import java.util.ArrayList;
 import java.util.HashSet;
 
-public class Sword extends Weapon{
+public class Sword extends Melee{
     private double targetAngle;
-    private HashSet enemiesHit;
+    private HashSet<Character> targetsHit;
 
-    public Sword(Team team, Map map) {
-        super(team, map);
-        enemiesHit = new HashSet<>();
-        setAttackTime(2, 60, 20);
+    public Sword (WeaponStat weaponStat, Team team, Animation animation){
+        super(weaponStat, team, animation);
+        targetsHit = new HashSet<>();
     }
 
     @Override
     public void startAttack(){
         super.startAttack();
         targetAngle = getAngle();
-        enemiesHit.clear();
+        targetsHit.clear();
     }
 
     @Override
     protected void attack(int attackFrame, int attackTime){
-        setAngle(targetAngle + (0.5-1.0*attackFrame/attackTime));
+        setAngle(targetAngle + 1.2*Math.PI*(0.5-1.0*attackFrame/attackTime));
     }
 
-    //public void hitEnemy
+    @Override
+    protected void cooldown(int cooldownFrame, int cooldownTime){
+        setAngle(targetAngle + 1.2*Math.PI*(1.0*cooldownFrame/cooldownTime-0.5));
+    }
 }

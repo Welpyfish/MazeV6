@@ -19,12 +19,11 @@ public class Player extends Character {
         inventory = new Inventory();
 
         // Create starting weapons
-        createWeapon(WeaponType.NONE);
-        createWeapon(WeaponType.BOW);
-        createWeapon(WeaponType.GUN);
-        setWeapon(inventory.getWeapon(WeaponType.NONE));
+        inventory.addWeapon(WeaponFactory.createWeapon(WeaponType.NONE, Team.PLAYER));
+        inventory.addWeapon(WeaponFactory.createWeapon(WeaponType.SWORD, Team.PLAYER));
+        setWeapon(inventory.getWeapon(WeaponType.SWORD));
 
-        changeHp(50);
+        changeHp(20);
         setSightRange(GameConstants.tileSize*15);
         movementDirection = new Point(0, 0);
     }
@@ -49,7 +48,7 @@ public class Player extends Character {
                 inventory.changeProjectile(((ProjectileItem) item).getProjectileType(),
                         ((ProjectileItem) item).getAmount());
             } else if(item instanceof WeaponItem){
-                createWeapon(((WeaponItem) item).getWeaponType());
+                inventory.addWeapon(WeaponFactory.createWeapon(((WeaponItem) item).getWeaponType(), Team.PLAYER));
             } else if(item instanceof HpItem){
                 changeHp(((HpItem) item).getAmount());
             }
@@ -93,16 +92,7 @@ public class Player extends Character {
     }
 
     public void setAttacking(boolean attacking) {
-        getWeapon().setPressed(attacking);
+        getWeapon().setTrigger(attacking);
         this.attacking = attacking;
-    }
-
-    // Create a new weapon and put it in inventory
-    private void createWeapon(WeaponType weaponType){
-        switch (weaponType){
-            case NONE -> inventory.addWeapon(new NoWeapon(Team.PLAYER, map));
-            case BOW -> inventory.addWeapon(new Bow(Team.PLAYER, map));
-            case GUN -> inventory.addWeapon(new Gun(Team.PLAYER, map));
-        }
     }
 }

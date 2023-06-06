@@ -2,6 +2,8 @@ package controller.action;
 
 import model.ImageLoader;
 import model.Player;
+import model.weapon.ProjectileType;
+import model.weapon.Weapon;
 import model.weapon.WeaponType;
 
 import javax.swing.*;
@@ -11,13 +13,11 @@ public class SelectWeapon extends AbstractAction {
     private Player player;
     private WeaponType weaponType;
 
-    public SelectWeapon(Player player, String weapon){
-        super(null, ImageLoader.loadIcon(weapon, 36, 36));
+    public SelectWeapon(Player player, WeaponType weaponType){
+        super();
         this.player = player;
-        switch (weapon){
-            case "bow" -> this.weaponType = WeaponType.BOW;
-            case "gun" -> this.weaponType = WeaponType.GUN;
-        }
+        this.weaponType = weaponType;
+        putValue(Action.LARGE_ICON_KEY, ImageLoader.getWeaponIcon(weaponType));
     }
 
     @Override

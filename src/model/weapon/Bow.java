@@ -4,18 +4,9 @@ import model.*;
 import model.Character;
 
 public class Bow extends Shooter {
-    // Angle error when firing
-    private double spread;
-    private int currentRange;
-    private final int minRange = GameConstants.tileSize*4;
 
-    public Bow (Team team, Map map){
-        super(team, map);
-        setAnimation(new Animation(ImageLoader.bow));
-        spread = 0;
-        setRange(GameConstants.tileSize*9);
-        setWeaponID(new WeaponID(WeaponClass.BOW, WeaponType.BOW));
-        setAttackTime(20, 2, 1);
+    public Bow (WeaponStat weaponStat, Team team, Animation animation){
+        super(weaponStat, team, animation);
     }
 
     @Override
@@ -23,32 +14,10 @@ public class Bow extends Shooter {
         return true;
     }
 
-    // Launch the loaded projectiles
-    @Override
-    protected void attack(int attackFrame, int attackTime){
-        // Temporary fix; may add min and max range as properties at some point
-        int temp = getRange();
-        setRange(currentRange);
-        super.attack(attackFrame, attackTime);
-        setRange(temp);
-    }
-
     // When charging, set range depending on how charged the bow is
     @Override
     public void charge(int chargeFrame, int chargeTime){
         super.charge(chargeFrame, chargeTime);
-        currentRange = (int) (minRange + 1.0*(getRange()-minRange)*chargeFrame/chargeTime);
-    }
-
-    public int getMinRange() {
-        return minRange;
-    }
-
-    public double getSpread() {
-        return Math.toRadians(spread*(Math.random()-0.5));
-    }
-
-    public void setSpread(double spread) {
-        this.spread = spread;
+        setCurrentRange(getMinRange() + (getMaxRange()-getMinRange())*chargeFrame/chargeTime);
     }
 }

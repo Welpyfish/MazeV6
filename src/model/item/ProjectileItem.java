@@ -14,12 +14,7 @@ public class ProjectileItem extends Item {
         super(x, y);
         this.projectileType = projectileType;
         this.amount = amount;
-        switch (projectileType){
-            case ARROW -> setAnimation(new Animation(ImageLoader.arrow));
-            case BOMB_ARROW -> setAnimation(new Animation(ImageLoader.arrow));
-            case BULLET -> setAnimation(new Animation(ImageLoader.bullet));
-            case BOMB -> setAnimation(new Animation(ImageLoader.bomb));
-        }
+        setAnimation(ImageLoader.getProjectileItemAnimation(projectileType));
     }
 
     public ProjectileType getProjectileType() {

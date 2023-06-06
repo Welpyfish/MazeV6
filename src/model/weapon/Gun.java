@@ -4,15 +4,9 @@ import model.*;
 import model.Character;
 
 public class Gun extends Shooter{
-    private double spread;
 
-    public Gun(Team team, Map map){
-        super(team, map);
-        setAnimation(new Animation(ImageLoader.gun));
-        setRange(GameConstants.tileSize*12);
-        spread = 0;
-        setWeaponID(new WeaponID(WeaponClass.GUN, WeaponType.GUN));
-        setAttackTime(2, 2, 50);
+    public Gun (WeaponStat weaponStat, Team team, Animation animation){
+        super(weaponStat, team, animation);
     }
 
     @Override
@@ -21,11 +15,8 @@ public class Gun extends Shooter{
         super.releaseAction();
     }
 
-    public double getSpread() {
-        return Math.toRadians(spread*(Math.random()-0.5));
-    }
+    @Override
+    protected void releaseAction(){
 
-    public void setSpread(double spread) {
-        this.spread = spread;
     }
 }

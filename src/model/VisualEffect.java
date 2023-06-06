@@ -9,9 +9,8 @@ public class VisualEffect extends Sprite{
 
     public void update(){
         getAnimation().update();
-    }
-
-    public boolean finished(){
-        return getAnimation().atEnd();
+        if(getAnimation().atEnd()){
+            remove();
+        }
     }
 }

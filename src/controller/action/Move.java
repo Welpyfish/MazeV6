@@ -5,15 +5,18 @@ import model.Player;
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 
-public class MoveLeft extends AbstractAction {
+public class Move extends AbstractAction {
     private Player player;
+    private int x, y;
 
-    public MoveLeft(Player player){
+    public Move(Player player, int x, int y){
         this.player = player;
+        this.x = x;
+        this.y = y;
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        player.setMovementDirection(-1, 0);
+        player.setMovementDirection(x, y);
     }
 }

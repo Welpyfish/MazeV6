@@ -1,10 +1,7 @@
 package model.weapon;
 
+import model.*;
 import model.Character;
-import model.Map;
-import model.Sprite;
-import model.Team;
-import model.TileObject;
 
 public class Projectile extends Sprite {
     // Reference to map to check surroundings
@@ -15,28 +12,32 @@ public class Projectile extends Sprite {
     private boolean active;
     // How far the projectile will travel
     private int range;
+    // Damage upon hitting a character
+    private int damage;
+
+    private int hitRadius;
+    private int explosionDamage;
+    private int stun;
+
     // How fast the projectile travels
     private double speed;
     // Launch position
-    int xi, yi;
+    private int xi, yi;
     // Angle the projectile is facing
-    public double angle;
+    private double angle;
     // Current velocity
-    double vx, vy;
-    // If the projectile should be removed
-    private boolean hit;
-    // Damage upon hitting a character
-    protected int damage;
+    private double vx, vy;
 
     // Create a projectile
-    public Projectile(Team team, Map map){
-        super(0, 0);
-        // Know if the projectile was fired by a player, enemy, or game level
+    public Projectile(ProjectileStat projectileStat, Team team, Animation animation){
+        super(0, 0, animation);
         this.team = team;
-        // Stick to the shooter
+        this.damage = projectileStat.getDamage();
+        this.speed = projectileStat.getSpeed();
+        this.hitRadius = projectileStat.getHitRadius();
+        this.explosionDamage = projectileStat.getExplosionDamage();
+        this.stun = projectileStat.getStun();
         active = false;
-        this.map = map;
-        map.projectiles.add(this);
     }
 
     public void update(){
@@ -45,19 +46,9 @@ public class Projectile extends Sprite {
             // Move in a straight line
             changeX(vx);
             changeY(vy);
-            // Get destroyed if at end of range or hit a character on a different team
+            // Get destroyed if at end of range
             if (Math.hypot(getX() - xi, getY() - yi) > range) {
-                destroy();
-            } else {
-                // Get destroyed when colliding with an object
-                TileObject collider = map.projectileCollision(getX(), getY(), team);
-                if(collider != null){
-                    destroy();
-                    // If the collider was a character, attack it
-                    if(collider instanceof model.Character){
-                        attack((model.Character) collider);
-                    }
-                }
+                remove();
             }
         }
     }
@@ -74,34 +65,35 @@ public class Projectile extends Sprite {
         active = true;
         xi = getX();
         yi = getY();
-        this.range = range;
+        this.range = range - getCurrentImage().getWidth();
         damage += baseDamage;
         vx = speed*Math.cos(angle);
         vy = speed*Math.sin(angle);
     }
 
-    // Called when projectile hits something
-    void destroy(){
-        remove();
+    // Getters
+
+    public double getAngle(){
+        return angle;
     }
 
-    // Remove itself
-    public void remove(){
-        hit = true;
+    public int getDamage(){
+        return damage;
     }
 
-    // Attack a character
-    void attack(Character collider){
-
+    public int getHitRadius() {
+        return hitRadius;
     }
 
-    // Called by map to remove this projectile
-    public boolean isHit() {
-        return hit;
+    public int getExplosionDamage() {
+        return explosionDamage;
     }
 
-    // Set launch speed
-    public void setSpeed(double speed){
-        this.speed = speed;
+    public int getStun() {
+        return stun;
+    }
+
+    public Team getTeam() {
+        return team;
     }
 }

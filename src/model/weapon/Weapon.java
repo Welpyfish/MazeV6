@@ -1,18 +1,15 @@
 package model.weapon;
 
 import model.*;
-import model.Character;
 
 import java.awt.*;
 
 public class Weapon extends Sprite {
-    // Pointing direction
+    // Pointing direction (between positive x and positive y)
     private double angle;
-    // Distance from weapon to mouse
-    private double distance;
     // Range of weapon attack
-    private int range;
-    // Base damage added to projectiles
+    private int currentRange, minRange, maxRange;
+    // Base damage
     private int damage;
     // Weapon id
     private WeaponID weaponID;
@@ -28,31 +25,50 @@ public class Weapon extends Sprite {
 
     private Team team;
 
-    private boolean pressed;
+    private boolean triggered;
 
-    protected Map map;
+    // Shooter variables
+    private ProjectileType projectileType;
+    private int ammoCost;
 
-    public Weapon(Team team, Map map){
-        super(0, 0);
+    // Create a weapon object given weapon stats, team, and animation
+    public Weapon(WeaponStat weaponStat, Team team, Animation animation){
+        super(0, 0, animation);
         this.team = team;
-        this.map = map;
+        this.currentRange = weaponStat.getStartRange();
+        this.minRange = weaponStat.getMinRange();
+        this.maxRange = weaponStat.getMaxRange();
+        this.damage = weaponStat.getDamage();
+        this.weaponID = weaponStat.getWeaponID();
+        this.chargeTime = weaponStat.getChargeTime();
+        this.attackTime = weaponStat.getAttackTime();
+        this.cooldownTime = weaponStat.getCooldownTime();
+        this.ammoCost = weaponStat.getAmmoCost();
+        chargeFrame = -2;
+        attackFrame = -2;
+        cooldownFrame = -2;
+        projectileType = null;
     }
 
-    // Start the first state if cooldown is finished
-    public void startCharge(){
-        chargeFrame = 1;
+    // Start the charge state
+    protected void startCharge(){
+        chargeFrame = -1;
         getAnimation().play();
+        System.out.println("startCharge");
     }
 
-    protected boolean charged(){
-        return chargeFrame >= chargeTime;
-    }
-
-    // Start the attack state if the weapon is charged (subject to change)
-    public void startAttack(){
-        attackFrame = 1;
-        chargeFrame = 0;
+    // Start the attack state
+    protected void startAttack(){
+        attackFrame = -1;
+        chargeFrame = -2;
         getAnimation().play();
+        System.out.println("startAttack");
+    }
+
+    protected void startCooldown(){
+        cooldownFrame = -1;
+        attackFrame = -2;
+        System.out.println("startCooldown");
     }
 
     // Called from update() during the charge state
@@ -65,19 +81,18 @@ public class Weapon extends Sprite {
 
     }
 
-    // Return to the original state
-    public void reset(){
-        chargeFrame = 0;
-        attackFrame = 0;
-        cooldownFrame = 0;
-        getAnimation().reset();
+    // Called from update() during the attack state
+    protected void cooldown(int cooldownFrame, int cooldownTime){
+
     }
 
-    public void setTarget(Point p){
-        // Set the aiming angle
-        angle = Math.atan2(p.y-getY(), p.x-getX());
-        // Update the target distance
-        distance = Math.hypot(p.y-getY(), getX()-p.x);
+    // Return to the original state
+    public void reset(){
+        chargeFrame = -2;
+        attackFrame = -2;
+        cooldownFrame = -2;
+        getAnimation().reset();
+        System.out.println("reset");
     }
 
     // Update weapon given target location
@@ -86,109 +101,159 @@ public class Weapon extends Sprite {
         setX(x);
         setY(y);
 
-        if(pressed){
+        if(triggered){
             pressAction();
         }
 
-        // If attack is started, run attack state
-        if(attackFrame > 0) {
-            if (attackFrame < attackTime) {
-                attackFrame++;
-                attack(attackFrame, chargeTime);
-            }
-            // If attack is done, continue to cooldown state
-            else if (cooldownFrame < cooldownTime) {
+        // If cooldown is started, run cooldown state
+        if(cooldownFrame > -2) {
+            System.out.println("cooldown started");
+            if (cooldownFrame < cooldownTime) {
                 cooldownFrame++;
+                cooldown(cooldownFrame, cooldownTime);
+                System.out.println("cooldown===");
             } else {
                 //At the end of cooldown, reset weapon
                 reset();
+                System.out.println("cooldown=reset");
             }
+            //System.out.println("d");
+        }
+        // If attack is started, run attack state
+        else if(attackFrame > -2) {
+            System.out.println("attack started");
+            if (attackFrame < attackTime) {
+                attackFrame++;
+                attack(attackFrame, attackTime);
+                System.out.println("attack====");
+            }else{
+                // Start cooldown immediately after attack
+                startCooldown();
+                System.out.println("startCooldown===");
+            }
+            //System.out.println("a");
         }
         // If attack hasn't started, run charge state if charge was started
-        else if(chargeFrame > 0) {
+        else if(chargeFrame > -2) {
+            System.out.println("start charge");
             if (chargeFrame < chargeTime) {
                 chargeFrame++;
+                System.out.println("charge=====");
             } else {
                 // Once charged, remain in this state but pause animation
                 getAnimation().pause();
             }
             charge(chargeFrame, chargeTime);
+            //System.out.println("c");
         }
-        // Update animation
-        getAnimation().update();
+        super.update();
+
+        //System.out.println("C "+chargeFrame+" A "+attackFrame+" D "+cooldownFrame);
+        //System.out.println("C "+chargeTime+" A "+attackTime+" D "+cooldownTime);
+        //System.out.println();
     }
 
-    // Shooter methods
+    // By default, charge on press
+    protected void pressAction(){
+        if(chargeFrame == -2 && attackFrame == -2 && cooldownFrame == -2) {
+            startCharge();
 
-    public void setProjectile(ProjectileType projectileType){}
-
-    public int ammoUsed(){
-        return 0;
+            System.out.println("pressAction-charge");
+        }
+        else
+        {
+            int i=1;
+            System.out.println("pressAction-nothing");
+        }
     }
+
+    // By default, attack on release
+    protected void releaseAction(){
+        if(attackFrame == -2 && cooldownFrame == -2 && charged()) {
+            startAttack();
+            System.out.println("releaseAction-startattack");
+        }
+        else
+        {
+            int i=1;
+            System.out.println("releaseAction-none");
+        }
+    }
+
+    // Getter methods
 
     public double getAngle() {
         return angle;
     }
 
-    protected void setAngle(double angle) {
-        this.angle = angle;
-    }
-
-    protected int getDamage() {
+    public int getDamage() {
         return damage;
     }
 
-    protected void setDamage(int damage) {
-        this.damage = damage;
+    public int getMinRange() {
+        return minRange;
     }
 
-    // Called from subclass contructor to set state timelimits
-    protected void setAttackTime(int chargeTime, int attackTime, int cooldownTime){
-        this.chargeTime = chargeTime;
-        this.attackTime = attackTime;
-        this.cooldownTime = cooldownTime;
-    }
-
-    public int getRange() {
-        return range;
-    }
-
-    protected void setRange(int range) {
-        this.range = range;
+    public int getMaxRange() {
+        return maxRange;
     }
 
     public WeaponID getWeaponID() {
         return weaponID;
     }
 
-    protected void setWeaponID(WeaponID weaponID) {
-        this.weaponID = weaponID;
-    }
-
-    protected double getDistance() {
-        return distance;
-    }
-
     public Team getTeam() {
         return team;
     }
 
-    public void setPressed(boolean pressed) {
-        if(!pressed && this.pressed){
+    public int ammoUsed(){
+        return 0;
+    }
+
+    public int getCurrentRange() {
+        return currentRange;
+    }
+
+    protected ProjectileType getProjectileType(){
+        return projectileType;
+    }
+
+    protected int getAmmoCost() {
+        return ammoCost;
+    }
+
+    protected boolean charged(){
+        return chargeFrame >= chargeTime;
+    }
+
+    // Setter methods
+
+    public void setTarget(Point p){
+        // Set the aiming angle
+        angle = Math.atan2(p.y-getY(), p.x-getX());
+    }
+
+    public void setTrigger(boolean triggered) {
+        if(!triggered && this.triggered){
             releaseAction();
         }
-        this.pressed = pressed;
+        this.triggered = triggered;
     }
 
-    protected void pressAction(){
-        if(chargeFrame ==0 && cooldownFrame == 0) {
-            startCharge();
-        }
+    protected void setCurrentRange(int currentRange) {
+        this.currentRange = currentRange;
     }
 
-    protected void releaseAction(){
-        if(attackFrame ==0 && charged()) {
-            startAttack();
-        }
+    protected void setAngle(double angle) {
+        this.angle = angle;
+    }
+
+    // For shooter weapons
+    public void setProjectile(ProjectileType projectileType){
+
+    }
+
+    protected void setProjectileType(ProjectileType projectileType){
+        this.projectileType = projectileType;
     }
 }

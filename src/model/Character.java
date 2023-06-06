@@ -11,6 +11,9 @@ public class Character extends TileObject {
     private double vx;
     private double vy;
 
+    // Special effect timers
+    private int stun;
+
     public Character(Tile tile, Map map) {
         super(tile);
         this.map = map;
@@ -18,17 +21,21 @@ public class Character extends TileObject {
     }
 
     public void update(){
-        // Move according to velocity
-        vx=(nextTile.getGridx()- tile.getGridx())*3;
-        vy=-(nextTile.getGridy()- tile.getGridy())*3;
-        changeX(vx);
-        changeY(-vy);
-        if(atTile()){
-            tile.collider = null;
-            tile = nextTile;
+        if(stun == 0) {
+            // Move according to velocity
+            vx = (nextTile.getGridx() - tile.getGridx()) * 3;
+            vy = -(nextTile.getGridy() - tile.getGridy()) * 3;
+            changeX(vx);
+            changeY(-vy);
+            if (atTile()) {
+                tile.collider = null;
+                tile = nextTile;
+            }
+            // Update weapon
+            updateWeapon();
+        }else{
+            stun--;
         }
-        // Update weapon
-        updateWeapon();
     }
 
     protected void updateMovement(int x, int y){
@@ -65,9 +72,16 @@ public class Character extends TileObject {
     public void changeHp(int c){
         hp+=c;
         if(hp<=0){
-            tile.collider = null;
-            nextTile.collider = null;
+            remove();
         }
+    }
+
+    @Override
+    public void remove(){
+        super.remove();
+        tile.collider = null;
+        nextTile.collider = null;
+        weapon.reset();
     }
 
     public Weapon getWeapon() {
@@ -87,11 +101,15 @@ public class Character extends TileObject {
         nextTile = tile;
     }
 
-    public double getSightRange() {
+    protected double getSightRange() {
         return sightRange;
     }
 
     public void setSightRange(double sightRange) {
         this.sightRange = sightRange;
+    }
+
+    public void setStun(int stun) {
+        this.stun = stun;
     }
 }
