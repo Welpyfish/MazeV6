@@ -10,7 +10,6 @@ import java.util.Stack;
 public class HealthBar extends JPanel {
     GridBagLayout gridBagLayout;
     private final Stack<JLabel> hearts;
-    private JLabel text;
 
     public HealthBar(){
         gridBagLayout = new GridBagLayout();

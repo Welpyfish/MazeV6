@@ -1,21 +1,13 @@
 package view;
 
 import controller.GameEngine;
-import controller.action.SelectAmmo;
-import controller.action.SelectProjectile;
-import controller.action.SelectWeapon;
 import model.*;
 import model.weapon.ProjectileType;
-import model.weapon.Weapon;
 import model.weapon.WeaponClass;
-import model.weapon.WeaponType;
 
 import javax.swing.*;
 import javax.swing.border.LineBorder;
 import java.awt.*;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class InventoryUI extends JPanel {
     private GameEngine gameEngine;
@@ -29,6 +21,7 @@ public class InventoryUI extends JPanel {
     private ProjectileList projectiles;
 
     private WeaponList swords;
+    private WeaponList spears;
     private WeaponList bows;
     private WeaponList guns;
 
@@ -44,25 +37,28 @@ public class InventoryUI extends JPanel {
         this.setLayout(gridBagLayout);
 
         hp = new HealthBar();
-        this.add(hp, new ConstraintBuilder(0, 0).setW(5));
+        this.add(hp, new ConstraintBuilder(0, 0).width(5));
 
         swords = new WeaponList(player);
-        this.add(swords, new ConstraintBuilder(0, 1));
+        this.add(swords, new ConstraintBuilder(0, 1).anchor(GridBagConstraints.WEST));
+
+        spears = new WeaponList(player);
+        this.add(spears, new ConstraintBuilder(0, 2).anchor(GridBagConstraints.WEST));
 
         bows = new WeaponList(player);
-        this.add(bows, new ConstraintBuilder(0, 2));
+        this.add(bows, new ConstraintBuilder(0, 3).anchor(GridBagConstraints.WEST));
 
         arrows = new ProjectileList(player);
-        this.add(arrows, new ConstraintBuilder(1, 2));
+        this.add(arrows, new ConstraintBuilder(1, 3).anchor(GridBagConstraints.WEST));
 
         guns = new WeaponList(player);
-        this.add(guns, new ConstraintBuilder(0, 3));
+        this.add(guns, new ConstraintBuilder(0, 4).anchor(GridBagConstraints.WEST));
 
         bullets = new ProjectileList(player);
-        this.add(bullets, new ConstraintBuilder(1, 3));
+        this.add(bullets, new ConstraintBuilder(1, 4).anchor(GridBagConstraints.WEST));
 
         projectiles = new ProjectileList(player);
-        this.add(projectiles, new ConstraintBuilder(0, 4));
+        this.add(projectiles, new ConstraintBuilder(0, 5).anchor(GridBagConstraints.WEST));
 
         setBorder(new LineBorder(Color.black, 3, false));
         //setFocusable(true);
@@ -75,6 +71,7 @@ public class InventoryUI extends JPanel {
         hp.update(player.getHp());
 
         swords.updateItems(inventory.getWeaponList(WeaponClass.SWORD));
+        spears.updateItems(inventory.getWeaponList(WeaponClass.SPEAR));
         bows.updateItems(inventory.getWeaponList(WeaponClass.BOW));
         guns.updateItems(inventory.getWeaponList(WeaponClass.GUN));
 

@@ -15,6 +15,8 @@ public class GameEngine implements Runnable{
     private Map map;
     private GameFrame gameFrame;
 
+    private GameState gameState;
+
     // Level layout
     private String[] level = {
             "WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW",//50
@@ -53,7 +55,9 @@ public class GameEngine implements Runnable{
         // Create JFrame to hold graphics
         gameFrame = new GameFrame(this);
         // Create scrolling camera
-        actionManager = new KeyBindings(map, gameFrame.uiManager);
+        actionManager = new KeyBindings(map, gameFrame.uiManager, this);
+
+        gameState = GameState.GAME;
 
         // Start game thread
         thread = new Thread(this);
@@ -75,7 +79,9 @@ public class GameEngine implements Runnable{
             lastTime = now;
             // Run the gameLoop when the time passed is at least 1 frame
             while (delta >= 1) {
-                gameLoop();
+                if(gameState == GameState.GAME) {
+                    gameLoop();
+                }
                 delta--;
             }
             // Update the screen each frame
@@ -101,5 +107,27 @@ public class GameEngine implements Runnable{
 
     public MouseController getMouseController() {
         return mouseController;
+    }
+
+    public void setGameState(GameState gameState) {
+        switch (gameState){
+            case PAUSE -> {
+                if(this.gameState == GameState.GAME){
+                    this.gameState = gameState;
+                } else if(this.gameState == GameState.PAUSE){
+                    setGameState(GameState.GAME);
+                }
+            }
+            case GAME -> {
+                if(this.gameState != GameState.WIN && this.gameState != GameState.LOSE){
+                    this.gameState = gameState;
+                }
+            }
+            default -> this.gameState = gameState;
+        }
+    }
+
+    public GameState getGameState(){
+        return gameState;
     }
 }

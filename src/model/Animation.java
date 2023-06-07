@@ -5,18 +5,18 @@ import java.util.ArrayList;
 
 // uml done
 public class Animation {
-    private ArrayList<BufferedImage> images;
+    private BufferedImage[] images;
     private int image;
     private int frameTime;
     private int frameCounter;
     private boolean playing;
 
-    public Animation(ArrayList<BufferedImage> images, double time){
+    public Animation(BufferedImage[] images, double time){
         this(images);
-        this.frameTime = (int) (time*GameConstants.fps/images.size());
+        this.frameTime = (int) (time*GameConstants.fps/images.length);
     }
 
-    public Animation(ArrayList<BufferedImage> images) {
+    public Animation(BufferedImage[] images) {
         this.images = images;
         image = 0;
         frameTime = 1;
@@ -25,8 +25,7 @@ public class Animation {
     }
 
     public Animation(BufferedImage image){
-        images = new ArrayList<>();
-        images.add(image);
+        images = new BufferedImage[]{image};
         this.image = 0;
         frameTime = 0;
         frameCounter = 0;
@@ -34,12 +33,12 @@ public class Animation {
     }
 
     public BufferedImage getImage(){
-        return images.get(image);
+        return images[image];
     }
 
     public void update(){
         // Update if the animation is not a still image
-        if(playing && images.size() > 1) {
+        if(playing && images.length > 1) {
             // Move to next image when the frame time is up
             if(frameCounter == frameTime) {
                 frameCounter = 0;
@@ -76,6 +75,6 @@ public class Animation {
     }
 
     public boolean atEnd() {
-        return image == images.size() - 1;
+        return image == images.length - 1;
     }
 }

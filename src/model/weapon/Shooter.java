@@ -26,7 +26,6 @@ public class Shooter extends Weapon{
             projectile.remove();
             projectile = null;
         }
-        setProjectileType(null);
     }
 
     // Set the current projectile
@@ -37,6 +36,7 @@ public class Shooter extends Weapon{
             reset();
         }
         setProjectileType(projectileType);
+        System.out.println(projectileType);
     }
 
     // Return the number of projectiles fired in the current frame
@@ -49,11 +49,11 @@ public class Shooter extends Weapon{
 
     @Override
     public void startCharge(){
-        super.startCharge();
         // Create a new projectile if there wasn't one originally
         if(getProjectileType() != null && projectile == null){
             projectile = WeaponFactory.createProjectile(getProjectileType(), getTeam());
         }
+        super.startCharge();
     }
 
     @Override
@@ -69,12 +69,12 @@ public class Shooter extends Weapon{
     // Launch the loaded projectile
     @Override
     protected void startAttack(){
-        super.startAttack();
         if(projectile != null) {
             projectile.launch(getCurrentRange(), getDamage());
             ammoUsed = getAmmoCost();
             projectile = null;
             setProjectileType(null);
         }
+        super.startAttack();
     }
 }

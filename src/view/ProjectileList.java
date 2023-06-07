@@ -1,6 +1,5 @@
 package view;
 
-import controller.action.SelectAmmo;
 import controller.action.SelectProjectile;
 import model.Player;
 import model.weapon.ProjectileType;

@@ -88,7 +88,7 @@ public class Map {
     private void removeObjects(){
         for(int i=projectiles.size()-1; i>=0; i--){
             if(projectiles.get(i).removed()){
-                if(projectiles.get(i).getHitRadius() > 0){
+                if(projectiles.get(i).isActive() && projectiles.get(i).getHitRadius() > 0){
                     createExplosion(projectiles.get(i));
                 }
                 projectiles.remove(i);
@@ -307,6 +307,7 @@ public class Map {
                     character.getRect().contains(projectile.getX(), projectile.getY())) {
                 projectile.remove();
                 character.changeHp(-projectile.getDamage());
+                character.setStun(projectile.getStun());
             }
         }
     }
@@ -322,15 +323,17 @@ public class Map {
 
     // Check if a weapon hit a character
     private void weaponCollision(Melee weapon){
-        Line2D.Double weaponLine = new Line2D.Double(weapon.getX(), weapon.getY(),
-                weapon.getX()+weapon.getCurrentRange()*Math.cos(weapon.getAngle()),
-                weapon.getY()+weapon.getCurrentRange()*Math.sin(weapon.getAngle()));
-        for (Character character : characters) {
-            if (weapon.getTeam() != character.getWeapon().getTeam() &&
-                weaponLine.intersects(character.getRect()) &&
-                    inLineOfSight(weaponLine.getP1(), character.getCenter()) &&
-                    weapon.addTarget(character)) {
-                character.changeHp(-weapon.getDamage());
+        if(weapon.isActive()) {
+            Line2D.Double weaponLine = new Line2D.Double(weapon.getX(), weapon.getY(),
+                    weapon.getX() + weapon.getCurrentImage().getWidth() * Math.cos(weapon.getAngle()),
+                    weapon.getY() + weapon.getCurrentImage().getWidth() * Math.sin(weapon.getAngle()));
+            for (Character character : characters) {
+                if (weapon.getTeam() != character.getWeapon().getTeam() &&
+                        weaponLine.intersects(character.getRect()) &&
+                        inLineOfSight(weaponLine.getP1(), character.getCenter()) &&
+                        weapon.addTarget(character)) {
+                    character.changeHp(-weapon.getDamage());
+                }
             }
         }
     }

@@ -49,6 +49,7 @@ public class Enemy extends Character {
         if(target != null){
             // Only attack if the delay time is finished
             if(attackDelay <= 0) {
+                System.out.println("press");
                 startAttack();
             }
             // Aim at player when in sight

@@ -8,33 +8,37 @@ public class ConstraintBuilder extends GridBagConstraints{
         this.gridx = x;
         this.gridy = y;
         this.fill = VERTICAL;
-        this.anchor = WEST;
 //        this.weightx = 0.1;
 //        this.weighty = 0.1;
     }
 
-    public ConstraintBuilder setW(int w){
+    public ConstraintBuilder width(int w){
         this.gridwidth = w;
         return this;
     }
 
-    public ConstraintBuilder setH(int h){
+    public ConstraintBuilder height(int h){
         this.gridheight = h;
         return this;
     }
 
-    public ConstraintBuilder setWeightX(double w){
+    public ConstraintBuilder weightx(double w){
         this.weightx = w;
         return this;
     }
 
-    public ConstraintBuilder setWeightY(double w){
+    public ConstraintBuilder weighty(double w){
         this.weighty = w;
         return this;
     }
 
-    public ConstraintBuilder setAnchor(int a){
+    public ConstraintBuilder anchor(int a){
         this.anchor = a;
+        return this;
+    }
+
+    public ConstraintBuilder fill(int fill){
+        this.fill = fill;
         return this;
     }
 }

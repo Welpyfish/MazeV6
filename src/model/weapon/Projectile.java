@@ -96,4 +96,8 @@ public class Projectile extends Sprite {
     public Team getTeam() {
         return team;
     }
+
+    public boolean isActive(){
+        return active;
+    }
 }

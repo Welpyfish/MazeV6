@@ -34,6 +34,7 @@ public class Character extends TileObject {
             // Update weapon
             updateWeapon();
         }else{
+            System.out.println(stun);
             stun--;
         }
     }

@@ -44,31 +44,31 @@ public class Weapon extends Sprite {
         this.attackTime = weaponStat.getAttackTime();
         this.cooldownTime = weaponStat.getCooldownTime();
         this.ammoCost = weaponStat.getAmmoCost();
-        chargeFrame = -2;
-        attackFrame = -2;
-        cooldownFrame = -2;
+        chargeFrame = -1;
+        attackFrame = -1;
+        cooldownFrame = -1;
         projectileType = null;
     }
 
     // Start the charge state
     protected void startCharge(){
-        chargeFrame = -1;
+        chargeFrame = 0;
         getAnimation().play();
-        System.out.println("startCharge");
+        charge(chargeFrame, chargeTime);
     }
 
     // Start the attack state
     protected void startAttack(){
-        attackFrame = -1;
-        chargeFrame = -2;
+        attackFrame = 0;
+        chargeFrame = -1;
         getAnimation().play();
-        System.out.println("startAttack");
+        attack(attackFrame, attackTime);
     }
 
     protected void startCooldown(){
-        cooldownFrame = -1;
-        attackFrame = -2;
-        System.out.println("startCooldown");
+        cooldownFrame = 0;
+        attackFrame = -1;
+        cooldown(cooldownFrame, cooldownTime);
     }
 
     // Called from update() during the charge state
@@ -88,11 +88,10 @@ public class Weapon extends Sprite {
 
     // Return to the original state
     public void reset(){
-        chargeFrame = -2;
-        attackFrame = -2;
-        cooldownFrame = -2;
+        chargeFrame = -1;
+        attackFrame = -1;
+        cooldownFrame = -1;
         getAnimation().reset();
-        System.out.println("reset");
     }
 
     // Update weapon given target location
@@ -106,77 +105,49 @@ public class Weapon extends Sprite {
         }
 
         // If cooldown is started, run cooldown state
-        if(cooldownFrame > -2) {
-            System.out.println("cooldown started");
+        if(cooldownFrame > -1) {
             if (cooldownFrame < cooldownTime) {
                 cooldownFrame++;
                 cooldown(cooldownFrame, cooldownTime);
-                System.out.println("cooldown===");
             } else {
                 //At the end of cooldown, reset weapon
                 reset();
-                System.out.println("cooldown=reset");
             }
-            //System.out.println("d");
         }
         // If attack is started, run attack state
-        else if(attackFrame > -2) {
-            System.out.println("attack started");
+        else if(attackFrame > -1) {
             if (attackFrame < attackTime) {
                 attackFrame++;
                 attack(attackFrame, attackTime);
-                System.out.println("attack====");
-            }else{
+            }else {
                 // Start cooldown immediately after attack
                 startCooldown();
-                System.out.println("startCooldown===");
             }
-            //System.out.println("a");
         }
         // If attack hasn't started, run charge state if charge was started
-        else if(chargeFrame > -2) {
-            System.out.println("start charge");
+        else if(chargeFrame > -1) {
             if (chargeFrame < chargeTime) {
                 chargeFrame++;
-                System.out.println("charge=====");
             } else {
                 // Once charged, remain in this state but pause animation
                 getAnimation().pause();
             }
             charge(chargeFrame, chargeTime);
-            //System.out.println("c");
         }
         super.update();
-
-        //System.out.println("C "+chargeFrame+" A "+attackFrame+" D "+cooldownFrame);
-        //System.out.println("C "+chargeTime+" A "+attackTime+" D "+cooldownTime);
-        //System.out.println();
     }
 
     // By default, charge on press
     protected void pressAction(){
-        if(chargeFrame == -2 && attackFrame == -2 && cooldownFrame == -2) {
+        if((chargeFrame == -1 && attackFrame == -1 && cooldownFrame == -1)) {
             startCharge();
-
-            System.out.println("pressAction-charge");
-        }
-        else
-        {
-            int i=1;
-            System.out.println("pressAction-nothing");
         }
     }
 
     // By default, attack on release
     protected void releaseAction(){
-        if(attackFrame == -2 && cooldownFrame == -2 && charged()) {
+        if(attackFrame == -1 && cooldownFrame == -1 && charged()) {
             startAttack();
-            System.out.println("releaseAction-startattack");
-        }
-        else
-        {
-            int i=1;
-            System.out.println("releaseAction-none");
         }
     }
 

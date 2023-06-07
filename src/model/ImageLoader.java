@@ -14,7 +14,7 @@ import java.util.HashMap;
 public class ImageLoader {
     private static ImageLoader instance;
     public static BufferedImage heart = loadImage("media/heart.png", 1, 1);
-    public static ArrayList<BufferedImage> explosion = loadAnimation("media/explosion/image_part_0", 5, 5, 45);
+    public static BufferedImage[] explosion = loadAnimation("media/explosion/image_part_0", 5, 5, 45);
     public static ImageIcon heartIcon = loadIcon("heart", 24, 24);
     public static BufferedImage bow = loadImage("media/bow.png", 1.5, 2);
     public static BufferedImage gun = loadImage("media/gun.png", 1.5, 1);
@@ -26,7 +26,7 @@ public class ImageLoader {
     public static BufferedImage arrow = loadImage("media/arrow.png", 1);
     public static BufferedImage arrowItem = loadImage("media/arrow.png", 1);
 
-    private static HashMap<String, ArrayList<BufferedImage>> animations = new HashMap<>();
+    private static HashMap<String, BufferedImage[]> animations = new HashMap<>();
 
     private ImageLoader(){
 
@@ -41,11 +41,12 @@ public class ImageLoader {
         if(!animations.containsKey(path)){
             switch (path){
                 case "arrow" -> animations.put(path, loadAnimation("media/arrow", 1));
-                case "electricarrow" -> animations.put(path, loadAnimation("media/arrow", 1));
-                case "bombarrow" -> animations.put(path, loadAnimation("media/arrow", 1));
+                case "electricarrow" -> animations.put(path, loadAnimation("media/electricarrow", 1));
+                case "bombarrow" -> animations.put(path, loadAnimation("media/bombarrow", 1));
                 case "bullet" -> animations.put(path, loadAnimation("media/bullet", 1));
                 case "bomb" -> animations.put(path, loadAnimation("media/bomb", 1));
                 case "sword" -> animations.put(path, loadAnimation("media/sword", 2));
+                case "spear" -> animations.put(path, loadAnimation("media/sword", 2));
                 case "noweapon" -> animations.put(path, loadAnimation("media/noweapon", 1));
                 case "bow" -> animations.put(path, loadAnimation("media/bow", 2));
                 case "gun" -> animations.put(path, loadAnimation("media/gun", 2));
@@ -89,6 +90,7 @@ public class ImageLoader {
         ImageIcon result = null;
         switch (weaponType){
             case SWORD -> result = loadIcon("sword", GameConstants.iconSize, GameConstants.tileSize);
+            case SPEAR -> result = loadIcon("sword", GameConstants.iconSize, GameConstants.tileSize);
             case BOW -> result = loadIcon("bow", GameConstants.iconSize, GameConstants.tileSize);
             case GUN -> result = loadIcon("gun", GameConstants.iconSize, GameConstants.tileSize);
             default -> result = heartIcon;
@@ -96,26 +98,24 @@ public class ImageLoader {
         return result;
     }
 
-    private static ArrayList<BufferedImage> loadAnimation(String firstImage, double width, double height, int length){
-        ArrayList<BufferedImage> images = new ArrayList<>();
+    private static BufferedImage[] loadAnimation(String firstImage, double width, double height, int length){
+        BufferedImage[] images = new BufferedImage[length];
         for(int i=0; i<length; i++){
-            images.add(ImageLoader.loadImage(firstImage+(i+1)+".png", width, height));
+            images[i] = (ImageLoader.loadImage(firstImage+(i+1)+".png", width, height));
         }
         return images;
     }
 
-    private static ArrayList<BufferedImage> loadAnimation(String firstImage, double maxDimension, int length){
-        ArrayList<BufferedImage> images = new ArrayList<>();
+    private static BufferedImage[] loadAnimation(String firstImage, double maxDimension, int length){
+        BufferedImage[] images = new BufferedImage[length];
         for(int i=0; i<length; i++){
-            images.add(ImageLoader.loadImage(firstImage+(i+1)+".png", maxDimension));
+            images[i] = (ImageLoader.loadImage(firstImage+(i+1)+".png", maxDimension));
         }
         return images;
     }
 
-    private static ArrayList<BufferedImage> loadAnimation(String image, double maxDimension){
-        ArrayList<BufferedImage> images = new ArrayList<>();
-        images.add(ImageLoader.loadImage(image+".png", maxDimension));
-        return images;
+    private static BufferedImage[] loadAnimation(String image, double maxDimension){
+        return new BufferedImage[]{ImageLoader.loadImage(image+".png", maxDimension)};
     }
 
     private static BufferedImage loadImage(String path, double width, double height){

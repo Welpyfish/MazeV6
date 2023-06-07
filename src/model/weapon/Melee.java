@@ -9,6 +9,7 @@ import java.util.HashSet;
 public class Melee extends Weapon{
     private double targetAngle;
     private HashSet<Character> targetsHit;
+    private boolean active;
 
     public Melee(WeaponStat weaponStat, Team team, Animation animation){
         super(weaponStat, team, animation);
@@ -17,16 +18,16 @@ public class Melee extends Weapon{
 
     @Override
     public void startAttack(){
-        super.startAttack();
+        active = true;
         targetAngle = getAngle();
         targetsHit.clear();
-        setCurrentRange(getMaxRange());
+        super.startAttack();
     }
 
     @Override
     public void startCooldown(){
+        active = false;
         super.startCooldown();
-        setCurrentRange(getMinRange());
     }
 
     public boolean addTarget(Character target){
@@ -46,5 +47,13 @@ public class Melee extends Weapon{
     @Override
     protected void releaseAction(){
 
+    }
+
+    protected double getTargetAngle() {
+        return targetAngle;
+    }
+
+    public boolean isActive() {
+        return active;
     }
 }

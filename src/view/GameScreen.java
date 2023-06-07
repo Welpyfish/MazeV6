@@ -9,20 +9,33 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.geom.AffineTransform;
 
-public class GameScreen extends JPanel {
+public class GameScreen extends JLayeredPane {
     private Camera camera;
     private Map map;
+    private PauseScreen pauseScreen;
 
-    public GameScreen(Map map, Camera camera){
+    public GameScreen(Map map, Camera camera, PauseScreen pauseScreen){
+        super();
+        setLayout(new BorderLayout());
         this.camera = camera;
         this.map = map;
+
+        this.pauseScreen = pauseScreen;
+        this.add(pauseScreen, BorderLayout.CENTER);
+        this.setLayer(pauseScreen, POPUP_LAYER);
+        this.setPauseScreen(false);
+
         setPreferredSize(new Dimension(1000, 720));
         setFocusable(true);
         setVisible(true);
     }
 
+    public void setPauseScreen(boolean paused){
+        pauseScreen.setVisible(paused);
+    }
+
     @Override
-    public void paintComponent(Graphics g){
+    protected void paintComponent(Graphics g){
         super.paintComponent(g);
 
         Graphics2D g2 = (Graphics2D) g.create();
@@ -51,6 +64,7 @@ public class GameScreen extends JPanel {
             g2.setTransform(reset);
         }
         drawPlayer(g2, map.player);
+        g2.setTransform(reset);
 
         for(Projectile projectile : map.projectiles){
             transform = new AffineTransform();
@@ -86,9 +100,18 @@ public class GameScreen extends JPanel {
     }
 
     private void drawPlayer(Graphics2D g2, Player player){
+        AffineTransform transform = new AffineTransform();
         g2.drawString(player.getHp()+" ", player.getX(), player.getY());
         g2.setColor(Color.GREEN);
         g2.fillRect(player.getX(), player.getY(), GameConstants.tileSize, GameConstants.tileSize);
+        transform.rotate(player.getWeapon().getAngle(),
+                player.getWeapon().getX(),
+                player.getWeapon().getY());
+        g2.transform(transform);
+        g2.drawImage(player.getWeapon().getCurrentImage(),
+                player.getWeapon().getX(),
+                player.getWeapon().getY()-player.getWeapon().getCurrentImage().getHeight()/2,
+                null);
         g2.setColor(Color.BLACK);
     }
 
