@@ -70,10 +70,15 @@ public class Character extends TileObject {
         return hp;
     }
 
+    protected void setHp(int hp){
+        this.hp = hp;
+    }
+
     public void changeHp(int c){
         hp+=c;
         if(hp<=0){
             remove();
+            hp = 0;
         }
     }
 

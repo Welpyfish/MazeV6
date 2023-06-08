@@ -17,13 +17,18 @@ public class Player extends Character {
     public Player(Tile tile, Map map) {
         super(tile, map);
         inventory = new Inventory();
+        reset();
+    }
+
+    public void reset(){
+        inventory.reset();
 
         // Create starting weapons
         inventory.addWeapon(WeaponFactory.createWeapon(WeaponType.NONE, Team.PLAYER));
         inventory.addWeapon(WeaponFactory.createWeapon(WeaponType.SWORD, Team.PLAYER));
         setWeapon(inventory.getWeapon(WeaponType.SWORD));
 
-        changeHp(20);
+        setHp(5);
         setSightRange(GameConstants.tileSize*15);
         movementDirection = new Point(0, 0);
     }

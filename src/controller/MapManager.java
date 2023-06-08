@@ -1,9 +1,6 @@
 package controller;
 
-import model.Camera;
-import model.Map;
-import model.Movement;
-import model.Player;
+import model.*;
 
 import java.awt.*;
 import java.awt.event.KeyEvent;
@@ -18,6 +15,7 @@ public class MapManager {
         this.map = map;
         player = map.player;
         camera = new Camera();
+        ImageLoader.loadResources();
     }
 
     public void setMousePos(int xInScreen, int yInScreen){

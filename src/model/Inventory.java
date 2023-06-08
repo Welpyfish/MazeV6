@@ -22,6 +22,12 @@ public class Inventory {
         selectedProjectile = null;
     }
 
+    public void reset(){
+        weapons.clear();
+        projectiles.clear();
+        selectedProjectile = null;
+    }
+
     // Called by player to load a projectile onto a shooter weapon
     public ProjectileType getProjectile(Weapon weapon){
         // Auto select an appropriate ammo type (subject to change)

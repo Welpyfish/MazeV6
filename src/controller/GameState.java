@@ -1,10 +1,13 @@
 package controller;
 
 public enum GameState {
-    MENU,
+    HOME,
     INSTRUCTIONS,
+    STARTGAME,
     GAME,
     PAUSE,
+    GAMEOVER,
     WIN,
-    LOSE
+    LOSE,
+    QUIT
 }

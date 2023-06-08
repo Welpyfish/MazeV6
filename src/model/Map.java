@@ -1,5 +1,7 @@
 package model;
 
+import controller.GameEngine;
+import controller.GameState;
 import model.item.*;
 import model.weapon.*;
 
@@ -21,7 +23,7 @@ public class Map {
     public ArrayList<Portal> portals;
     private Point mouse;
 
-    private Map(){
+    public Map(){
         gameElements = new ArrayList<>();
         projectiles = new ArrayList<>();
         characters = new ArrayList<>();
@@ -30,19 +32,6 @@ public class Map {
         portals = new ArrayList<>();
         mouse = new Point(0, 0);
         new WeaponFactory(this);
-        ImageLoader.loadResources();
-    }
-
-    public Map(String[] levelMap){
-        this();
-        // Generate map
-        generateMap(levelMap);
-    }
-
-    public Map(String levelMap){
-        this();
-        // Generate map
-        generateMap(levelMap);
     }
 
     public void update(){
@@ -86,6 +75,20 @@ public class Map {
     }
 
     private void removeObjects(){
+        if(player.removed()){
+            GameEngine.setGameState(GameState.GAMEOVER);
+            if(player.getHp() == 0){
+                Timer loseTimer = new Timer();
+                loseTimer.schedule(new TimerTask() {
+                    @Override
+                    public void run() {
+                        GameEngine.setGameState(GameState.LOSE);
+                        loseTimer.cancel();
+                    }
+                }, 2000);
+            }
+        }
+
         for(int i=projectiles.size()-1; i>=0; i--){
             if(projectiles.get(i).removed()){
                 if(projectiles.get(i).isActive() && projectiles.get(i).getHitRadius() > 0){
@@ -98,7 +101,7 @@ public class Map {
         for(int i=characters.size()-1; i>=0; i--){
             if(characters.get(i).removed()){
                 WeaponType weaponType = characters.get(i).getWeapon().getWeaponID().weaponType();
-                if(player.inventory.getWeapon(weaponType)==null && weaponType!=WeaponType.NONE) {
+                if (player.inventory.getWeapon(weaponType) == null && weaponType != WeaponType.NONE) {
                     items.add(new WeaponItem(characters.get(i).getX(), characters.get(i).getY(), weaponType));
                 }
                 characters.remove(i);
@@ -119,49 +122,16 @@ public class Map {
     }
 
     /*
-     * Generate a starting map using a string array
-     *
-     */
-    private void generateMap(String[] levelMap){
-//        for(int y=0; y< levelMap.length; y++){
-//            for(int x=0; x<levelMap[0].length(); x++){
-//                tileMap[x][y] = new Tile(x, y);
-//                switch (levelMap[y].charAt(x)){
-//                    case 'P' -> {
-//                        player = new Player(tileMap[x][y], this);
-//                        tileMap[x][y].collider = player;
-//                    }
-//                    case 'E' -> {
-//                        BowEnemy newEnemy = new BowEnemy(tileMap[x][y],this, ProjectileType.ARROW);
-//                        tileMap[x][y].collider = newEnemy;
-//                        enemies.add(newEnemy);
-//                    }
-//                    case 'F' -> {
-//                        BowEnemy newEnemy = new BowEnemy(tileMap[x][y], this, ProjectileType.BOMB_ARROW);
-//                        tileMap[x][y].collider = newEnemy;
-//                        enemies.add(newEnemy);
-//                    }
-//                    case 'W' -> {
-//                        Wall newWall = new Wall(tileMap[x][y]);
-//                        tileMap[x][y].collider = newWall;
-//                        gameElements.add(newWall);
-//                    }
-//                    case 'A' -> {
-//                        tileMap[x][y].addItem(new ArrowItem());
-//                    }
-//                    case 'H' -> {
-//                        tileMap[x][y].addItem(new HpItem());
-//                    }
-//                }
-//            }
-//        }
-    }
-
-    /*
      * Generate a starting map using pixels from an image
      *
      */
-    private void generateMap(String levelMap){
+    public void generateMap(String levelMap){
+        gameElements.clear();
+        projectiles.clear();
+        characters.clear();
+        items.clear();
+        effects.clear();
+        portals.clear();
         HashMap<Integer, Tile> p = new HashMap<>();
         BufferedImage level = ImageLoader.loadImage(levelMap);
         tileMap = new Tile[level.getWidth()][level.getHeight()];
@@ -170,7 +140,12 @@ public class Map {
                 tileMap[x][y] = new Tile(x, y);
                 switch (level.getRGB(x, y)){
                     case -14503604 -> {
-                        player = new Player(tileMap[x][y], this);
+                        if(player == null) {
+                            player = new Player(tileMap[x][y], this);
+                        }else{
+                            player.reset();
+                            player.setLocation(tileMap[x][y]);
+                        }
                         tileMap[x][y].collider = player;
                         characters.add(player);
                     }

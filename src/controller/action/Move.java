@@ -18,5 +18,6 @@ public class Move extends AbstractAction {
     @Override
     public void actionPerformed(ActionEvent e) {
         player.setMovementDirection(x, y);
+        System.out.println(player);
     }
 }

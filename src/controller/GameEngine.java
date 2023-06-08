@@ -2,8 +2,10 @@ package controller;
 
 import model.*;
 import view.GameFrame;
+import view.UIManager;
 
 import java.awt.*;
+import java.util.Timer;
 
 public class GameEngine implements Runnable{
     // Thread that runs the game
@@ -12,52 +14,26 @@ public class GameEngine implements Runnable{
     public MapManager mapManager;
     private KeyBindings actionManager;
     private MouseController mouseController;
-    private Map map;
+    private static Map map;
     private GameFrame gameFrame;
+    private UIManager uiManager;
 
-    private GameState gameState;
-
-    // Level layout
-    private String[] level = {
-            "WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW",//50
-            "W    P     AAAA   W      AA  HH                  W",
-            "WH                W                E             W",
-            "WH                W                              W",
-            "WH                W                            A W",
-            "WH                W                            A W",
-            "W                                                W",
-            "WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW            W",
-            "W            E          HHW  E                   W",
-            "W            E          HHW  E                   W",
-            "W            E          HHW                      W",
-            "W            E          HHW                 E    W",
-            "W            E          HHW                      W",
-            "W            E          HHW                      W",
-            "W            E          HHW      E               W",
-            "W            E          HHW               E      W",
-            "W           WWWWWWWWWWWWWWW                      W",
-            "W                      W                         W",
-            "W       E    E         W              E          W",
-            "W                      W                         W",
-            "W       E                            E           W",
-            "W        HHH WWWWWW                              W",
-            "W         E          E    W                   EEEW",
-            "WAA                       W                   EAHW",
-            "WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW"//24
-    };
+    private static GameState gameState;
 
     public GameEngine(){
+        gameState = GameState.HOME;
+
         //map = new Map(level);
-        map = new Map("media/leveltest.png");
+        map = new Map();
+        map.generateMap("media/leveltest.png");
         mouseController = new MouseController(map);
         // Create new MapManager using map
         mapManager = new MapManager(map);
+        uiManager = new UIManager(this);
         // Create JFrame to hold graphics
-        gameFrame = new GameFrame(this);
+        gameFrame = new GameFrame(uiManager);
         // Create scrolling camera
-        actionManager = new KeyBindings(map, gameFrame.uiManager, this);
-
-        gameState = GameState.GAME;
+        actionManager = new KeyBindings(map, uiManager, this);
 
         // Start game thread
         thread = new Thread(this);
@@ -81,11 +57,16 @@ public class GameEngine implements Runnable{
             while (delta >= 1) {
                 if(gameState == GameState.GAME) {
                     gameLoop();
-                }
+                }else if(gameState == GameState.QUIT){
+                    System.exit(0);
+                }else if(gameState == GameState.STARTGAME){
+                    setGameState(GameState.GAME);
+                    map.generateMap("media/leveltest.png");
+                };
                 delta--;
             }
             // Update the screen each frame
-            gameFrame.update();
+            uiManager.update();
         }
     }
 
@@ -100,30 +81,32 @@ public class GameEngine implements Runnable{
     // Find the mouse position in the game JPanel
     public void updateMousePos(){
         mapManager.setMousePos(MouseInfo.getPointerInfo().getLocation().x-
-                                gameFrame.uiManager.gameScreen.getLocationOnScreen().x,
+                                uiManager.gameScreen.getLocationOnScreen().x,
                 MouseInfo.getPointerInfo().getLocation().y-
-                        gameFrame.uiManager.gameScreen.getLocationOnScreen().y);
+                        uiManager.gameScreen.getLocationOnScreen().y);
     }
 
     public MouseController getMouseController() {
         return mouseController;
     }
 
-    public void setGameState(GameState gameState) {
-        switch (gameState){
+    public static void setGameState(GameState gameState) {
+        switch (gameState) {
             case PAUSE -> {
-                if(this.gameState == GameState.GAME){
-                    this.gameState = gameState;
-                } else if(this.gameState == GameState.PAUSE){
+                if (GameEngine.gameState == GameState.GAME) {
+                    GameEngine.gameState = gameState;
+                } else if (GameEngine.gameState == GameState.PAUSE) {
                     setGameState(GameState.GAME);
                 }
             }
             case GAME -> {
-                if(this.gameState != GameState.WIN && this.gameState != GameState.LOSE){
-                    this.gameState = gameState;
+                if (GameEngine.gameState != GameState.WIN && GameEngine.gameState != GameState.LOSE) {
+                    GameEngine.gameState = gameState;
                 }
             }
-            default -> this.gameState = gameState;
+            //temporary
+            case LOSE -> GameEngine.setGameState(GameState.QUIT);
+            default -> GameEngine.gameState = gameState;
         }
     }
 
