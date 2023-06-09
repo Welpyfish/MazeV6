@@ -10,7 +10,7 @@ import java.util.LinkedHashMap;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class ProjectileList extends JPanel {
-    private LinkedHashMap<ProjectileType, InventoryItem> projectileButtons;
+    private LinkedHashMap<ProjectileType, NumberedItem> projectileButtons;
     private Player player;
 
     public ProjectileList(Player player){
@@ -35,7 +35,7 @@ public class ProjectileList extends JPanel {
         // Match projectile button values to those in inventory
         for(ProjectileType type : projectileList.keySet()){
             if(!projectileButtons.containsKey(type)){
-                InventoryItem newProjectile = new InventoryItem(
+                NumberedItem newProjectile = new NumberedItem(
                         new SelectProjectile(player, type));
                 projectileButtons.put(type, newProjectile);
                 this.add(newProjectile);

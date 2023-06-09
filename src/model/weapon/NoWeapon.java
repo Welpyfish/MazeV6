@@ -12,9 +12,9 @@ public final class NoWeapon extends Shooter{
     }
 
     @Override
-    public void setTarget(Point p){
-        super.setTarget(p);
+    public void setTarget(Point character, Point target){
+        super.setTarget(character, target);
         // Update the target distance
-        setCurrentRange(Math.min((int) Math.hypot(p.y-getY(), getX()-p.x), getMaxRange()));
+        setCurrentRange(Math.min((int) Math.hypot(target.y-character.y, target.x - character.y), getMaxRange()));
     }
 }

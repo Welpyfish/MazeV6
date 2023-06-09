@@ -10,14 +10,11 @@ public class WeaponItem extends Item {
     private WeaponType weaponType;
 
     public WeaponItem(int x, int y, WeaponType weaponType) {
-        super(x, y);
+        super(x, y, ImageLoader.getAnimation(weaponType.toString()));
         this.weaponType = weaponType;
-        switch (weaponType){
-            case BOW -> setAnimation(new Animation(ImageLoader.bow));
-            case GUN -> setAnimation(new Animation(ImageLoader.gun));
-        }
     }
 
+    @Override
     public WeaponType getWeaponType() {
         return weaponType;
     }

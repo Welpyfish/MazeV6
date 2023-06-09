@@ -14,12 +14,19 @@ public class Sword extends Melee{
     }
 
     @Override
+    protected void charge(int chargeFrame, int chargeTime){
+        setAngle(getAngle() + 0.9*Math.PI*(0.5*chargeFrame/chargeTime));
+    }
+
+    @Override
     protected void attack(int attackFrame, int attackTime){
-        setAngle(getTargetAngle() + 1.2*Math.PI*(0.5-1.0*attackFrame/attackTime));
+        super.attack(attackFrame, attackTime);
+        setAngle(getAngle() + 0.9*Math.PI*(0.5-1.0*attackFrame/attackTime));
     }
 
     @Override
     protected void cooldown(int cooldownFrame, int cooldownTime){
-        setAngle(getTargetAngle() + 1.2*Math.PI*(1.0*cooldownFrame/cooldownTime-0.5));
+        super.cooldown(cooldownFrame, cooldownTime);
+        setAngle(getAngle() + 0.9*Math.PI*(1.0*cooldownFrame/cooldownTime-0.5));
     }
 }

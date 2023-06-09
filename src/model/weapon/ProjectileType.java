@@ -5,5 +5,10 @@ public enum ProjectileType {
     ELECTRIC_ARROW,
     BOMB_ARROW,
     BULLET,
-    BOMB
+    BOMB;
+
+    @Override
+    public String toString(){
+        return super.toString().toLowerCase();
+    }
 }

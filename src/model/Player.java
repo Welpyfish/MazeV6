@@ -24,11 +24,11 @@ public class Player extends Character {
         inventory.reset();
 
         // Create starting weapons
-        inventory.addWeapon(WeaponFactory.createWeapon(WeaponType.NONE, Team.PLAYER));
+        inventory.addWeapon(WeaponFactory.createWeapon(WeaponType.THROW, Team.PLAYER));
         inventory.addWeapon(WeaponFactory.createWeapon(WeaponType.SWORD, Team.PLAYER));
         setWeapon(inventory.getWeapon(WeaponType.SWORD));
 
-        setHp(5);
+        setHp(100);
         setSightRange(GameConstants.tileSize*15);
         movementDirection = new Point(0, 0);
     }
@@ -66,18 +66,14 @@ public class Player extends Character {
         if(attacking){
             getWeapon().setProjectile(inventory.getProjectile(getWeapon()));
         }
+        getWeapon().setTarget(map.getMouse(), getCenter());
         if(autoAim){
             // If using auto aim, target the nearest enemy
             Point target = map.findClosestTarget(getCenter(), getSightRange(), Team.PLAYER);
             // If there is no target then point towards mouse
-            if(target == null){
-                getWeapon().setTarget(map.getMouse());
-            }else{
-                getWeapon().setTarget(target);
+            if(target != null){
+                getWeapon().setTarget(target, getCenter());
             }
-        }else {
-            // When not using auto aim, aim towards mouse
-            getWeapon().setTarget(map.getMouse());
         }
         super.updateWeapon();
         // If a weapon launched any projectiles, subtract them from inventory

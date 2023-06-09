@@ -14,7 +14,7 @@ public class SelectProjectile extends AbstractAction {
         super("0");
         this.player = player;
         this.projectileType = projectileType;
-        putValue(Action.LARGE_ICON_KEY, ImageLoader.getProjectileIcon(projectileType));
+        putValue(Action.LARGE_ICON_KEY, ImageLoader.getIcon(projectileType.toString()));
     }
 
     @Override
@@ -23,7 +23,7 @@ public class SelectProjectile extends AbstractAction {
             player.getWeapon().reset();
         }
         if(WeaponID.compatible(WeaponClass.THROW, projectileType)) {
-            player.setWeapon(player.inventory.getWeapon(WeaponType.NONE));
+            player.setWeapon(player.inventory.getWeapon(WeaponType.THROW));
         }
         player.inventory.setSelectedProjectile(projectileType);
     }

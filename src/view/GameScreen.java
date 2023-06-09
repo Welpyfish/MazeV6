@@ -51,8 +51,8 @@ public class GameScreen extends JLayeredPane {
         for(Item item : map.items){
             g2.drawImage(item.getCurrentImage(), item.getX()-item.getCurrentImage().getWidth()/2,
                     item.getY()-item.getCurrentImage().getHeight()/2, null);
-            if(item instanceof ProjectileItem){
-                g2.drawString(((ProjectileItem) item).getAmount()+"",
+            if(item.getAmount()>1){
+                g2.drawString(item.getAmount()+"",
                         item.getX()-item.getCurrentImage().getWidth()/2, item.getY());
             }
         }

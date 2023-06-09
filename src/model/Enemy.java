@@ -5,6 +5,8 @@ import model.weapon.Weapon;
 import java.awt.*;
 
 public class Enemy extends Character {
+    private int attackDelayTime;
+    private int movementDelayTime;
     // Frames of delay between attacking
     private int attackDelay;
     // Frames of delay between movement
@@ -15,6 +17,8 @@ public class Enemy extends Character {
         setWeapon(weapon);
         changeHp(3);
         setSightRange(Math.max(GameConstants.tileSize*10, getWeapon().getMaxRange()+GameConstants.tileSize*3));
+        attackDelayTime = (int) (getSightRange()*GameConstants.fps/(GameConstants.tileSize*3));
+        movementDelayTime = (int) (GameConstants.fps);
     }
 
     //
@@ -36,7 +40,7 @@ public class Enemy extends Character {
             }else{
                 updateMovement(0, 0);
             }
-            movementDelay = (int) (GameConstants.fps*1 + 2*Math.random()*GameConstants.fps);
+            movementDelay = (int) (movementDelayTime + 2*Math.random()*GameConstants.fps);
         }else {
             movementDelay--;
         }
@@ -49,11 +53,12 @@ public class Enemy extends Character {
         if(target != null){
             // Only attack if the delay time is finished
             if(attackDelay <= 0) {
-                System.out.println("press");
                 startAttack();
+            }else{
+                getWeapon().setTrigger(false);
             }
             // Aim at player when in sight
-            getWeapon().setTarget(target);
+            getWeapon().setTarget(target, getCenter());
         }else{
             getWeapon().setTrigger(false);
         }
@@ -77,7 +82,7 @@ public class Enemy extends Character {
     protected void startAttack(){
         getWeapon().setTrigger(true);
         // Wait a short time before allowing another attack
-        attackDelay = (int) (GameConstants.fps*5 + Math.random()*GameConstants.fps);
+        attackDelay = (int) (attackDelayTime + Math.random()*GameConstants.fps);
     }
 
     // Move towards a point

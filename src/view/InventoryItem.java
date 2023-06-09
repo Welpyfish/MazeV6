@@ -1,23 +1,16 @@
 package view;
 
+import model.GameConstants;
+
 import javax.swing.*;
+import java.awt.*;
 
 public class InventoryItem extends JButton {
-    private int amount;
 
     public InventoryItem(AbstractAction action){
         super(action);
-        setHorizontalTextPosition(AbstractButton.CENTER);
-        setVerticalTextPosition(AbstractButton.BOTTOM);
+        setPreferredSize(new Dimension(GameConstants.iconSize, GameConstants.iconSize));
         setFocusPainted(false);
-        amount = -1;
-        
-    }
-
-    public void update(int value){
-        if(amount!=value){
-            amount = value;
-            getAction().putValue(Action.NAME, ""+amount);
-        }
+        setMargin(new Insets(2, 2, 2, 2));
     }
 }

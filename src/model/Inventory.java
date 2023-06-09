@@ -7,6 +7,7 @@ import java.util.LinkedHashMap;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class Inventory {
+    // LinkedHashMap preserve order which allows hotkeys based on position in the inventory
     // Dictionary of all weapons by weapon type
     private LinkedHashMap<WeaponID, Weapon> weapons;
     // Dictionary of the amount of each projectile type

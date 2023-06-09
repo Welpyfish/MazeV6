@@ -14,7 +14,7 @@ public class GameEngine implements Runnable{
     public MapManager mapManager;
     private KeyBindings actionManager;
     private MouseController mouseController;
-    private static Map map;
+    private Map map;
     private GameFrame gameFrame;
     private UIManager uiManager;
 
@@ -25,10 +25,10 @@ public class GameEngine implements Runnable{
 
         //map = new Map(level);
         map = new Map();
-        map.generateMap("media/leveltest.png");
-        mouseController = new MouseController(map);
         // Create new MapManager using map
         mapManager = new MapManager(map);
+        mapManager.generateMap();
+        mouseController = new MouseController(map);
         uiManager = new UIManager(this);
         // Create JFrame to hold graphics
         gameFrame = new GameFrame(uiManager);
@@ -61,7 +61,7 @@ public class GameEngine implements Runnable{
                     System.exit(0);
                 }else if(gameState == GameState.STARTGAME){
                     setGameState(GameState.GAME);
-                    map.generateMap("media/leveltest.png");
+                    mapManager.generateMap();
                 };
                 delta--;
             }

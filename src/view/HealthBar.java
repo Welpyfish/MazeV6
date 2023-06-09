@@ -21,7 +21,7 @@ public class HealthBar extends JPanel {
 
     public void update(int h){
         while(hearts.size()<h){
-            hearts.push(new JLabel(ImageLoader.heartIcon));
+            hearts.push(new JLabel(ImageLoader.getIcon("heart")));
             this.add(hearts.peek(), new ConstraintBuilder((hearts.size()-1)%10, (hearts.size()-1)/10));
         }
         while(hearts.size()>h){

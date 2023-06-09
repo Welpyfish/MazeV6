@@ -131,6 +131,7 @@ public class Weapon extends Sprite {
             } else {
                 // Once charged, remain in this state but pause animation
                 getAnimation().pause();
+                pressAction();
             }
             charge(chargeFrame, chargeTime);
         }
@@ -199,9 +200,9 @@ public class Weapon extends Sprite {
 
     // Setter methods
 
-    public void setTarget(Point p){
+    public void setTarget(Point target, Point character){
         // Set the aiming angle
-        angle = Math.atan2(p.y-getY(), p.x-getX());
+        angle = Math.atan2(target.y-character.y, target.x - character.x);
     }
 
     public void setTrigger(boolean triggered) {

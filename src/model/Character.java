@@ -2,6 +2,8 @@ package model;
 
 import model.weapon.Weapon;
 
+import java.awt.*;
+
 public class Character extends TileObject {
     private Weapon weapon;
     private int hp;
@@ -34,9 +36,12 @@ public class Character extends TileObject {
             // Update weapon
             updateWeapon();
         }else{
-            System.out.println(stun);
             stun--;
         }
+    }
+
+    protected Point getCenter(){
+        return new Point(getCenterX(), getCenterY());
     }
 
     protected void updateMovement(int x, int y){

@@ -11,16 +11,17 @@ public class ProjectileItem extends Item {
     private int amount;
 
     public ProjectileItem(int x, int y, ProjectileType projectileType, int amount) {
-        super(x, y);
+        super(x, y, ImageLoader.getAnimation(projectileType.toString()));
         this.projectileType = projectileType;
         this.amount = amount;
-        setAnimation(ImageLoader.getProjectileItemAnimation(projectileType));
     }
 
+    @Override
     public ProjectileType getProjectileType() {
         return projectileType;
     }
 
+    @Override
     public int getAmount() {
         return amount;
     }

@@ -13,43 +13,30 @@ import java.util.HashMap;
 
 public class ImageLoader {
     private static ImageLoader instance;
-    public static BufferedImage heart = loadImage("media/heart.png", 1, 1);
-    public static BufferedImage[] explosion = loadAnimation("media/explosion/image_part_0", 5, 5, 45);
-    public static ImageIcon heartIcon = loadIcon("heart", 24, 24);
-    public static BufferedImage bow = loadImage("media/bow.png", 1.5, 2);
-    public static BufferedImage gun = loadImage("media/gun.png", 1.5, 1);
-    public static BufferedImage noWeapon = loadImage("media/noweapon.png");
-    public static BufferedImage bullet = loadImage("media/bullet.png", 1);
-    public static BufferedImage bomb = loadImage("media/bomb.png", 1, 1);
-    public static BufferedImage sword = loadImage("media/sword.png", 2.5);
-
-    public static BufferedImage arrow = loadImage("media/arrow.png", 1);
-    public static BufferedImage arrowItem = loadImage("media/arrow.png", 1);
 
     private static HashMap<String, BufferedImage[]> animations = new HashMap<>();
+    private static HashMap<String, ImageIcon> icons = new HashMap<>();
 
     private ImageLoader(){
 
     }
 
     public static void loadResources(){
-        animations.put("explosion", loadAnimation("media/explosion/image_part_0", 5, 45));
+        animations.put("explosion", loadAnimation("explosion/image_part_0", 5, 45));
     }
 
     public static Animation getAnimation(String path){
         Animation animation;
         if(!animations.containsKey(path)){
             switch (path){
-                case "arrow" -> animations.put(path, loadAnimation("media/arrow", 1));
-                case "electricarrow" -> animations.put(path, loadAnimation("media/electricarrow", 1));
-                case "bombarrow" -> animations.put(path, loadAnimation("media/bombarrow", 1));
-                case "bullet" -> animations.put(path, loadAnimation("media/bullet", 1));
-                case "bomb" -> animations.put(path, loadAnimation("media/bomb", 1));
-                case "sword" -> animations.put(path, loadAnimation("media/sword", 2));
-                case "spear" -> animations.put(path, loadAnimation("media/sword", 2));
-                case "noweapon" -> animations.put(path, loadAnimation("media/noweapon", 1));
-                case "bow" -> animations.put(path, loadAnimation("media/bow", 2));
-                case "gun" -> animations.put(path, loadAnimation("media/gun", 2));
+                case "arrow", "electric_arrow", "bomb_arrow", "bullet", "bomb" ->
+                        animations.put(path, loadAnimation(path, 1));
+                case "sword", "spear", "bow", "gun" ->
+                        animations.put(path, loadAnimation(path, 2));
+                case "greatsword" -> animations.put(path, loadAnimation(path, 2.5));
+                case "throw" -> animations.put(path, loadAnimation("throw", 1));
+                case "heart1" -> animations.put(path, loadAnimation("heart", 1));
+                case "heart5" -> animations.put(path, loadAnimation("heart", 2));
             }
 
         }
@@ -60,48 +47,22 @@ public class ImageLoader {
         return animation;
     }
 
-    public static Animation getProjectileItemAnimation(ProjectileType projectileType){
-        Animation result = null;
-        switch (projectileType){
-            case ARROW -> result = new Animation(arrowItem);
-            case ELECTRIC_ARROW -> result = new Animation(arrowItem);
-            case BOMB_ARROW -> result = new Animation(arrowItem);
-            case BULLET -> result = new Animation(arrowItem);
-            case BOMB -> result = new Animation(arrowItem);
-            default -> result = new Animation(heart);
+    public static ImageIcon getIcon(String path){
+        ImageIcon icon;
+        if(!icons.containsKey(path)){
+            switch (path){
+                case "heart" -> icons.put(path, loadIcon(path, 20));
+                default -> icons.put(path, loadIcon(path, GameConstants.iconSize));
+            }
         }
-        return result;
-    }
-
-    public static ImageIcon getProjectileIcon(ProjectileType projectileType){
-        ImageIcon result = null;
-        switch (projectileType){
-            case ARROW -> result = loadIcon("arrow", GameConstants.iconSize, GameConstants.iconSize);
-            case ELECTRIC_ARROW -> result = loadIcon("arrow", GameConstants.iconSize, GameConstants.iconSize);
-            case BOMB_ARROW -> result = loadIcon("bombarrow", GameConstants.iconSize, GameConstants.iconSize);
-            case BULLET -> result = loadIcon("bullet", GameConstants.iconSize, GameConstants.iconSize);
-            case BOMB -> result = loadIcon("bomb", GameConstants.iconSize, GameConstants.iconSize);
-            default -> result = heartIcon;
-        }
-        return result;
-    }
-
-    public static ImageIcon getWeaponIcon(WeaponType weaponType){
-        ImageIcon result = null;
-        switch (weaponType){
-            case SWORD -> result = loadIcon("sword", GameConstants.iconSize, GameConstants.tileSize);
-            case SPEAR -> result = loadIcon("sword", GameConstants.iconSize, GameConstants.tileSize);
-            case BOW -> result = loadIcon("bow", GameConstants.iconSize, GameConstants.tileSize);
-            case GUN -> result = loadIcon("gun", GameConstants.iconSize, GameConstants.tileSize);
-            default -> result = heartIcon;
-        }
-        return result;
+        icon = icons.get(path);
+        return icon;
     }
 
     private static BufferedImage[] loadAnimation(String firstImage, double width, double height, int length){
         BufferedImage[] images = new BufferedImage[length];
         for(int i=0; i<length; i++){
-            images[i] = (ImageLoader.loadImage(firstImage+(i+1)+".png", width, height));
+            images[i] = (ImageLoader.loadImage("media/"+firstImage+(i+1)+".png", width, height));
         }
         return images;
     }
@@ -109,13 +70,13 @@ public class ImageLoader {
     private static BufferedImage[] loadAnimation(String firstImage, double maxDimension, int length){
         BufferedImage[] images = new BufferedImage[length];
         for(int i=0; i<length; i++){
-            images[i] = (ImageLoader.loadImage(firstImage+(i+1)+".png", maxDimension));
+            images[i] = (ImageLoader.loadImage("media/"+firstImage+(i+1)+".png", maxDimension));
         }
         return images;
     }
 
     private static BufferedImage[] loadAnimation(String image, double maxDimension){
-        return new BufferedImage[]{ImageLoader.loadImage(image+".png", maxDimension)};
+        return new BufferedImage[]{ImageLoader.loadImage("media/"+image+".png", maxDimension)};
     }
 
     private static BufferedImage loadImage(String path, double width, double height){
@@ -161,9 +122,12 @@ public class ImageLoader {
         return img;
     }
 
-    public static ImageIcon loadIcon(String path, int width, int height){
-        Image image = new ImageIcon(ImageLoader.class.getClassLoader().getResource("media/"+path+".png")).getImage();
-        ImageIcon icon = new ImageIcon(image.getScaledInstance(width, height, Image.SCALE_DEFAULT));
+    public static ImageIcon loadIcon(String path, double maxDimension){
+        Image original = new ImageIcon(ImageLoader.class.getClassLoader().getResource("media/"+path+".png")).getImage();
+        double scaleFactor = maxDimension/Math.max(original.getWidth(null), original.getHeight(null));
+        int width = (int) (scaleFactor*original.getWidth(null));
+        int height = (int) (scaleFactor*original.getHeight(null));
+        ImageIcon icon = new ImageIcon(original.getScaledInstance(width, height, Image.SCALE_DEFAULT));
         return icon;
     }
 

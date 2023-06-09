@@ -17,7 +17,7 @@ public class SelectWeapon extends AbstractAction {
         super();
         this.player = player;
         this.weaponType = weaponType;
-        putValue(Action.LARGE_ICON_KEY, ImageLoader.getWeaponIcon(weaponType));
+        putValue(Action.LARGE_ICON_KEY, ImageLoader.getIcon(weaponType.toString()));
     }
 
     @Override

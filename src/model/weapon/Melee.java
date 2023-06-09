@@ -16,6 +16,8 @@ public class Melee extends Weapon{
         targetsHit = new HashSet<>();
     }
 
+    // setAngle(getTargetAngle()); // put this in attack and cooldown
+
     @Override
     public void startAttack(){
         active = true;
@@ -27,7 +29,13 @@ public class Melee extends Weapon{
     @Override
     public void startCooldown(){
         active = false;
+        setCurrentRange(getMinRange());
         super.startCooldown();
+    }
+
+    @Override
+    protected void attack(int attackFrame, int attackTime){
+        setAngle(targetAngle);
     }
 
     public boolean addTarget(Character target){
@@ -47,10 +55,6 @@ public class Melee extends Weapon{
     @Override
     protected void releaseAction(){
 
-    }
-
-    protected double getTargetAngle() {
-        return targetAngle;
     }
 
     public boolean isActive() {

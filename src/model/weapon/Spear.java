@@ -15,19 +15,17 @@ public class Spear extends Melee{
 
     @Override
     protected void attack(int attackFrame, int attackTime){
-        setAngle(getTargetAngle());
-        setX(getX() + Math.cos(getAngle())*
-                (getMaxRange()-getCurrentImage().getWidth())*attackFrame/attackTime);
-        setY(getY() + Math.sin(getAngle())*
-                (getMaxRange()-getCurrentImage().getWidth())*attackFrame/attackTime);
+        super.attack(attackFrame, attackTime);
+        setCurrentRange((getMaxRange()-getCurrentImage().getWidth())*attackFrame/attackTime);
+        setX(getX() + Math.cos(getAngle())*getCurrentRange());
+        setY(getY() + Math.sin(getAngle())*getCurrentRange());
     }
 
     @Override
     protected void cooldown(int cooldownFrame, int cooldownTime){
-        setAngle(getTargetAngle());
-        setX(getX() + Math.cos(getAngle())*
-                (getMaxRange()-getCurrentImage().getWidth())*(1-(double)cooldownFrame/cooldownTime));
-        setY(getY() + Math.sin(getAngle())*
-                (getMaxRange()-getCurrentImage().getWidth())*(1-(double)cooldownFrame/cooldownTime));
+        super.cooldown(cooldownFrame, cooldownTime);
+        setCurrentRange((int) ((getMaxRange()-getCurrentImage().getWidth())*(1-(double)cooldownFrame/cooldownTime)));
+        setX(getX() + Math.cos(getAngle())*getCurrentRange());
+        setY(getY() + Math.sin(getAngle())*getCurrentRange());
     }
 }

@@ -7,6 +7,7 @@ import model.weapon.ProjectileType;
 import model.weapon.WeaponType;
 
 import javax.swing.*;
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.concurrent.ConcurrentHashMap;
@@ -24,7 +25,8 @@ public class WeaponList extends JPanel {
     public void updateItems(ArrayList<WeaponType> weaponList){
         for(WeaponType type : weaponList){
             if(!weaponButtons.contains(type)){
-                this.add(new JButton(new SelectWeapon(player, type)));
+                InventoryItem newWeapon = new InventoryItem(new SelectWeapon(player, type));
+                this.add(newWeapon);
                 weaponButtons.add(type);
             }
         }

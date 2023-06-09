@@ -9,9 +9,9 @@ public class WeaponStat {
     private int chargeTime, attackTime, cooldownTime;
     private int ammoCost;
 
-    public WeaponStat(int maxRange, int damage, WeaponID weaponID){
-        this.maxRange = GameConstants.tileSize*maxRange;
-        minRange = Math.max(0, this.maxRange-4* GameConstants.tileSize);
+    public WeaponStat(double maxRange, int damage, WeaponID weaponID){
+        this.maxRange = (int) (GameConstants.tileSize*maxRange);
+        minRange = Math.max(GameConstants.tileSize, this.maxRange-4* GameConstants.tileSize);
         startRange = this.maxRange;
         this.damage = damage;
         this.weaponID = weaponID;
