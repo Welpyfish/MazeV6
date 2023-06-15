@@ -1,5 +1,7 @@
 package model;
 
+import controller.GameEngine;
+import model.weapon.ProjectileType;
 import model.weapon.Weapon;
 
 import java.awt.*;
@@ -12,23 +14,27 @@ public class Enemy extends Character {
     // Frames of delay between movement
     private int movementDelay;
 
-    public Enemy(Tile tile, Weapon weapon, Map map) {
+    private ProjectileType projectileType;
+
+    public Enemy(Tile tile, Weapon weapon, ProjectileType projectileType, Map map) {
         super(tile, map);
         setWeapon(weapon);
+        this.projectileType = projectileType;
         changeHp(3);
         setSightRange(Math.max(GameConstants.tileSize*10, getWeapon().getMaxRange()+GameConstants.tileSize*3));
         attackDelayTime = (int) (getSightRange()*GameConstants.fps/(GameConstants.tileSize*3));
-        movementDelayTime = (int) (GameConstants.fps);
+        movementDelayTime = (int) (0.1*GameConstants.fps);
+        attackDelay = (int) GameConstants.fps;
     }
 
     //
     @Override
     public void update(){
-        super.update();
         // Move if the player is in sight
         if(map.findClosestTarget(getCenter(), getSightRange(), Team.ENEMY) != null) {
             move();
         }
+        super.update();
     }
 
     public void move(){
@@ -75,14 +81,16 @@ public class Enemy extends Character {
         // Start charging attack if hit and player is in sight
         // Makes it hard to avoid trading hp
         if(getHp()>0 && c < 0 && map.findClosestTarget(getCenter(), getSightRange(), Team.ENEMY)!=null){
-            attackDelay-=2*GameConstants.fps;
+            attackDelay-=1.5*GameConstants.fps;
         }
     }
 
     protected void startAttack(){
+        getWeapon().setProjectile(projectileType);
         getWeapon().setTrigger(true);
         // Wait a short time before allowing another attack
         attackDelay = (int) (attackDelayTime + Math.random()*GameConstants.fps);
+        System.out.println("enemy attack "+attackDelay);
     }
 
     // Move towards a point

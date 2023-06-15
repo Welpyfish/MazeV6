@@ -15,7 +15,6 @@ public class HealthBar extends JPanel {
         gridBagLayout = new GridBagLayout();
         this.setLayout(gridBagLayout);
         hearts = new Stack<>();
-        setBorder(new LineBorder(Color.black, 3, false));
         setVisible(true);
     }
 

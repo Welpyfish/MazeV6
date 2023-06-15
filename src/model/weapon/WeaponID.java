@@ -9,6 +9,9 @@ public record WeaponID(WeaponClass weaponClass, WeaponType weaponType) {
     }
 
     public static boolean compatible(WeaponClass weaponClass, ProjectileType projectileType){
+        if(projectileType == null){
+            return false;
+        }
         switch (projectileType){
             case ARROW, ELECTRIC_ARROW, BOMB_ARROW -> {
                 return weaponClass == BOW;
@@ -16,7 +19,7 @@ public record WeaponID(WeaponClass weaponClass, WeaponType weaponType) {
             case BULLET -> {
                 return weaponClass == GUN;
             }
-            case BOMB -> {
+            case BOMB, THROWING_SPEAR -> {
                 return weaponClass == THROW;
             }
             default -> {

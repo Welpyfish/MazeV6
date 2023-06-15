@@ -21,14 +21,14 @@ public class Player extends Character {
     }
 
     public void reset(){
+        unremove();
         inventory.reset();
 
         // Create starting weapons
         inventory.addWeapon(WeaponFactory.createWeapon(WeaponType.THROW, Team.PLAYER));
-        inventory.addWeapon(WeaponFactory.createWeapon(WeaponType.SWORD, Team.PLAYER));
-        setWeapon(inventory.getWeapon(WeaponType.SWORD));
+        setWeapon(inventory.getWeapon(WeaponType.THROW));
 
-        setHp(100);
+        setHp(5);
         setSightRange(GameConstants.tileSize*15);
         movementDirection = new Point(0, 0);
     }
@@ -39,25 +39,13 @@ public class Player extends Character {
         updateMovement(movementDirection.x, movementDirection.y);
         // Update movement and weapon
         super.update();
-        if(atTile()){
-            // If at a portal, go through it
-            Tile portalTile = map.checkPortals(tile);
-            if(portalTile != null){
-                setLocation(portalTile);
-            }
-        }
-        // Check if any items should be collected
-        Item item = map.checkItems(getRect());
-        if(item!=null){
-            if(item instanceof ProjectileItem){
-                inventory.changeProjectile(((ProjectileItem) item).getProjectileType(),
-                        ((ProjectileItem) item).getAmount());
-            } else if(item instanceof WeaponItem){
-                inventory.addWeapon(WeaponFactory.createWeapon(((WeaponItem) item).getWeaponType(), Team.PLAYER));
-            } else if(item instanceof HpItem){
-                changeHp(((HpItem) item).getAmount());
-            }
-        }
+//        if(atTile()){
+//            // If at a portal, go through it
+//            Tile portalTile = map.checkPortals(tile);
+//            if(portalTile != null){
+//                setLocation(portalTile);
+//            }
+//        }
     }
 
     @Override
@@ -80,6 +68,13 @@ public class Player extends Character {
         inventory.changeProjectile(inventory.getSelectedProjectile(), - getWeapon().ammoUsed());
     }
 
+    public void setWeapon(Weapon weapon){
+        super.setWeapon(weapon);
+        if(!WeaponID.compatible(weapon.getWeaponID(), inventory.getSelectedProjectile())){
+            inventory.setSelectedProjectile(null);
+        }
+    }
+
     public void setAutoAim(boolean autoAim) {
         this.autoAim = autoAim;
     }
@@ -95,5 +90,12 @@ public class Player extends Character {
     public void setAttacking(boolean attacking) {
         getWeapon().setTrigger(attacking);
         this.attacking = attacking;
+    }
+
+    public void addWeapon(WeaponType weaponType){
+        inventory.addWeapon(WeaponFactory.createWeapon(weaponType, Team.PLAYER));
+        if(inventory.getWeapon(WeaponType.THROW) == getWeapon() && !attacking){
+            setWeapon(inventory.getWeapon(weaponType));
+        }
     }
 }

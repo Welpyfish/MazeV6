@@ -32,6 +32,9 @@ public class GameScreen extends JLayeredPane {
 
     public void setPauseScreen(boolean paused){
         pauseScreen.setVisible(paused);
+        if(paused){
+            pauseScreen.requestFocusInWindow();
+        }
     }
 
     @Override
@@ -47,6 +50,10 @@ public class GameScreen extends JLayeredPane {
         g2.translate(-camera.getX(), -camera.getY());
         AffineTransform reset = g2.getTransform();
         drawGrid(g2);
+
+        for(TileObject gameElement : map.gameElements){
+            g2.drawImage(gameElement.getCurrentImage(), gameElement.getX(), gameElement.getY(), null);
+        }
 
         for(Item item : map.items){
             g2.drawImage(item.getCurrentImage(), item.getX()-item.getCurrentImage().getWidth()/2,
@@ -91,10 +98,7 @@ public class GameScreen extends JLayeredPane {
     private void drawGrid(Graphics2D g2){
         for(Tile[] tiles : map.tileMap){
             for(Tile tile : tiles){
-                g2.drawRect(tile.getX(), tile.getY(), GameConstants.tileSize, GameConstants.tileSize);
-                if(tile.collider!=null){
-                    g2.fillRect(tile.getX(), tile.getY(), GameConstants.tileSize, GameConstants.tileSize);
-                }
+                g2.drawImage(tile.getCurrentImage(), tile.getX(), tile.getY(), null);
             }
         }
     }
@@ -110,7 +114,7 @@ public class GameScreen extends JLayeredPane {
         g2.transform(transform);
         g2.drawImage(player.getWeapon().getCurrentImage(),
                 player.getWeapon().getX(),
-                player.getWeapon().getY()-player.getWeapon().getCurrentImage().getHeight()/2,
+                player.getWeapon().getY() - player.getWeapon().getCurrentImage().getHeight() / 2,
                 null);
         g2.setColor(Color.BLACK);
     }
@@ -126,7 +130,7 @@ public class GameScreen extends JLayeredPane {
         g2.transform(transform);
         g2.drawImage(character.getWeapon().getCurrentImage(),
                 character.getWeapon().getX(),
-                character.getWeapon().getY()-character.getWeapon().getCurrentImage().getHeight()/2,
+                character.getWeapon().getY() - character.getWeapon().getCurrentImage().getHeight() / 2,
                 null);
         g2.setColor(Color.BLACK);
     }

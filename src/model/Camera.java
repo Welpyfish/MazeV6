@@ -2,9 +2,9 @@ package model;
 
 import model.Map;
 
+import java.awt.*;
+
 public class Camera {
-    private double x;
-    private double y;
     private int height, width;
     private double l, r, t, b;
     private int lm, rm, tm, bm;
@@ -24,8 +24,6 @@ public class Camera {
         this.r += x;
         this.t -= y;
         this.b -= y;
-        this.x = l;
-        this.y = t;
     }
 
     public void moveTo(double x, double y){
@@ -33,12 +31,14 @@ public class Camera {
         this.r = x+ width;
         this.t =y;
         this.b = y+height;
-        this.x = l;
-        this.y = t;
     }
 
     public int getX() {
-        return (int) x;
+        return (int) l;
+    }
+
+    public int getY() {
+        return (int) t;
     }
 
     public void update(Map map){
@@ -46,25 +46,21 @@ public class Camera {
         double dy = 0;
         if(map.player.getVx() > 0 &&
                 map.player.getX()+map.player.getRect().width >= r-rm &&
-                x < map.tileMap.length*GameConstants.tileSize - width){
+                l < map.tileMap.length*GameConstants.tileSize - width){
             dx = map.player.getVx();
         } else if(map.player.getVx() < 0 && map.player.getX() <= l+lm &&
-                x > 0){
+                l > 0){
             dx = map.player.getVx();
         }
         if(map.player.getVy() < 0 &&
                 map.player.getY() +map.player.getRect().height >= b-bm &&
-                y < map.tileMap[0].length*GameConstants.tileSize - height){
+                t < map.tileMap[0].length*GameConstants.tileSize - height){
             dy = map.player.getVy();
         } else if(map.player.getVy() > 0 &&
                 map.player.getY() <= t+tm &&
-                y > 0){
+                t > 0){
             dy = map.player.getVy();
         }
         move(dx, dy);
-    }
-
-    public int getY() {
-        return (int) y;
     }
 }

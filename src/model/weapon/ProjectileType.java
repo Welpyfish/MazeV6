@@ -5,7 +5,8 @@ public enum ProjectileType {
     ELECTRIC_ARROW,
     BOMB_ARROW,
     BULLET,
-    BOMB;
+    BOMB,
+    THROWING_SPEAR;
 
     @Override
     public String toString(){

@@ -9,7 +9,8 @@ public class InventoryItem extends JButton {
 
     public InventoryItem(AbstractAction action){
         super(action);
-        setPreferredSize(new Dimension(GameConstants.iconSize, GameConstants.iconSize));
+        setMinimumSize(new Dimension(GameConstants.iconSize, GameConstants.iconSize));
+        setMaximumSize(new Dimension(GameConstants.iconSize, 2*GameConstants.iconSize));
         setFocusPainted(false);
         setMargin(new Insets(2, 2, 2, 2));
     }

@@ -7,7 +7,7 @@ public class ConstraintBuilder extends GridBagConstraints{
     public ConstraintBuilder(int x, int y){
         this.gridx = x;
         this.gridy = y;
-        this.fill = VERTICAL;
+        this.fill = GridBagConstraints.BOTH;
 //        this.weightx = 0.1;
 //        this.weighty = 0.1;
     }

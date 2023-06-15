@@ -5,7 +5,6 @@ import view.GameFrame;
 import view.UIManager;
 
 import java.awt.*;
-import java.util.Timer;
 
 public class GameEngine implements Runnable{
     // Thread that runs the game
@@ -27,7 +26,7 @@ public class GameEngine implements Runnable{
         map = new Map();
         // Create new MapManager using map
         mapManager = new MapManager(map);
-        mapManager.generateMap();
+        mapManager.startGame();
         mouseController = new MouseController(map);
         uiManager = new UIManager(this);
         // Create JFrame to hold graphics
@@ -61,8 +60,13 @@ public class GameEngine implements Runnable{
                     System.exit(0);
                 }else if(gameState == GameState.STARTGAME){
                     setGameState(GameState.GAME);
-                    mapManager.generateMap();
-                };
+                    mapManager.startGame();
+                }
+                else if(gameState == GameState.RESTART){
+                    setGameState(GameState.GAME);
+                    mapManager.setLevel(1);
+                    mapManager.startGame();
+                }
                 delta--;
             }
             // Update the screen each frame
@@ -75,7 +79,7 @@ public class GameEngine implements Runnable{
         // Send the mouse position to map manager
         updateMousePos();
         // Update model
-        mapManager.updateMap();
+        mapManager.update();
     }
 
     // Find the mouse position in the game JPanel
@@ -90,23 +94,24 @@ public class GameEngine implements Runnable{
         return mouseController;
     }
 
-    public static void setGameState(GameState gameState) {
-        switch (gameState) {
+    public static void setGameState(GameState newState) {
+        switch (newState) {
             case PAUSE -> {
-                if (GameEngine.gameState == GameState.GAME) {
-                    GameEngine.gameState = gameState;
-                } else if (GameEngine.gameState == GameState.PAUSE) {
-                    setGameState(GameState.GAME);
+                if (gameState == GameState.GAME) {
+                    gameState = newState;
                 }
             }
             case GAME -> {
-                if (GameEngine.gameState != GameState.WIN && GameEngine.gameState != GameState.LOSE) {
-                    GameEngine.gameState = gameState;
+                if (gameState != GameState.GAMEOVER) {
+                    gameState = newState;
                 }
             }
-            //temporary
-            case LOSE -> GameEngine.setGameState(GameState.QUIT);
-            default -> GameEngine.gameState = gameState;
+            case WIN, LOSE -> {
+                if(gameState == GameState.GAMEOVER){
+                    gameState = newState;
+                }
+            }
+            default -> gameState = newState;
         }
     }
 

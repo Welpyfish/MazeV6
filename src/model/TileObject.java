@@ -1,5 +1,7 @@
 package model;
 
+import controller.GameState;
+
 import java.awt.*;
 // basic object
 public class TileObject extends Sprite{
@@ -10,6 +12,12 @@ public class TileObject extends Sprite{
         super(tile.getX(), tile.getY());
         this.tile = tile;
         rect = new Rectangle(getX(), getY(), GameConstants.tileSize, GameConstants.tileSize);
+    }
+
+    public TileObject(Tile tile, Animation animation){
+        super(tile.getX(), tile.getY(), animation);
+        this.tile = tile;
+        rect = new Rectangle(getX(), getY(), animation.getImage().getWidth(), animation.getImage().getHeight());
     }
 
     // Find the shortest distance from this rectangle to a point
@@ -25,6 +33,10 @@ public class TileObject extends Sprite{
 
     protected int getCenterY(){
         return (int) rect.getCenterY();
+    }
+
+    protected Point getCenter(){
+        return new Point(getCenterX(), getCenterY());
     }
 
     protected void changeX(double dx){

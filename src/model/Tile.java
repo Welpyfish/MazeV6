@@ -5,13 +5,13 @@ import java.util.Stack;
 
 public class Tile extends Sprite{
     private final int gridx, gridy;
-    public TileObject collider;
+    private boolean occupied;
 
     public Tile(int x, int y){
-        super(GameConstants.tileSize*x, GameConstants.tileSize*y);
+        super(GameConstants.tileSize*x, GameConstants.tileSize*y, ImageLoader.getAnimation("tile"));
         this.gridx = x;
         this.gridy = y;
-        collider = null;
+        occupied = false;
     }
 
     public int getGridx() {
@@ -20,5 +20,13 @@ public class Tile extends Sprite{
 
     public int getGridy() {
         return gridy;
+    }
+
+    public boolean isOccupied() {
+        return occupied;
+    }
+
+    public void setOccupied(boolean occupied) {
+        this.occupied = occupied;
     }
 }

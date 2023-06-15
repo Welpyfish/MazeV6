@@ -1,6 +1,5 @@
 package view;
 
-import controller.GameEngine;
 import controller.GameState;
 import controller.action.SetState;
 
@@ -11,9 +10,8 @@ public class PauseScreen extends JPanel {
     private JPanel menu;
     private JLabel title;
     private JButton resume;
-    private JButton restart;
+    private JButton retry;
     private JButton home;
-    private JButton quit;
 
     public PauseScreen(){
         super();
@@ -29,24 +27,27 @@ public class PauseScreen extends JPanel {
         this.add(menu);
         this.add(Box.createVerticalGlue());
 
-        title = new JLabel("Paused");
+        title = new JLabel("Paused", SwingConstants.CENTER);
+        title.setFont(UIConstants.menuTitleFont);
         menu.add(title, new ConstraintBuilder(0, 0).width(3));
 
         resume = new JButton(new SetState(GameState.GAME));
         resume.setText("Resume");
+        resume.setFont(UIConstants.menuButtonFont);
         menu.add(resume, new ConstraintBuilder(1, 1));
 
-        restart = new JButton(new SetState(GameState.STARTGAME));
-        restart.setText("Restart");
-        menu.add(restart, new ConstraintBuilder(1, 2));
+        retry = new JButton(new SetState(GameState.STARTGAME));
+        retry.setText("Retry");
+        retry.setFont(UIConstants.menuButtonFont);
+        menu.add(retry, new ConstraintBuilder(1, 2));
 
         home = new JButton(new SetState(GameState.HOME));
         home.setText("Back to home");
+        home.setFont(UIConstants.menuButtonFont);
         menu.add(home, new ConstraintBuilder(1, 3));
 
-        quit = new JButton(new SetState(GameState.QUIT));
-        quit.setText("Quit");
-        menu.add(quit, new ConstraintBuilder(1, 4));
+        this.add(Box.createHorizontalStrut(1), new ConstraintBuilder(0, 5).weightx(0.3));
+        this.add(Box.createHorizontalStrut(1), new ConstraintBuilder(2, 5).weightx(0.3));
     }
 
     @Override

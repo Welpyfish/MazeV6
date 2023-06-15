@@ -5,6 +5,7 @@ import model.GameConstants;
 public class ProjectileStat {
     private double speed;
     private int damage;
+    private int range;
     private int hitRadius;
     private int explosionDamage;
     private int stun;
@@ -12,6 +13,11 @@ public class ProjectileStat {
     public ProjectileStat(int damage, int speed){
         this.damage = damage;
         this.speed = speed;
+    }
+
+    public ProjectileStat range(double range){
+        this.range = (int) (GameConstants.tileSize*range);
+        return this;
     }
 
     public ProjectileStat hitRadius(double hitRadius){
@@ -35,6 +41,10 @@ public class ProjectileStat {
 
     public double getSpeed() {
         return speed;
+    }
+
+    public int getRange(){
+        return range;
     }
 
     public int getHitRadius() {

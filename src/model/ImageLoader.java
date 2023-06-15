@@ -22,7 +22,7 @@ public class ImageLoader {
     }
 
     public static void loadResources(){
-        animations.put("explosion", loadAnimation("explosion/image_part_0", 5, 45));
+        animations.put("explosion", loadAnimation("explosion/image_part_0", 5, 5, 45));
     }
 
     public static Animation getAnimation(String path){
@@ -31,14 +31,17 @@ public class ImageLoader {
             switch (path){
                 case "arrow", "electric_arrow", "bomb_arrow", "bullet", "bomb" ->
                         animations.put(path, loadAnimation(path, 1));
-                case "sword", "spear", "bow", "gun" ->
+                case "sword", "spear", "bow", "gun", "throwing_spear" ->
                         animations.put(path, loadAnimation(path, 2));
+                case "throw" -> animations.put(path, loadAnimation(path, 1));
                 case "greatsword" -> animations.put(path, loadAnimation(path, 2.5));
-                case "throw" -> animations.put(path, loadAnimation("throw", 1));
+                //case "throw" -> animations.put(path, new BufferedImage[]{null});
                 case "heart1" -> animations.put(path, loadAnimation("heart", 1));
+                case "heart3" -> animations.put(path, loadAnimation("heart", 1.5));
                 case "heart5" -> animations.put(path, loadAnimation("heart", 2));
+                case "wall", "tile" -> animations.put(path, loadAnimation(path, 1, 1, 1));
+                case "end_portal" -> animations.put(path, loadAnimation(path, 2, 2, 1));
             }
-
         }
         switch (path){
             case "explosion" -> animation = new Animation(animations.get(path), 1);
@@ -122,7 +125,7 @@ public class ImageLoader {
         return img;
     }
 
-    public static ImageIcon loadIcon(String path, double maxDimension){
+    private static ImageIcon loadIcon(String path, double maxDimension){
         Image original = new ImageIcon(ImageLoader.class.getClassLoader().getResource("media/"+path+".png")).getImage();
         double scaleFactor = maxDimension/Math.max(original.getWidth(null), original.getHeight(null));
         int width = (int) (scaleFactor*original.getWidth(null));

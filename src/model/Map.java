@@ -15,6 +15,7 @@ import java.util.*;
 public class Map {
     public Tile[][] tileMap;
     public Player player;
+    private TileObject endPortal;
     public ArrayList<Character> characters;
     public ArrayList<TileObject> gameElements;
     public ArrayList<Projectile> projectiles;
@@ -22,6 +23,7 @@ public class Map {
     public ArrayList<VisualEffect> effects;
     public ArrayList<Portal> portals;
     private Point mouse;
+    private boolean gameOver;
 
     public Map(){
         gameElements = new ArrayList<>();
@@ -67,6 +69,20 @@ public class Map {
             projectileCollision(projectile);
         }
 
+        if(endPortal.getRect().contains(player.getRect())){
+            gameOver = true;
+        }
+        Item item = checkItems(player.getRect());
+        if(item!=null){
+            if(item.getWeaponType()!=null){
+                player.addWeapon(item.getWeaponType());
+            }else if(item.getProjectileType()!=null){
+                player.inventory.changeProjectile(item.getProjectileType(), item.getAmount());
+            }else{
+                player.changeHp(item.getAmount());
+            }
+        }
+
         for(Character character : characters){
             if(character.getWeapon() instanceof Melee){
                 weaponCollision((Melee) character.getWeapon());
@@ -76,17 +92,7 @@ public class Map {
 
     private void removeObjects(){
         if(player.removed()){
-            GameEngine.setGameState(GameState.GAMEOVER);
-            if(player.getHp() == 0){
-                Timer loseTimer = new Timer();
-                loseTimer.schedule(new TimerTask() {
-                    @Override
-                    public void run() {
-                        GameEngine.setGameState(GameState.LOSE);
-                        loseTimer.cancel();
-                    }
-                }, 2000);
-            }
+            gameOver = true;
         }
 
         for(int i=projectiles.size()-1; i>=0; i--){
@@ -125,7 +131,8 @@ public class Map {
      * Generate a starting map using pixels from an image
      *
      */
-    public void generateMap(String levelMap){
+    public void generateMap(int level){
+        gameOver = false;
         gameElements.clear();
         projectiles.clear();
         characters.clear();
@@ -133,170 +140,139 @@ public class Map {
         effects.clear();
         portals.clear();
         HashMap<Integer, Tile> p = new HashMap<>();
-        BufferedImage level = ImageLoader.loadImage(levelMap);
-        tileMap = new Tile[level.getWidth()][level.getHeight()];
-        for(int y=0; y< level.getHeight(); y++){
-            for(int x=0; x<level.getWidth(); x++){
+        BufferedImage levelMap = ImageLoader.loadImage("media/level"+level+".png");
+        BufferedImage itemMap = ImageLoader.loadImage("media/level"+level+"items.png");
+        tileMap = new Tile[levelMap.getWidth()][levelMap.getHeight()];
+        for(int y=0; y< levelMap.getHeight(); y++){
+            for(int x=0; x<levelMap.getWidth(); x++){
                 tileMap[x][y] = new Tile(x, y);
-                switch (level.getRGB(x, y)){
-                    // rgb(0, 255, 0): Player
-                    case -14503604 -> {
-                        if(player == null) {
-                            player = new Player(tileMap[x][y], this);
-                        }else{
-                            player.reset();
-                            player.setLocation(tileMap[x][y]);
-                        }
-                        tileMap[x][y].collider = player;
-                        characters.add(player);
-                    }
-                    // rgb(255, 0, 0): Enemy normal sword
-                    case -65536 -> {
-                        Enemy newEnemy = new Enemy(tileMap[x][y],
-                                WeaponFactory.createWeapon(WeaponType.SWORD, Team.ENEMY),
-                                this);
-                        tileMap[x][y].collider = newEnemy;
-                        characters.add(newEnemy);
-                    }
-                    // rgb(254, 0, 0): Enemy normal sword
-                    case -131072 -> {
-                        Enemy newEnemy = new Enemy(tileMap[x][y],
-                                WeaponFactory.createWeapon(WeaponType.GREATSWORD, Team.ENEMY),
-                                this);
-                        tileMap[x][y].collider = newEnemy;
-                        characters.add(newEnemy);
-                    }
-                    // rgb(245, 0, 0): Enemy normal spear
-                    case -720896 -> {
-                        Enemy newEnemy = new Enemy(tileMap[x][y],
-                                WeaponFactory.createWeapon(WeaponType.SPEAR, Team.ENEMY),
-                                this);
-                        tileMap[x][y].collider = newEnemy;
-                        characters.add(newEnemy);
-                    }
-                    // rgb(235, 0, 0): Enemy with bow, arrow
-                    case -1376256 -> {
-                        ShooterEnemy newEnemy = new ShooterEnemy(tileMap[x][y],
-                                WeaponFactory.createWeapon(WeaponType.BOW, Team.ENEMY),
-                                ProjectileType.ARROW,
-                                this);
-                        tileMap[x][y].collider = newEnemy;
-                        characters.add(newEnemy);
-                    }
-                    // rgb(230, 0, 0): Enemy with bow, bombarrow
-                    case -1703936 -> {
-                        ShooterEnemy newEnemy = new ShooterEnemy(tileMap[x][y],
-                                WeaponFactory.createWeapon(WeaponType.BOW, Team.ENEMY),
-                                ProjectileType.BOMB_ARROW,
-                                this);
-                        tileMap[x][y].collider = newEnemy;
-                        characters.add(newEnemy);
-                    }
-                    // rgb(135, 0, 0): Enemy with gun, bullet
-                    case -7929856 -> {
-                        ShooterEnemy newEnemy = new ShooterEnemy(tileMap[x][y],
-                                WeaponFactory.createWeapon(WeaponType.GUN, Team.ENEMY),
-                                ProjectileType.BULLET,
-                                this);
-                        tileMap[x][y].collider = newEnemy;
-                        characters.add(newEnemy);
-                    }
-                    // rgb(35, 0, 0): Enemy with bomb
-                    case -14483456 -> {
-                        ShooterEnemy newEnemy = new ShooterEnemy(tileMap[x][y],
-                                WeaponFactory.createWeapon(WeaponType.THROW, Team.ENEMY),
-                                ProjectileType.BOMB,
-                                this);
-                        tileMap[x][y].collider = newEnemy;
-                        characters.add(newEnemy);
-                    }
-                    // rgb(0, 0, 0): Wall
-                    case -16777216 -> {
-                        Wall newWall = new Wall(tileMap[x][y]);
-                        tileMap[x][y].collider = newWall;
-                        gameElements.add(newWall);
-                    }
-                    // rgb(10, 10, 10): 10 arrow
-                    case -16119286 -> {
-                        items.add(new ProjectileItem(tileMap[x][y].getX()+GameConstants.tileSize/2,
-                                tileMap[x][y].getY()+GameConstants.tileSize/2,
-                                ProjectileType.ARROW, 10));
-                    }
-                    // rgb(33, 33, 33): 3 electric arrow
-                    case -14606047 -> {
-                        items.add(new ProjectileItem(tileMap[x][y].getX()+GameConstants.tileSize/2,
-                                tileMap[x][y].getY()+GameConstants.tileSize/2,
-                                ProjectileType.ELECTRIC_ARROW, 3));
-                    }
-                    // rgb(53, 53, 53): 3 bomb arrow
-                    case -13290187 -> {
-                        items.add(new ProjectileItem(tileMap[x][y].getX()+GameConstants.tileSize/2,
-                                tileMap[x][y].getY()+GameConstants.tileSize/2,
-                                ProjectileType.BOMB_ARROW, 3));
-                    }
-                    // rgb(105, 105, 105): 5 bullet
-                    case -9868951 -> {
-                        items.add(new ProjectileItem(tileMap[x][y].getX()+GameConstants.tileSize/2,
-                                tileMap[x][y].getY()+GameConstants.tileSize/2,
-                                ProjectileType.BULLET, 5));
-                    }
-                    // rgb(0, 254, 254): Greatsword item
-                    case -16711938 -> {
-                        items.add(new WeaponItem(tileMap[x][y].getX()+GameConstants.tileSize/2,
-                                tileMap[x][y].getY()+GameConstants.tileSize/2,
-                                WeaponType.GREATSWORD));
-                    }
-                    // rgb(0, 245, 245): Spear item
-                    case -16714251 -> {
-                        items.add(new WeaponItem(tileMap[x][y].getX()+GameConstants.tileSize/2,
-                                tileMap[x][y].getY()+GameConstants.tileSize/2,
-                                WeaponType.SPEAR));
-                    }
-                    // rgb(0, 235, 235): Bow item
-                    case -16716821 -> {
-                        items.add(new WeaponItem(tileMap[x][y].getX()+GameConstants.tileSize/2,
-                                tileMap[x][y].getY()+GameConstants.tileSize/2,
-                                WeaponType.BOW));
-                    }
-                    // rgb(0, 225, 225): Bomb item
-                    case -16719391 -> {
-                        items.add(new ProjectileItem(tileMap[x][y].getX()+GameConstants.tileSize/2,
-                                tileMap[x][y].getY()+GameConstants.tileSize/2,
-                                ProjectileType.BOMB, 1));
-                    }
-                    // rgb(254, 0, 254): 1 hp
-                    case -130818 -> {
-                        items.add(new HpItem(tileMap[x][y].getX()+GameConstants.tileSize/2,
-                                tileMap[x][y].getY()+GameConstants.tileSize/2,
-                                1));
-                    }
-                    // rgb(250, 0, 250): 5 hp
-                    case -392966 -> {
-                        items.add(new HpItem(tileMap[x][y].getX()+GameConstants.tileSize/2,
-                                tileMap[x][y].getY()+GameConstants.tileSize/2,
-                                5));
-                    }
-                    // portal
-                    case -6075996 -> {
-                        if(p.containsKey(-6075996)){
-                            portals.add(new Portal(tileMap[x][y], p.get(-6075996), new Color(-6075996)));
-                        }else{
-                            p.put(-6075996, tileMap[x][y]);
-                        }
-                    }
-                    case -1 -> {
+                int levelColor = levelMap.getRGB(x, y);
+                int levelRed = (levelColor & 0xff0000) >> 16;
+                int levelGreen = (levelColor & 0xff00) >> 8;
+                int levelBlue = levelColor & 0xff;
 
+                int itemColor = itemMap.getRGB(x, y);
+                int itemRed = (itemColor & 0xff0000) >> 16;
+                int itemGreen = (itemColor & 0xff00) >> 8;
+                int itemBlue = itemColor & 0xff;
+
+                if(levelRed == levelGreen && levelGreen == levelBlue){
+                    switch (levelRed){
+                        case 0 -> {
+                            TileObject newWall = new TileObject(tileMap[x][y], ImageLoader.getAnimation("wall"));
+                            tileMap[x][y].setOccupied(true);
+                            gameElements.add(newWall);
+                        }
+                        case 1 -> {
+                            endPortal = new TileObject(tileMap[x][y], ImageLoader.getAnimation("end_portal"));
+                            gameElements.add(endPortal);
+                        }
                     }
-                    default -> {
-                        System.out.println(level.getRGB(x, y)+" "+x+" "+y);
+                }
+                else if(levelRed == 255 && levelGreen < 128 && levelBlue < 128){
+                    Enemy newEnemy = new Enemy(tileMap[x][y],
+                            WeaponFactory.createWeapon(getWeaponType((itemGreen&0b1110000)>>4, itemGreen&0b111),
+                                    Team.ENEMY),
+                            getProjectileType((itemGreen&0b1110000)>>4, (itemBlue&0b1110000)>>4),
+                            this);
+                    characters.add(newEnemy);
+                }
+                else if(levelGreen == 255 && levelRed < 128 && levelBlue < 128){
+                    if(player == null) {
+                        player = new Player(tileMap[x][y], this);
+                    }else{
+                        player.reset();
+                        player.setLocation(tileMap[x][y]);
+                    }
+                    characters.add(player);
+                }
+                else if(levelBlue == 255 && levelRed < 128 && levelGreen < 128){
+                    int amount = itemBlue&0xf;
+                    if(itemRed == 255){
+                        if(amount == 0){
+                            items.add(new WeaponItem(tileMap[x][y].getX()+GameConstants.tileSize/2,
+                                    tileMap[x][y].getY()+GameConstants.tileSize/2,
+                                    getWeaponType((itemGreen&0b1110000)>>4, itemGreen&0b111)));
+                        }else{
+                            items.add(new ProjectileItem(tileMap[x][y].getX()+GameConstants.tileSize/2,
+                                    tileMap[x][y].getY()+GameConstants.tileSize/2,
+                                    getProjectileType((itemGreen&0b1110000)>>4, (itemBlue&0b1110000)>>4),
+                                    amount));
+                        }
+                    }else if(itemGreen == 255){
+                        int type = itemRed&0b1111111;
+                        if(type == 2){
+                            items.add(new HpItem(tileMap[x][y].getX()+GameConstants.tileSize/2,
+                                    tileMap[x][y].getY()+GameConstants.tileSize/2,
+                                    amount));
+                        }
                     }
                 }
             }
         }
     }
 
-    private int rgbCode(int r, int g, int b){
-        return (255 << 24) + (r << 16) + (g << 8) + b;
+    private WeaponType getWeaponType(int weaponClassCode, int weaponTypeCode){
+        WeaponType weaponType = null;
+        System.out.println(weaponClassCode+" "+weaponTypeCode);
+        switch (weaponClassCode){
+            case 0 -> {
+                weaponType = WeaponType.THROW;
+            }
+            case 1 -> {
+                switch (weaponTypeCode){
+                    case 1 -> weaponType = WeaponType.SWORD;
+                    case 2 -> weaponType = WeaponType.GREATSWORD;
+                }
+            }
+            case 2 -> {
+                switch (weaponTypeCode){
+                    case 1 -> weaponType = WeaponType.SPEAR;
+                }
+            }
+            case 3 -> {
+                switch (weaponTypeCode){
+                    case 1 -> weaponType = WeaponType.BOW;
+                }
+            }
+            case 4 -> {
+                switch (weaponTypeCode){
+                    case 1 -> weaponType = WeaponType.GUN;
+                }
+            }
+            default -> weaponType = WeaponType.THROW;
+        }
+        return weaponType;
+    }
+
+    private ProjectileType getProjectileType(int weaponClassCode, int projectileTypeCode){
+        ProjectileType projectileType = null;
+        System.out.println(weaponClassCode+" "+projectileTypeCode);
+        switch (weaponClassCode){
+            case 0 -> {
+                switch (projectileTypeCode){
+                    case 1 -> projectileType = ProjectileType.BOMB;
+                    case 5 -> projectileType = ProjectileType.THROWING_SPEAR;
+                }
+            }
+            case 3 -> {
+                switch (projectileTypeCode){
+                    case 1 -> projectileType = ProjectileType.ARROW;
+                    case 4 -> projectileType = ProjectileType.ELECTRIC_ARROW;
+                    case 6 -> projectileType = ProjectileType.BOMB_ARROW;
+                }
+            }
+            case 4 -> {
+                switch (projectileTypeCode){
+                    case 1 -> projectileType = ProjectileType.BULLET;
+                }
+            }
+        }
+        return projectileType;
+    }
+
+    static String weaponCode(int c, int w, int p, int s){
+        return (c<<4)+(w)+" "+(p<<4)+s;
     }
 
     public Point getMouse() {
@@ -326,7 +302,7 @@ public class Map {
 
     private void createExplosion(Projectile projectile){
         for(Character character : characters){
-            if(character.distance(projectile.getX(), projectile.getY()) <= projectile.getHitRadius()){
+            if(inLineOfSight(character.getCenter(), new Point(projectile.getX(), projectile.getY()), projectile.getHitRadius())){
                 character.changeHp(-projectile.getExplosionDamage());
             }
         }
@@ -407,5 +383,9 @@ public class Map {
             }
         }
         return null;
+    }
+
+    public boolean isGameOver() {
+        return gameOver;
     }
 }

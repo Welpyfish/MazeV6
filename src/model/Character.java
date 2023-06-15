@@ -20,6 +20,14 @@ public class Character extends TileObject {
         super(tile);
         this.map = map;
         nextTile = tile;
+        tile.setOccupied(true);
+    }
+
+    public Character(Tile tile, Weapon weapon, Animation animation){
+        super(tile, animation);
+        nextTile = tile;
+        tile.setOccupied(true);
+        setWeapon(weapon);
     }
 
     public void update(){
@@ -29,8 +37,9 @@ public class Character extends TileObject {
             vy = -(nextTile.getGridy() - tile.getGridy()) * 3;
             changeX(vx);
             changeY(-vy);
-            if (atTile()) {
-                tile.collider = null;
+            if(atTile()){
+                tile.setOccupied(false);
+                nextTile.setOccupied(true);
                 tile = nextTile;
             }
             // Update weapon
@@ -40,17 +49,14 @@ public class Character extends TileObject {
         }
     }
 
-    protected Point getCenter(){
-        return new Point(getCenterX(), getCenterY());
-    }
-
     protected void updateMovement(int x, int y){
         // When at a tile, start moving towards the next target tile
         if(atTile()){
-            if(map.tileMap[tile.getGridx()+x][tile.getGridy()-y].collider==null){
-                nextTile.collider=null;
+            System.out.println("at tile");
+            if(!map.tileMap[tile.getGridx()+x][tile.getGridy()-y].isOccupied()){
                 nextTile = map.tileMap[tile.getGridx()+x][tile.getGridy()-y];
-                nextTile.collider=this;
+                nextTile.setOccupied(true);
+                System.out.println("set target");
             }
         }
     }
@@ -90,8 +96,8 @@ public class Character extends TileObject {
     @Override
     public void remove(){
         super.remove();
-        tile.collider = null;
-        nextTile.collider = null;
+        tile.setOccupied(false);
+        nextTile.setOccupied(false);
         weapon.reset();
     }
 
@@ -107,6 +113,7 @@ public class Character extends TileObject {
     // Set current location to a tile
     public void setLocation(Tile tile){
         this.tile = tile;
+        tile.setOccupied(true);
         setX(tile.getX());
         setY(tile.getY());
         nextTile = tile;

@@ -18,9 +18,9 @@ public class WeaponFactory {
             case SWORD -> weaponStat = new WeaponStat(2, 1,
                     new WeaponID(WeaponClass.SWORD, weaponType)).attackTime(0.3).cooldownTime(0.2);
             case GREATSWORD -> weaponStat = new WeaponStat(2.5, 2,
-                    new WeaponID(WeaponClass.SWORD, weaponType)).attackTime(0.4).cooldownTime(0.4);
+                    new WeaponID(WeaponClass.SWORD, weaponType)).attackTime(0.35).cooldownTime(0.4);
             case SPEAR -> weaponStat = new WeaponStat(3, 1,
-                    new WeaponID(WeaponClass.SPEAR, weaponType)).attackTime(0.15).cooldownTime(0.4);
+                    new WeaponID(WeaponClass.SPEAR, weaponType)).attackTime(0.1).cooldownTime(0.45);
             case BOW -> weaponStat = new WeaponStat(9, 0,
                     new WeaponID(WeaponClass.BOW, weaponType)).chargeTime(0.3).ammoCost(1);
             case GUN -> weaponStat = new WeaponStat(13, 0,
@@ -57,10 +57,11 @@ public class WeaponFactory {
         ProjectileStat projectileStat = null;
         switch (projectileType){
             case ARROW -> projectileStat = new ProjectileStat(1, 12);
-            case ELECTRIC_ARROW -> projectileStat = new ProjectileStat(1, 12).stun(3.5);
+            case ELECTRIC_ARROW -> projectileStat = new ProjectileStat(1, 8).stun(3);
             case BOMB_ARROW -> projectileStat = new ProjectileStat(1, 12).hitRadius(1.2).explosionDamage(2);
             case BULLET -> projectileStat = new ProjectileStat(2, 20);
-            case BOMB -> projectileStat = new ProjectileStat(0, 5).hitRadius(1.2).explosionDamage(2);
+            case BOMB -> projectileStat = new ProjectileStat(0, 5).hitRadius(1.5).explosionDamage(2);
+            case THROWING_SPEAR -> projectileStat = new ProjectileStat(3, 10).range(8);
         }
 
         Animation animation = ImageLoader.getAnimation(projectileType.toString());

@@ -34,6 +34,7 @@ public class Projectile extends Sprite {
         this.team = team;
         this.damage = projectileStat.getDamage();
         this.speed = projectileStat.getSpeed();
+        this.range = projectileStat.getRange();
         this.hitRadius = projectileStat.getHitRadius();
         this.explosionDamage = projectileStat.getExplosionDamage();
         this.stun = projectileStat.getStun();
@@ -65,7 +66,7 @@ public class Projectile extends Sprite {
         active = true;
         xi = getX();
         yi = getY();
-        this.range = range - getCurrentImage().getWidth();
+        this.range = Math.max(this.range, range) - getCurrentImage().getWidth();
         damage += baseDamage;
         vx = speed*Math.cos(angle);
         vy = speed*Math.sin(angle);

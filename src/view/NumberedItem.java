@@ -10,7 +10,8 @@ public class NumberedItem extends JButton {
 
     public NumberedItem(AbstractAction action){
         super(action);
-        setPreferredSize(new Dimension(GameConstants.iconSize, GameConstants.iconSize));
+        setMinimumSize(new Dimension(GameConstants.iconSize, GameConstants.iconSize));
+        setMaximumSize(new Dimension(GameConstants.iconSize, 2*GameConstants.iconSize));
         setHorizontalTextPosition(AbstractButton.CENTER);
         setVerticalTextPosition(AbstractButton.BOTTOM);
         setFocusPainted(false);

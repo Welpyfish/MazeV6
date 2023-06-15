@@ -66,6 +66,10 @@ public class Sprite {
         remove = true;
     }
 
+    public void unremove(){
+        remove = false;
+    }
+
     protected Animation getAnimation(){
         return animation;
     }
