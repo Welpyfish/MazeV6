@@ -1,3 +1,13 @@
+/*
+ * Final Project
+ * Maze
+ * William Zhou
+ * 2023-06-19
+ * ICS4UI-4
+ *
+ * The UIManager class contains and manages the game view
+ */
+
 package view;
 
 import controller.GameEngine;
@@ -25,6 +35,7 @@ public class UIManager extends JPanel {
         super();
         this.gameEngine = gameEngine;
 
+        // CardLayout allows multiple JPanels in the same space
         this.setLayout(new CardLayout());
 
         game = new JPanel();
@@ -52,6 +63,7 @@ public class UIManager extends JPanel {
         update();
     }
 
+    // Show the appropriate JPanel based on the game state
     public void update(){
         switch (gameEngine.getGameState()){
             case HOME -> {
@@ -59,6 +71,7 @@ public class UIManager extends JPanel {
             }
             case GAME -> {
                 ((CardLayout)getLayout()).show(this, "Game");
+                // Focus required for key bindings to work
                 game.requestFocusInWindow();
                 gameScreen.setPauseScreen(false);
                 inventoryUI.update();
@@ -83,6 +96,7 @@ public class UIManager extends JPanel {
         repaint();
     }
 
+    // Return a JPanel for key bindings
     public JPanel getPanel(GameState gameState){
         JPanel result = null;
         switch (gameState){

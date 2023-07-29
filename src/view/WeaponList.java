@@ -1,3 +1,13 @@
+/*
+ * Final Project
+ * Maze
+ * William Zhou
+ * 2023-06-19
+ * ICS4UI-4
+ *
+ * The WeaponList class holds the weapon select buttons
+ */
+
 package view;
 
 import controller.action.SelectWeapon;
@@ -20,6 +30,7 @@ public class WeaponList extends JPanel {
         this.player = player;
     }
 
+    // Add or remove buttons to match inventory
     public void updateItems(ArrayList<WeaponType> weaponList, WeaponType selectedWeapon){
         ArrayList<WeaponType> removed = new ArrayList<>();
         // Remove all projectile buttons that are not in inventory
@@ -36,8 +47,7 @@ public class WeaponList extends JPanel {
         for(WeaponType type : weaponList){
             if(!weaponButtons.containsKey(type)){
                 InventoryItem newWeapon = new InventoryItem(new SelectWeapon(player, type));
-                this.add(Box.createHorizontalStrut(5));
-                this.add(newWeapon);
+                this.add(newWeapon, new GBCB(GridBagConstraints.RELATIVE, 0).insets(1, 2, 1, 2));
                 weaponButtons.put(type, newWeapon);
             }
             if(type == selectedWeapon){

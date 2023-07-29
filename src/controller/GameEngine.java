@@ -1,3 +1,13 @@
+/*
+ * Final Project
+ * Maze
+ * William Zhou
+ * 2023-06-19
+ * ICS4UI-4
+ *
+ * The GameEngine class runs the game and connects all the other classes
+ */
+
 package controller;
 
 import model.*;
@@ -9,11 +19,13 @@ import java.awt.*;
 public class GameEngine implements Runnable{
     // Thread that runs the game
     private Thread thread;
-    // Helper objects
+    // Controller references
     public MapManager mapManager;
     private KeyBindings actionManager;
     private MouseController mouseController;
+    // Model reference
     private Map map;
+    // View references
     private GameFrame gameFrame;
     private UIManager uiManager;
 
@@ -22,23 +34,22 @@ public class GameEngine implements Runnable{
     public GameEngine(){
         gameState = GameState.HOME;
 
-        //map = new Map(level);
+        // Initialize objects
         map = new Map();
-        // Create new MapManager using map
         mapManager = new MapManager(map);
+        // Generate the first level to initialize objects such as player
         mapManager.startGame();
-        mouseController = new MouseController(map);
+        mouseController = new MouseController(map.player);
         uiManager = new UIManager(this);
-        // Create JFrame to hold graphics
         gameFrame = new GameFrame(uiManager);
-        // Create scrolling camera
-        actionManager = new KeyBindings(map, uiManager, this);
+        actionManager = new KeyBindings(map, uiManager);
 
         // Start game thread
         thread = new Thread(this);
         thread.start();
     }
 
+    // From Runnable interface, runs the game loop
     @Override
     public void run() {
         // Set frame count variables
@@ -48,11 +59,10 @@ public class GameEngine implements Runnable{
 
         // Loop to run the game every frame (60 fps)
         while (!thread.isInterrupted()) {
-
             long now = System.nanoTime();
             delta += (now - lastTime) / nsFrame;
             lastTime = now;
-            // Run the gameLoop when the time passed is at least 1 frame
+            // Update the game when the time passed is at least 1 frame
             while (delta >= 1) {
                 if(gameState == GameState.GAME) {
                     gameLoop();
@@ -78,12 +88,12 @@ public class GameEngine implements Runnable{
     private void gameLoop(){
         // Send the mouse position to map manager
         updateMousePos();
-        // Update model
+        // Update model through mapManager
         mapManager.update();
     }
 
     // Find the mouse position in the game JPanel
-    public void updateMousePos(){
+    private void updateMousePos(){
         mapManager.setMousePos(MouseInfo.getPointerInfo().getLocation().x-
                                 uiManager.gameScreen.getLocationOnScreen().x,
                 MouseInfo.getPointerInfo().getLocation().y-
@@ -94,6 +104,7 @@ public class GameEngine implements Runnable{
         return mouseController;
     }
 
+    // Set the game state
     public static void setGameState(GameState newState) {
         switch (newState) {
             case PAUSE -> {

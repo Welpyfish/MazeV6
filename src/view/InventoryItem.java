@@ -1,3 +1,13 @@
+/*
+ * Final Project
+ * Maze
+ * William Zhou
+ * 2023-06-19
+ * ICS4UI-4
+ *
+ * The InventoryItem class describes formatting for inventory buttons
+ */
+
 package view;
 
 import model.GameConstants;
@@ -9,8 +19,7 @@ public class InventoryItem extends JButton {
 
     public InventoryItem(AbstractAction action){
         super(action);
-        setMinimumSize(new Dimension(GameConstants.iconSize, GameConstants.iconSize));
-        setMaximumSize(new Dimension(GameConstants.iconSize, 2*GameConstants.iconSize));
+        setPreferredSize(new Dimension(GameConstants.iconSize, GameConstants.iconSize));
         setFocusPainted(false);
         setMargin(new Insets(2, 2, 2, 2));
     }

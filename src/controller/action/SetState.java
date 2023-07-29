@@ -1,3 +1,13 @@
+/*
+ * Final Project
+ * Maze
+ * William Zhou
+ * 2023-06-19
+ * ICS4UI-4
+ *
+ * The SetState class sets the GameEngine GameState
+ */
+
 package controller.action;
 
 import controller.GameEngine;
@@ -14,6 +24,7 @@ public class SetState extends AbstractAction {
         this.gameState = gameState;
     }
 
+    // Set the game state
     @Override
     public void actionPerformed(ActionEvent e) {
         GameEngine.setGameState(gameState);

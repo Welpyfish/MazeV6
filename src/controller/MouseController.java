@@ -1,40 +1,49 @@
+/*
+ * Final Project
+ * Maze
+ * William Zhou
+ * 2023-06-19
+ * ICS4UI-4
+ *
+ * The MouseController class detects mouse presses during the game to trigger attacks
+ */
+
 package controller;
 
-import model.Map;
+import model.Player;
 
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 
 public class MouseController extends MouseAdapter {
     private boolean pressed;
-    private Map map;
+    private Player player;
 
-    public MouseController(Map map){
+    public MouseController(Player player){
         pressed = false;
-        this.map = map;
+        this.player = player;
     }
 
+    // Start attack and aim towards mouse when pressed
     @Override
     public void mousePressed(MouseEvent e) {
         super.mousePressed(e);
+        // Only react if the mouse was previously released
         if(!pressed){
             pressed = true;
-            map.player.setAutoAim(false);
-            map.player.setAttacking(true);
+            player.setAutoAim(false);
+            player.setAttacking(true);
         }
     }
 
+    // Stop attacking when mouse is released
     @Override
     public void mouseReleased(MouseEvent e) {
         super.mouseReleased(e);
+        // Only react if the mouse was previously pressed
         if(pressed){
             pressed = false;
-            map.player.setAttacking(false);
+            player.setAttacking(false);
         }
-    }
-
-    public boolean isPressed() {
-        return pressed;
     }
 }

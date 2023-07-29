@@ -1,7 +1,17 @@
+/*
+ * Final Project
+ * Maze
+ * William Zhou
+ * 2023-06-19
+ * ICS4UI-4
+ *
+ * The Bow class describes shooter weapons that increase in range when held and attack on release
+ */
+
 package model.weapon;
 
-import model.*;
-import model.Character;
+import model.Animation;
+import model.Team;
 
 public class Bow extends Shooter {
 
@@ -9,6 +19,7 @@ public class Bow extends Shooter {
         super(weaponStat, team, animation);
     }
 
+    // Allow the bow to be fired before it is fully charged
     @Override
     protected boolean charged(){
         return true;

@@ -1,3 +1,13 @@
+/*
+ * Final Project
+ * Maze
+ * William Zhou
+ * 2023-06-19
+ * ICS4UI-4
+ *
+ * The Projectilelist class holds the projectile select buttons
+ */
+
 package view;
 
 import controller.action.SelectProjectile;
@@ -15,11 +25,12 @@ public class ProjectileList extends JPanel {
     private Player player;
 
     public ProjectileList(Player player){
-        super(new FlowLayout(FlowLayout.LEFT));
+        super(new GridBagLayout());
         projectileButtons = new LinkedHashMap<>();
         this.player = player;
     }
 
+    // Update button values
     public void updateItems(ConcurrentHashMap<ProjectileType, Integer> projectileList, ProjectileType selectedProjectile){
         ArrayList<ProjectileType> removed = new ArrayList<>();
         // Remove all projectile buttons that are not in inventory
@@ -39,7 +50,7 @@ public class ProjectileList extends JPanel {
                 NumberedItem newProjectile = new NumberedItem(
                         new SelectProjectile(player, type));
                 projectileButtons.put(type, newProjectile);
-                this.add(newProjectile);
+                this.add(newProjectile, new GBCB(GridBagConstraints.RELATIVE, 0).insets(1, 2, 1, 2));
             }
             projectileButtons.get(type).update(player.inventory.getProjectileCount(type));
             if(type == selectedProjectile){

@@ -1,3 +1,13 @@
+/*
+ * Final Project
+ * Maze
+ * William Zhou
+ * 2023-06-19
+ * ICS4UI-4
+ *
+ * The Weapon class is the base class for all weapons
+ */
+
 package model.weapon;
 
 import model.*;
@@ -31,7 +41,6 @@ public class Weapon extends Sprite {
     private ProjectileType projectileType;
     private int ammoCost;
 
-    // Create a weapon object given weapon stats, team, and animation
     public Weapon(WeaponStat weaponStat, Team team, Animation animation){
         super(0, 0, animation);
         this.team = team;
@@ -65,6 +74,7 @@ public class Weapon extends Sprite {
         attack(attackFrame, attackTime);
     }
 
+    // Start the cooldown state
     protected void startCooldown(){
         cooldownFrame = 0;
         attackFrame = -1;

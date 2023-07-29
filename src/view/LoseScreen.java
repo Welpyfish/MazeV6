@@ -1,3 +1,13 @@
+/*
+ * Final Project
+ * Maze
+ * William Zhou
+ * 2023-06-19
+ * ICS4UI-4
+ *
+ * The LoseScreen class displays the lose screen
+ */
+
 package view;
 
 import controller.GameState;
@@ -18,19 +28,19 @@ public class LoseScreen extends JPanel {
 
         title = new JLabel("You Lose", SwingConstants.CENTER);
         title.setFont(UIConstants.mainMenuButtonFont);
-        this.add(title, new ConstraintBuilder(0, 0).width(3));
+        this.add(title, new GBCB(0, 0).width(3));
 
-        restart = new JButton(new SetState(GameState.RESTART));
-        restart.setText("Play Again");
+        restart = new JButton(new SetState(GameState.STARTGAME));
+        restart.setText("Restart Level");
         restart.setFont(UIConstants.menuButtonFont);
-        this.add(restart, new ConstraintBuilder(1, 1));
+        this.add(restart, new GBCB(1, 1));
 
         home = new JButton(new SetState(GameState.HOME));
         home.setText("Back to home");
         home.setFont(UIConstants.menuButtonFont);
-        this.add(home, new ConstraintBuilder(1, 2));
+        this.add(home, new GBCB(1, 2));
 
-        this.add(Box.createHorizontalStrut(1), new ConstraintBuilder(0, 5).weightx(0.3));
-        this.add(Box.createHorizontalStrut(1), new ConstraintBuilder(2, 5).weightx(0.3));
+        this.add(Box.createHorizontalStrut(1), new GBCB(0, 5).weightx(0.3));
+        this.add(Box.createHorizontalStrut(1), new GBCB(2, 5).weightx(0.3));
     }
 }

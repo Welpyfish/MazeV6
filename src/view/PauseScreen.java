@@ -1,3 +1,13 @@
+/*
+ * Final Project
+ * Maze
+ * William Zhou
+ * 2023-06-19
+ * ICS4UI-4
+ *
+ * The PauseScreen class displays the pause screen
+ */
+
 package view;
 
 import controller.GameState;
@@ -10,7 +20,7 @@ public class PauseScreen extends JPanel {
     private JPanel menu;
     private JLabel title;
     private JButton resume;
-    private JButton retry;
+    private JButton restart;
     private JButton home;
 
     public PauseScreen(){
@@ -29,27 +39,28 @@ public class PauseScreen extends JPanel {
 
         title = new JLabel("Paused", SwingConstants.CENTER);
         title.setFont(UIConstants.menuTitleFont);
-        menu.add(title, new ConstraintBuilder(0, 0).width(3));
+        menu.add(title, new GBCB(0, 0).width(3));
 
         resume = new JButton(new SetState(GameState.GAME));
         resume.setText("Resume");
         resume.setFont(UIConstants.menuButtonFont);
-        menu.add(resume, new ConstraintBuilder(1, 1));
+        menu.add(resume, new GBCB(1, 1));
 
-        retry = new JButton(new SetState(GameState.STARTGAME));
-        retry.setText("Retry");
-        retry.setFont(UIConstants.menuButtonFont);
-        menu.add(retry, new ConstraintBuilder(1, 2));
+        restart = new JButton(new SetState(GameState.STARTGAME));
+        restart.setText("Restart Level");
+        restart.setFont(UIConstants.menuButtonFont);
+        menu.add(restart, new GBCB(1, 2));
 
         home = new JButton(new SetState(GameState.HOME));
         home.setText("Back to home");
         home.setFont(UIConstants.menuButtonFont);
-        menu.add(home, new ConstraintBuilder(1, 3));
+        menu.add(home, new GBCB(1, 3));
 
-        this.add(Box.createHorizontalStrut(1), new ConstraintBuilder(0, 5).weightx(0.3));
-        this.add(Box.createHorizontalStrut(1), new ConstraintBuilder(2, 5).weightx(0.3));
+        this.add(Box.createHorizontalStrut(1), new GBCB(0, 5).weightx(0.3));
+        this.add(Box.createHorizontalStrut(1), new GBCB(2, 5).weightx(0.3));
     }
 
+    // Override to draw a translucent background
     @Override
     protected void paintComponent(Graphics g){
         g.setColor(getBackground());

@@ -1,3 +1,13 @@
+/*
+ * Final Project
+ * Maze
+ * William Zhou
+ * 2023-06-19
+ * ICS4UI-4
+ *
+ * The Move action sets the player's target direction
+ */
+
 package controller.action;
 
 import model.Player;
@@ -15,6 +25,7 @@ public class Move extends AbstractAction {
         this.y = y;
     }
 
+    // Set the player movement direction
     @Override
     public void actionPerformed(ActionEvent e) {
         player.setMovementDirection(x, y);

@@ -1,15 +1,24 @@
+/*
+ * Final Project
+ * Maze
+ * William Zhou
+ * 2023-06-19
+ * ICS4UI-4
+ *
+ * The Sprite class is the base class for all sprites
+ */
+
 package model;
 
-import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.util.ArrayList;
-import java.util.Deque;
 
-// done round one uml
-
-// basic object
 public class Sprite {
     private double x, y;
+    private double width, height;
+    private double vx;
+    private double vy;
+    private boolean collided;
+    private boolean collision;
     private boolean remove;
     private Animation animation;
 
@@ -24,18 +33,92 @@ public class Sprite {
         this.animation = animation;
     }
 
+    public Sprite(double x, double y, double width, double height, Animation animation){
+        this.x = x;
+        this.y = y;
+        this.width = width;
+        this.height = height;
+        this.vx = 0;
+        this.vy = 0;
+        this.collision = false;
+        this.remove = false;
+        this.animation = animation;
+    }
+
+    // Update
     public void update(){
+        collided = false;
+        // Update animation
         if(animation!=null){
             animation.update();
         }
     }
 
-    public int getX() {
+    public void updateX(){
+        x += vx;
+    }
+
+    public void updateY(){
+        y += vy;
+    }
+
+    public boolean intersects(Sprite sprite){
+        if(this.x >= sprite.x + sprite.width){
+            return false;
+        }
+        if(this.x + this.width <= sprite.x){
+            return false;
+        }
+        if(this.y >= sprite.y + sprite.height){
+            return false;
+        }
+        if(this.y + this.height <= sprite.y){
+            return false;
+        }
+        return true;
+    }
+
+    public void collide(Sprite collider, boolean horizontal){
+        collided = true;
+        if(horizontal){
+            if(vx > 0){
+                this.x = collider.x - this.width;
+            }else {//if(vx < 0){
+                this.x = collider.x + collider.width;
+            }
+            vx = 0;
+        }else{
+            if(vy < 0){
+                this.y = collider.y + collider.height;
+            }else {//if(vy > 0){
+                this.y = collider.y - this.height;
+            }
+            vy = 0;
+        }
+    }
+
+    public double getX() {
+        return x;
+    }
+
+    public double getY() {
+        return y;
+    }
+
+    public int getIntX() {
         return (int) x;
     }
 
-    public int getY() {
+    public int getIntY() {
         return (int) y;
+    }
+
+    protected int getCenterX(){
+        return (int) (x + width/2);
+    }
+
+    protected int getCenterY(){
+        return (int) (y + height/2);
     }
 
     public boolean removed(){
@@ -74,8 +157,35 @@ public class Sprite {
         return animation;
     }
 
-    // to be removed
-    protected void setAnimation(Animation animation) {
-        this.animation = animation;
+    public boolean hasCollision() {
+        return collision;
+    }
+
+    public void setCollision(boolean collision) {
+        this.collision = collision;
+    }
+
+    public double getVx() {
+        return vx;
+    }
+
+    public void setVx(double vx) {
+        this.vx = vx;
+    }
+
+    public double getVy() {
+        return vy;
+    }
+
+    public void setVy(double vy) {
+        this.vy = vy;
+    }
+
+    public boolean isCollided() {
+        return collided;
+    }
+
+    public void setCollided(boolean collided) {
+        this.collided = collided;
     }
 }

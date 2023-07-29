@@ -1,11 +1,19 @@
+/*
+ * Final Project
+ * Maze
+ * William Zhou
+ * 2023-06-19
+ * ICS4UI-4
+ *
+ * The Projectile class describes all projectiles fired from shooter weapons
+ * Projectiles are represented as points and don't stick to the grid
+ */
+
 package model.weapon;
 
 import model.*;
-import model.Character;
 
 public class Projectile extends Sprite {
-    // Reference to map to check surroundings
-    Map map;
     // Fired by player, enemy, or game level
     private Team team;
     // If the projectile has been fired
@@ -25,12 +33,10 @@ public class Projectile extends Sprite {
     private int xi, yi;
     // Angle the projectile is facing
     private double angle;
-    // Current velocity
-    private double vx, vy;
 
     // Create a projectile
     public Projectile(ProjectileStat projectileStat, Team team, Animation animation){
-        super(0, 0, animation);
+        super(0, 0, 1, 1, animation);
         this.team = team;
         this.damage = projectileStat.getDamage();
         this.speed = projectileStat.getSpeed();
@@ -39,19 +45,22 @@ public class Projectile extends Sprite {
         this.explosionDamage = projectileStat.getExplosionDamage();
         this.stun = projectileStat.getStun();
         active = false;
+        setCollision(false);
     }
 
+    // Update
+    @Override
     public void update(){
         // If launched
         if(active) {
-            // Move in a straight line
-            changeX(vx);
-            changeY(vy);
             // Get destroyed if at end of range
             if (Math.hypot(getX() - xi, getY() - yi) > range) {
                 remove();
             }
         }
+        super.update();
+        updateX();
+        updateY();
     }
 
     // Called from the Shooter class to update location and angle
@@ -61,15 +70,15 @@ public class Projectile extends Sprite {
         setY(y);
     }
 
-    // Called from the Shooter class when the projectile is released, set launch values
+    // Called from the Shooter class when the projectile is released, sets launch values
     public void launch(int range, int baseDamage){
         active = true;
-        xi = getX();
-        yi = getY();
+        xi = getIntX();
+        yi = getIntY();
         this.range = Math.max(this.range, range) - getCurrentImage().getWidth();
         damage += baseDamage;
-        vx = speed*Math.cos(angle);
-        vy = speed*Math.sin(angle);
+        setVx(speed*Math.cos(angle));
+        setVy(speed*Math.sin(angle));
     }
 
     // Getters

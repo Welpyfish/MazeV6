@@ -1,3 +1,13 @@
+/*
+ * Final Project
+ * Maze
+ * William Zhou
+ * 2023-06-19
+ * ICS4UI-4
+ *
+ * The WeaponType enum holds possible weapon types
+ */
+
 package model.weapon;
 
 public enum WeaponType {
@@ -6,6 +16,7 @@ public enum WeaponType {
     SPEAR,
     BOW,
     GUN,
+    TURRET,
     THROW;
 
     @Override

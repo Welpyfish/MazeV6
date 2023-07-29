@@ -1,3 +1,13 @@
+/*
+ * Final Project
+ * Maze
+ * William Zhou
+ * 2023-06-19
+ * ICS4UI-4
+ *
+ * The NumberedItem class describes buttons with numbers
+ */
+
 package view;
 
 import model.GameConstants;
@@ -10,13 +20,12 @@ public class NumberedItem extends JButton {
 
     public NumberedItem(AbstractAction action){
         super(action);
-        setMinimumSize(new Dimension(GameConstants.iconSize, GameConstants.iconSize));
-        setMaximumSize(new Dimension(GameConstants.iconSize, 2*GameConstants.iconSize));
+        setPreferredSize(new Dimension(GameConstants.iconSize, GameConstants.iconSize));
         setHorizontalTextPosition(AbstractButton.CENTER);
         setVerticalTextPosition(AbstractButton.BOTTOM);
         setFocusPainted(false);
-        amount = -1;
         setMargin(new Insets(2, 2, 2, 2));
+        amount = -1;
     }
 
     public void update(int value){

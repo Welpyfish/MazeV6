@@ -1,7 +1,14 @@
-package model;
+/*
+ * Final Project
+ * Maze
+ * William Zhou
+ * 2023-06-19
+ * ICS4UI-4
+ *
+ * The Tile class represents the spaced out locations that objects occupy
+ */
 
-import java.awt.*;
-import java.util.Stack;
+package model;
 
 public class Tile extends Sprite{
     private final int gridx, gridy;

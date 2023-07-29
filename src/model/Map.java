@@ -1,7 +1,15 @@
+/*
+ * Final Project
+ * Maze
+ * William Zhou
+ * 2023-06-19
+ * ICS4UI-4
+ *
+ * The Map class is a container for all game objects
+ */
+
 package model;
 
-import controller.GameEngine;
-import controller.GameState;
 import model.item.*;
 import model.weapon.*;
 
@@ -10,45 +18,57 @@ import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
-// Hold all game objects
 public class Map {
     public Tile[][] tileMap;
     public Player player;
     private TileObject endPortal;
+
+    public ArrayList<Sprite> sprites;
+
     public ArrayList<Character> characters;
     public ArrayList<TileObject> gameElements;
     public ArrayList<Projectile> projectiles;
     public ArrayList<Item> items;
     public ArrayList<VisualEffect> effects;
-    public ArrayList<Portal> portals;
+
+    private ConcurrentHashMap<Integer, TileObject> doors;
+
     private Point mouse;
     private boolean gameOver;
 
     public Map(){
+        sprites = new ArrayList<>();
+
         gameElements = new ArrayList<>();
         projectiles = new ArrayList<>();
         characters = new ArrayList<>();
         items = new ArrayList<>();
         effects = new ArrayList<>();
-        portals = new ArrayList<>();
         mouse = new Point(0, 0);
         new WeaponFactory(this);
+
+        doors = new ConcurrentHashMap<>();
     }
 
+    // Update all objects for 1 frame
     public void update(){
         updateObjects();
         manageInteractions();
         removeObjects();
     }
 
+    // Update all objects
     private void updateObjects(){
         for(Projectile projectile : projectiles){
             projectile.update();
+            updateSpriteLocation(projectile);
         }
 
         for(Character character : characters){
             character.update();
+            updateSpriteLocation(character);
         }
 
         for(VisualEffect effect : effects){
@@ -64,39 +84,88 @@ public class Map {
         }
     }
 
+    private void updateSpriteLocation(Sprite sprite){
+        if(sprite.hasCollision()) {
+            sprite.updateX();
+            for(Sprite collider : sprites){
+                if(sprite!=collider && collider.hasCollision() && sprite.intersects(collider)){
+                    sprite.collide(collider, true);
+                }
+            }
+            sprite.updateY();
+            for(Sprite collider : sprites){
+                if(sprite!=collider && collider.hasCollision() && sprite.intersects(collider)){
+                    sprite.collide(collider, false);
+                }
+            }
+        }
+    }
+
+    // Manage interactions between objects such as collision
     private void manageInteractions(){
         for(Projectile projectile : projectiles){
-            projectileCollision(projectile);
-        }
-
-        if(endPortal.getRect().contains(player.getRect())){
-            gameOver = true;
-        }
-        Item item = checkItems(player.getRect());
-        if(item!=null){
-            if(item.getWeaponType()!=null){
-                player.addWeapon(item.getWeaponType());
-            }else if(item.getProjectileType()!=null){
-                player.inventory.changeProjectile(item.getProjectileType(), item.getAmount());
-            }else{
-                player.changeHp(item.getAmount());
+            if(projectile.isActive()) {
+                projectileCollision(projectile);
             }
         }
 
+        checkDoors(player);
+        // Check end portal
+        if(endPortal.getRect().contains(player.getRect())){
+            gameOver = true;
+        }
+
+        // Collect items
+        Item item = checkItems(player.getRect());
+        if(item!=null){
+            switch (item.getItemType()){
+                case WEAPON -> player.addWeapon(item.getWeaponType());
+                case PROJECTILE -> player.inventory.changeProjectile(item.getProjectileType(), item.getAmount());
+                case HP -> player.changeHp(item.getAmount());
+                case COIN -> player.inventory.changeCoins(item.getAmount());
+                case KEY -> player.inventory.getKeys().add(item.getAmount());
+            }
+        }
+
+        // Check melee weapon collision
         for(Character character : characters){
             if(character.getWeapon() instanceof Melee){
                 weaponCollision((Melee) character.getWeapon());
             }
         }
+
+        for(TileObject tileObject : gameElements){
+            if(tileObject.getGameObjectType() == GameObjectType.MINE){
+                checkMine(tileObject);
+            }
+        }
     }
 
+    // Remove objects that should not exist anymore
     private void removeObjects(){
+        for(int i=gameElements.size()-1; i>=0; i--){
+            if(gameElements.get(i).removed()){
+                if(gameElements.get(i).hasCollision()) {
+                    tileMap[gameElements.get(i).getGridx()][gameElements.get(i).getGridy()].setOccupied(false);
+                }
+                if(gameElements.get(i).getGameObjectType() == GameObjectType.MINE){
+                    Projectile explosion = WeaponFactory.createProjectile(ProjectileType.BOMB, Team.ENEMY);
+                    explosion.updateWhenLoaded(gameElements.get(i).getCenterX(), gameElements.get(i).getCenterY(), 0);
+                    createExplosion(explosion);
+                    explosion.remove();
+                }
+                gameElements.remove(i);
+            }
+        }
+
+        // End game if player died
         if(player.removed()){
             gameOver = true;
         }
 
         for(int i=projectiles.size()-1; i>=0; i--){
             if(projectiles.get(i).removed()){
+                // If activated (launched), projectiles will explode
                 if(projectiles.get(i).isActive() && projectiles.get(i).getHitRadius() > 0){
                     createExplosion(projectiles.get(i));
                 }
@@ -105,11 +174,16 @@ public class Map {
         }
 
         for(int i=characters.size()-1; i>=0; i--){
-            if(characters.get(i).removed()){
-                WeaponType weaponType = characters.get(i).getWeapon().getWeaponID().weaponType();
-                if (player.inventory.getWeapon(weaponType) == null && weaponType != WeaponType.THROW) {
-                    items.add(new WeaponItem(characters.get(i).getCenterX(), characters.get(i).getCenterY(), weaponType));
+            // Enemies drop weapons if the player doesn't have the weapon yet
+            if(characters.get(i).removed() && characters.get(i) instanceof Enemy){
+                Enemy enemy = (Enemy) characters.get(i);
+                WeaponType weaponType =enemy.getWeapon().getWeaponID().weaponType();
+                if (player.inventory.getWeapon(weaponType) == null && weaponType != WeaponType.THROW && enemy.isDropWeapon()) {
+                    items.add(new Item(enemy.getCenterX(), enemy.getCenterY(), ItemType.WEAPON,
+                            ImageLoader.getAnimation(weaponType.toString())).weaponType(weaponType));
                 }
+                items.add(new Item(enemy.getCenterX(), enemy.getCenterY(), ItemType.COIN,
+                        ImageLoader.getAnimation("coin"+enemy.getCoinValue())).amount(enemy.getCoinValue()));
                 characters.remove(i);
             }
         }
@@ -125,27 +199,37 @@ public class Map {
                 items.remove(i);
             }
         }
+
+        for(int i=sprites.size()-1; i>=0; i--){
+            if(sprites.get(i).removed()){
+                sprites.remove(i);
+            }
+        }
     }
 
-    /*
-     * Generate a starting map using pixels from an image
-     *
-     */
+    // Generate a map using image pixels
     public void generateMap(int level){
+        // Reset collections
+        sprites.clear();
+
         gameOver = false;
         gameElements.clear();
         projectiles.clear();
         characters.clear();
         items.clear();
         effects.clear();
-        portals.clear();
+        doors.clear();
+        //portals.clear();
         HashMap<Integer, Tile> p = new HashMap<>();
+        // Load the image for level map which includes characters and game elements (walls)
         BufferedImage levelMap = ImageLoader.loadImage("media/level"+level+".png");
+        // Load the second layer that contains information about items and weapons
         BufferedImage itemMap = ImageLoader.loadImage("media/level"+level+"items.png");
         tileMap = new Tile[levelMap.getWidth()][levelMap.getHeight()];
         for(int y=0; y< levelMap.getHeight(); y++){
             for(int x=0; x<levelMap.getWidth(); x++){
                 tileMap[x][y] = new Tile(x, y);
+                // Decode the pixels
                 int levelColor = levelMap.getRGB(x, y);
                 int levelRed = (levelColor & 0xff0000) >> 16;
                 int levelGreen = (levelColor & 0xff00) >> 8;
@@ -156,55 +240,129 @@ public class Map {
                 int itemGreen = (itemColor & 0xff00) >> 8;
                 int itemBlue = itemColor & 0xff;
 
+                // Black creates game elements
                 if(levelRed == levelGreen && levelGreen == levelBlue){
                     switch (levelRed){
                         case 0 -> {
                             TileObject newWall = new TileObject(tileMap[x][y], ImageLoader.getAnimation("wall"));
-                            tileMap[x][y].setOccupied(true);
+                            newWall.setCollision(true);
+                            //tileMap[x][y].setOccupied(true);
                             gameElements.add(newWall);
+                            sprites.add(newWall);
                         }
                         case 1 -> {
                             endPortal = new TileObject(tileMap[x][y], ImageLoader.getAnimation("end_portal"));
+                            endPortal.getAnimation().play();
                             gameElements.add(endPortal);
+                            sprites.add(endPortal);
+                        }
+                        case 2 -> {
+                            TileObject newDoor = new TileObject(tileMap[x][y], ImageLoader.getAnimation("door"));
+                            newDoor.setCollision(true);
+                            //tileMap[x][y].setOccupied(true);
+                            gameElements.add(newDoor);
+                            doors.put(itemBlue&0xf, newDoor);
+                        }
+                        case 3 -> {
+                            TileObject newWall = new TileObject(tileMap[x][y], ImageLoader.getAnimation("fake_wall"));
+                            tileMap[x][y].setOccupied(false);
+                            gameElements.add(newWall);
+                            sprites.add(newWall);
+                        }
+                        case 5 -> {
+                            Turret newTurret = new Turret(tileMap[x][y],
+                                    WeaponFactory.createWeapon(WeaponType.TURRET, Team.ENEMY),
+                                    getProjectileType((itemGreen & 0b1110000) >> 4, (itemBlue & 0b1110000) >> 4), ImageLoader.getAnimation("door2"));
+                            gameElements.add(newTurret);
+                            sprites.add(newTurret);
+                        }
+                        case 6 -> {
+                            TileObject newMine = new TileObject(tileMap[x][y].getIntX(),
+                                    tileMap[x][y].getIntY(), GameObjectType.MINE, ImageLoader.getAnimation("door2"));
+                            gameElements.add(newMine);
+                            sprites.add(newMine);
                         }
                     }
                 }
+                // Red creates enemies
                 else if(levelRed == 255 && levelGreen < 128 && levelBlue < 128){
-                    Enemy newEnemy = new Enemy(tileMap[x][y],
-                            WeaponFactory.createWeapon(getWeaponType((itemGreen&0b1110000)>>4, itemGreen&0b111),
-                                    Team.ENEMY),
-                            getProjectileType((itemGreen&0b1110000)>>4, (itemBlue&0b1110000)>>4),
-                            this);
-                    characters.add(newEnemy);
+                    Weapon weapon = WeaponFactory.createWeapon(getWeaponType((itemGreen & 0b1110000) >> 4, itemGreen & 0b111),
+                            Team.ENEMY);
+                    ProjectileType projectileType = getProjectileType((itemGreen & 0b1110000) >> 4, (itemBlue & 0b1110000) >> 4);
+                    if(levelBlue == 4){
+
+                    }else {
+                        // The enemy weapon is found from the item map
+                        Enemy newEnemy = new Enemy(tileMap[x][y], weapon, projectileType, ImageLoader.getAnimation("enemy"),
+                                this);
+                        characters.add(newEnemy);
+                        sprites.add(newEnemy);
+                    }
                 }
+                // Green creates player
                 else if(levelGreen == 255 && levelRed < 128 && levelBlue < 128){
                     if(player == null) {
-                        player = new Player(tileMap[x][y], this);
+                        player = new Player(tileMap[x][y], ImageLoader.getAnimation("player"), this);
                     }else{
                         player.reset();
                         player.setLocation(tileMap[x][y]);
                     }
                     characters.add(player);
+                    sprites.add(player);
                 }
+                // Blue creates items
                 else if(levelBlue == 255 && levelRed < 128 && levelGreen < 128){
                     int amount = itemBlue&0xf;
+                    // Red items are weapons
                     if(itemRed == 255){
                         if(amount == 0){
-                            items.add(new WeaponItem(tileMap[x][y].getX()+GameConstants.tileSize/2,
-                                    tileMap[x][y].getY()+GameConstants.tileSize/2,
-                                    getWeaponType((itemGreen&0b1110000)>>4, itemGreen&0b111)));
+                            WeaponType weaponType = getWeaponType((itemGreen&0b1110000)>>4, itemGreen&0b111);
+                            Item newItem = new Item(tileMap[x][y].getIntX()+GameConstants.tileSize/2,
+                                    tileMap[x][y].getIntY()+GameConstants.tileSize/2,
+                                    ItemType.WEAPON,
+                                    ImageLoader.getAnimation(weaponType.toString())).weaponType(weaponType);
+                            items.add(newItem);
+                            sprites.add(newItem);
                         }else{
-                            items.add(new ProjectileItem(tileMap[x][y].getX()+GameConstants.tileSize/2,
-                                    tileMap[x][y].getY()+GameConstants.tileSize/2,
-                                    getProjectileType((itemGreen&0b1110000)>>4, (itemBlue&0b1110000)>>4),
-                                    amount));
+                            ProjectileType projectileType = getProjectileType((itemGreen&0b1110000)>>4, (itemBlue&0b1110000)>>4);
+                            Item newItem = new Item(tileMap[x][y].getIntX()+GameConstants.tileSize/2,
+                                    tileMap[x][y].getIntY()+GameConstants.tileSize/2,
+                                    ItemType.PROJECTILE,
+                                    ImageLoader.getAnimation(projectileType.toString())).amount(amount).projectileType(projectileType);
+                            items.add(newItem);
+                            sprites.add(newItem);
                         }
-                    }else if(itemGreen == 255){
+                    }
+                    // Green items are hp
+                    else if(itemGreen == 255){
                         int type = itemRed&0b1111111;
                         if(type == 2){
-                            items.add(new HpItem(tileMap[x][y].getX()+GameConstants.tileSize/2,
-                                    tileMap[x][y].getY()+GameConstants.tileSize/2,
-                                    amount));
+                            Item newItem = new Item(tileMap[x][y].getIntX()+GameConstants.tileSize/2,
+                                    tileMap[x][y].getIntY()+GameConstants.tileSize/2,
+                                    ItemType.HP, ImageLoader.getAnimation("heart"+amount)).amount(amount);
+                            items.add(newItem);
+                            sprites.add(newItem);
+                        }
+                        else if(type == 3){
+                            Item newItem = new Item(tileMap[x][y].getIntX()+GameConstants.tileSize/2,
+                                    tileMap[x][y].getIntY()+GameConstants.tileSize/2,
+                                    ItemType.COIN, ImageLoader.getAnimation("coin"+amount)).amount(amount);
+                            items.add(newItem);
+                            sprites.add(newItem);
+                        }
+                        else if(type == 4){
+                            // start at 2 (1 is end key)
+                            String path = "key";
+                            if(amount == 1){
+                                path = "endkey";
+                            }else if(amount > 100){
+                                path = "cagekey";
+                            }
+                            Item newItem = new Item(tileMap[x][y].getIntX()+GameConstants.tileSize/2,
+                                    tileMap[x][y].getIntY()+GameConstants.tileSize/2,
+                                    ItemType.KEY, ImageLoader.getAnimation(path)).amount(amount);
+                            items.add(newItem);
+                            sprites.add(newItem);
                         }
                     }
                 }
@@ -212,9 +370,9 @@ public class Map {
         }
     }
 
+    // Return the weapon type that corresponds to the code from a pixel
     private WeaponType getWeaponType(int weaponClassCode, int weaponTypeCode){
         WeaponType weaponType = null;
-        System.out.println(weaponClassCode+" "+weaponTypeCode);
         switch (weaponClassCode){
             case 0 -> {
                 weaponType = WeaponType.THROW;
@@ -245,9 +403,9 @@ public class Map {
         return weaponType;
     }
 
+    // Return the projectile type that corresponds to the code from a pixel
     private ProjectileType getProjectileType(int weaponClassCode, int projectileTypeCode){
         ProjectileType projectileType = null;
-        System.out.println(weaponClassCode+" "+projectileTypeCode);
         switch (weaponClassCode){
             case 0 -> {
                 switch (projectileTypeCode){
@@ -271,9 +429,10 @@ public class Map {
         return projectileType;
     }
 
-    static String weaponCode(int c, int w, int p, int s){
-        return (c<<4)+(w)+" "+(p<<4)+s;
-    }
+    // Used when designing levels to get the correct rgb colour
+//    static String weaponCode(int c, int w, int p, int s){
+//        return (c<<4)+(w)+" "+(p<<4)+s;
+//    }
 
     public Point getMouse() {
         return mouse;
@@ -285,14 +444,16 @@ public class Map {
 
     // Check projectile collisions
     private void projectileCollision(Projectile projectile){
+        // Collisions with game elements
         for (TileObject collider : gameElements) {
-            if (collider.getRect().contains(projectile.getX(), projectile.getY())) {
+            if (collider.hasCollision() && collider.getRect().contains(projectile.getIntX(), projectile.getIntY())) {
                 projectile.remove();
             }
         }
+        // Collisions with characters
         for(Character character : characters){
             if (projectile.getTeam() != character.getWeapon().getTeam() &&
-                    character.getRect().contains(projectile.getX(), projectile.getY())) {
+                    character.getRect().contains(projectile.getIntX(), projectile.getIntY())) {
                 projectile.remove();
                 character.changeHp(-projectile.getDamage());
                 character.setStun(projectile.getStun());
@@ -300,21 +461,33 @@ public class Map {
         }
     }
 
+    // Create an explosion from a projectile
     private void createExplosion(Projectile projectile){
+        projectile.setVx(-projectile.getVx());
+        projectile.setVy(-projectile.getVy());
+        projectile.updateX();
+        projectile.updateY();
+//        projectile.setCollision(true);
+//        projectile.setVx(-projectile.getVx());
+//        projectile.setVy(-projectile.getVy());
+//        updateSpriteLocation(projectile);
         for(Character character : characters){
-            if(inLineOfSight(character.getCenter(), new Point(projectile.getX(), projectile.getY()), projectile.getHitRadius())){
+            if(inLineOfSight(character.getCenter(), new Point(projectile.getCenterX(), projectile.getCenterY()), projectile.getHitRadius())){
                 character.changeHp(-projectile.getExplosionDamage());
             }
         }
-        effects.add(new VisualEffect(projectile.getX(), projectile.getY(), ImageLoader.getAnimation("explosion")));
+        VisualEffect newEffect = new VisualEffect(projectile.getCenterX(), projectile.getCenterY(), ImageLoader.getAnimation("explosion"));
+        effects.add(newEffect);
+        sprites.add(newEffect);
     }
 
     // Check if a weapon hit a character
     private void weaponCollision(Melee weapon){
         if(weapon.isActive()) {
-            Line2D.Double weaponLine = new Line2D.Double(weapon.getX(), weapon.getY(),
-                    weapon.getX() + weapon.getCurrentImage().getWidth() * Math.cos(weapon.getAngle()),
-                    weapon.getY() + weapon.getCurrentImage().getWidth() * Math.sin(weapon.getAngle()));
+            // The melee weapon is represented by a line
+            Line2D.Double weaponLine = new Line2D.Double(weapon.getIntX(), weapon.getIntY(),
+                    weapon.getIntX() + weapon.getCurrentImage().getWidth() * Math.cos(weapon.getAngle()),
+                    weapon.getIntY() + weapon.getCurrentImage().getWidth() * Math.sin(weapon.getAngle()));
             for (Character character : characters) {
                 if (weapon.getTeam() != character.getWeapon().getTeam() &&
                         weaponLine.intersects(character.getRect()) &&
@@ -326,29 +499,48 @@ public class Map {
         }
     }
 
+    private void checkDoors(Player player){
+        if(player.isAttacking()){
+            for(Integer id : doors.keySet()){
+                TileObject door = doors.get(id);
+                if(Math.abs(door.getIntX()-player.getIntX())+Math.abs(door.getIntY()-player.getIntY()) <= GameConstants.tileSize
+                        && player.inventory.getKeys().contains(id)){
+                    player.inventory.getKeys().remove(id);
+                    door.setCollision(false);
+                    door.getAnimation().play();
+                    door.getAnimation().update();
+                    door.getAnimation().pause();
+                    tileMap[door.getGridx()][door.getGridy()].setOccupied(false);
+                }
+            }
+        }
+    }
+
+    // Check if 2 points have no game elements between them
     private boolean inLineOfSight(Point2D p1, Point2D p2) {
         Line2D line = new Line2D.Double(p1.getX(), p1.getY(), p2.getX(), p2.getY());
         for (TileObject collider : gameElements) {
-            if (line.intersects(collider.getRect())) {
+            if (collider.hasCollision() && line.intersects(collider.getRect())) {
                 return false;
             }
         }
         return true;
     }
 
-    // To be refactored to not use character references
+    // Line of sight with a range limitation
     private boolean inLineOfSight(Point p1, Point p2, double sightRange){
         return inLineOfSight(p1, p2) && Math.hypot(p1.x - p2.x, p1.y - p2.y)<sightRange;
     }
 
+    // Find the closest target for a character to auto aim at
     public Point findClosestTarget(Point center, double sightRange, Team team){
         Character closest = null;
         if(team == Team.PLAYER){
             for(Character enemy : characters){
                 // Distance to the enemy
-                double t = Math.hypot(enemy.getX()-player.getX(), enemy.getY()-player.getY());
+                double t = Math.hypot(enemy.getIntX()-player.getIntX(), enemy.getIntY()-player.getIntY());
                 // If there is no enemy yet or the new enemy is closer and in sight range
-                if((closest==null||t < Math.hypot(closest.getX()-player.getX(), closest.getY()-player.getY())) &&
+                if((closest==null||t < Math.hypot(closest.getIntX()-player.getIntX(), closest.getIntY()-player.getIntY())) &&
                         inLineOfSight(center, enemy.getCenter(), sightRange) && enemy.getWeapon().getTeam()!=Team.PLAYER){
                     closest = enemy;
                 }
@@ -364,25 +556,26 @@ public class Map {
         return new Point(closest.getCenterX(), closest.getCenterY());
     }
 
-    // Return the end of a portal if applicable
-    public Tile checkPortals(Tile tile){
-        for(Portal portal : portals){
-            if(tile.equals(portal.getStart())){
-                return portal.getEnd();
-            }
-        }
-        return null;
-    }
-
-    // Send collected items to player to be collected
+    // Check item and player interaction
     public Item checkItems(Rectangle playerRectangle){
         for(Item item : items){
-            if(playerRectangle.contains(item.getX(), item.getY())){
+            if(player.intersects(item)){
                 item.remove();
                 return item;
             }
         }
         return null;
+    }
+
+    private void checkMine(TileObject mine){
+        if(player.intersects(mine)){
+            mine.remove();
+        }
+        for(Projectile p : projectiles){
+            if(p.removed() && p.isActive() && mine.intersects(p)){
+                mine.remove();
+            }
+        }
     }
 
     public boolean isGameOver() {

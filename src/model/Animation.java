@@ -1,9 +1,17 @@
+/*
+ * Final Project
+ * Maze
+ * William Zhou
+ * 2023-06-19
+ * ICS4UI-4
+ *
+ * The Animation class represents a single animation or series of images
+ */
+
 package model;
 
 import java.awt.image.BufferedImage;
-import java.util.ArrayList;
 
-// uml done
 public class Animation {
     private BufferedImage[] images;
     private int image;
@@ -32,16 +40,14 @@ public class Animation {
         playing = false;
     }
 
-    public BufferedImage getImage(){
-        return images[image];
-    }
-
+    // Update the animation
     public void update(){
         // Update if the animation is not a still image
         if(playing && images.length > 1) {
             // Move to next image when the frame time is up
             if(frameCounter == frameTime) {
                 frameCounter = 0;
+                // Loop if at the end of the animation
                 if (atEnd()) {
                     image = 0;
                 } else {
@@ -54,27 +60,36 @@ public class Animation {
         }
     }
 
+    // Set the frame of the animation
     public void setFrame(int frame){
         image = frame;
         frameCounter = 0;
     }
 
-    //may be removed
+    // Reset the animation
     public void reset(){
         playing = false;
         image = 0;
         frameCounter = 0;
     }
 
+    // Play the animation
     public void play(){
         playing = true;
     }
 
+    // Pause the animation
     public void pause(){
         playing = false;
     }
 
+    // Return true if at the end of the animation
     public boolean atEnd() {
         return image == images.length - 1;
+    }
+
+    // Return the current image
+    public BufferedImage getImage(){
+        return images[image];
     }
 }

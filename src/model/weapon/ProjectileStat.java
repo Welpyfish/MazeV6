@@ -1,3 +1,15 @@
+/*
+ * Final Project
+ * Maze
+ * William Zhou
+ * 2023-06-19
+ * ICS4UI-4
+ *
+ * The ProjectileStat class holds all stats relevant to projectile creation
+ * This reduces the number of parameters in the constructor and allows default values
+ * Builder pattern is used for optional values
+ */
+
 package model.weapon;
 
 import model.GameConstants;

@@ -1,11 +1,16 @@
+/*
+ * Final Project
+ * Maze
+ * William Zhou
+ * 2023-06-19
+ * ICS4UI-4
+ *
+ * The Spear class describes melee weapons that attack by stabbing
+ */
+
 package model.weapon;
 
 import model.*;
-import model.Character;
-
-import java.awt.geom.Line2D;
-import java.util.ArrayList;
-import java.util.HashSet;
 
 public class Spear extends Melee{
 
@@ -13,6 +18,7 @@ public class Spear extends Melee{
         super(weaponStat, team, animation);
     }
 
+    // Attack action
     @Override
     protected void attack(int attackFrame, int attackTime){
         super.attack(attackFrame, attackTime);
@@ -21,6 +27,7 @@ public class Spear extends Melee{
         setY(getY() + Math.sin(getAngle())*getCurrentRange());
     }
 
+    // Cooldown action
     @Override
     protected void cooldown(int cooldownFrame, int cooldownTime){
         super.cooldown(cooldownFrame, cooldownTime);

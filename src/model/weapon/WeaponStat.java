@@ -1,3 +1,15 @@
+/*
+ * Final Project
+ * Maze
+ * William Zhou
+ * 2023-06-19
+ * ICS4UI-4
+ *
+ * The WeaponStat class holds all stats relevant to weapon creation
+ * This reduces the number of parameters in the constructor and allows default values
+ * Builder pattern is used for optional values
+ */
+
 package model.weapon;
 
 import model.GameConstants;
@@ -18,7 +30,6 @@ public class WeaponStat {
         chargeTime = 1;
         attackTime = 1;
         cooldownTime = 1;
-//        ammoCost = 0;
     }
 
     public WeaponStat startRange(double startRange){

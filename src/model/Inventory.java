@@ -1,3 +1,13 @@
+/*
+ * Final Project
+ * Maze
+ * William Zhou
+ * 2023-06-19
+ * ICS4UI-4
+ *
+ * The Inventory class holds the player's weapons and keeps track of projectiles
+ */
+
 package model;
 
 import model.weapon.*;
@@ -7,15 +17,17 @@ import java.util.LinkedHashMap;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class Inventory {
-    // LinkedHashMap preserve order which allows hotkeys based on position in the inventory
+    private ArrayList<Integer> keys;
     // Dictionary of all weapons by weapon type
     private LinkedHashMap<WeaponID, Weapon> weapons;
     // Dictionary of the amount of each projectile type
     private LinkedHashMap<ProjectileType, Integer> projectiles;
     // Current selected projectile
     private ProjectileType selectedProjectile;
+    private int coins;
 
     public Inventory(){
+        keys = new ArrayList<>();
         // Initialize hashmaps
         weapons = new LinkedHashMap<>();
         projectiles = new LinkedHashMap<>();
@@ -23,10 +35,14 @@ public class Inventory {
         selectedProjectile = null;
     }
 
+    // Reset inventory
     public void reset(){
+        keys.clear();
         weapons.clear();
         projectiles.clear();
         selectedProjectile = null;
+        coins = 0;
+        projectiles.put(ProjectileType.BOMB, 500);
     }
 
     // Called by player to load a projectile onto a shooter weapon
@@ -63,6 +79,7 @@ public class Inventory {
         }
     }
 
+    // Get a list of projectile compatible with the given weapon class
     public ConcurrentHashMap<ProjectileType, Integer> getProjectileList(WeaponClass weaponClass){
         ConcurrentHashMap<ProjectileType, Integer> result = new ConcurrentHashMap<>();
         for(ProjectileType type : projectiles.keySet()){
@@ -73,6 +90,7 @@ public class Inventory {
         return result;
     }
 
+    // Get a list of all weapons that are part of the given weapon class
     public ArrayList<WeaponType> getWeaponList(WeaponClass weaponClass){
         ArrayList<WeaponType> result = new ArrayList<>();
         for(WeaponID id : weapons.keySet()){
@@ -83,7 +101,6 @@ public class Inventory {
         return result;
     }
 
-    //
     public void setSelectedProjectile(ProjectileType selectedProjectile) {
         this.selectedProjectile = selectedProjectile;
     }
@@ -95,6 +112,7 @@ public class Inventory {
         return 0;
     }
 
+    // Get a weapon using the weapon type
     public Weapon getWeapon(WeaponType weaponType) {
         for(WeaponID id : weapons.keySet()){
             if(id.weaponType() == weaponType){
@@ -108,5 +126,17 @@ public class Inventory {
         if(!weapons.containsKey(weapon.getWeaponID())) {
             weapons.put(weapon.getWeaponID(), weapon);
         }
+    }
+
+    public ArrayList<Integer> getKeys(){
+        return keys;
+    }
+
+    public void changeCoins(int amount) {
+        this.coins += amount;
+    }
+
+    public int getCoins() {
+        return coins;
     }
 }

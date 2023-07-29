@@ -1,9 +1,17 @@
+/*
+ * Final Project
+ * Maze
+ * William Zhou
+ * 2023-06-19
+ * ICS4UI-4
+ *
+ * The SelectWeapon action sets the player's selected projectile
+ */
+
 package controller.action;
 
 import model.ImageLoader;
 import model.Player;
-import model.weapon.ProjectileType;
-import model.weapon.Weapon;
 import model.weapon.WeaponType;
 
 import javax.swing.*;
@@ -20,6 +28,7 @@ public class SelectWeapon extends AbstractAction {
         putValue(Action.LARGE_ICON_KEY, ImageLoader.getIcon(weaponType.toString()));
     }
 
+    // Select the weapon
     @Override
     public void actionPerformed(ActionEvent e) {
         player.getWeapon().reset();

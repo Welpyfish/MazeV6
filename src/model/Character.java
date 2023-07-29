@@ -1,42 +1,60 @@
+/*
+ * Final Project
+ * Maze
+ * William Zhou
+ * 2023-06-19
+ * ICS4UI-4
+ *
+ * The Character class describes all characters in the game that can be interacted with
+ */
+
 package model;
 
 import model.weapon.Weapon;
-
-import java.awt.*;
 
 public class Character extends TileObject {
     private Weapon weapon;
     private int hp;
     private double sightRange;
+    // Target tile for movement
     private Tile nextTile;
     protected Map map;
-    private double vx;
-    private double vy;
+
+    protected int movementSpeed;
 
     // Special effect timers
     private int stun;
-
-    public Character(Tile tile, Map map) {
-        super(tile);
-        this.map = map;
-        nextTile = tile;
-        tile.setOccupied(true);
-    }
 
     public Character(Tile tile, Weapon weapon, Animation animation){
         super(tile, animation);
         nextTile = tile;
         tile.setOccupied(true);
-        setWeapon(weapon);
+        this.weapon = weapon;
+        this.movementSpeed = 3;
     }
 
+    public Character(Tile tile, Weapon weapon, Animation animation, Map map){
+        this(tile, weapon, animation);
+        this.map = map;
+    }
+
+    // Update
+    @Override
     public void update(){
+        // Only move and update weapon when not stunned
         if(stun == 0) {
             // Move according to velocity
-            vx = (nextTile.getGridx() - tile.getGridx()) * 3;
-            vy = -(nextTile.getGridy() - tile.getGridy()) * 3;
-            changeX(vx);
-            changeY(-vy);
+//            vx = (nextTile.getGridx() - tile.getGridx()) * movementSpeed;
+//            vy = -(nextTile.getGridy() - tile.getGridy()) * movementSpeed;
+//            changeX(vx);
+//            changeY(-vy);
+            // Play movement animation when moving
+            if(getVx() == 0 && getVy() == 0){
+                getAnimation().pause();
+            }else{
+                getAnimation().play();
+            }
+            // Update tile occupation
             if(atTile()){
                 tile.setOccupied(false);
                 nextTile.setOccupied(true);
@@ -47,34 +65,27 @@ public class Character extends TileObject {
         }else{
             stun--;
         }
+        super.update();
     }
 
+    // Set target movement
     protected void updateMovement(int x, int y){
         // When at a tile, start moving towards the next target tile
         if(atTile()){
-            System.out.println("at tile");
             if(!map.tileMap[tile.getGridx()+x][tile.getGridy()-y].isOccupied()){
                 nextTile = map.tileMap[tile.getGridx()+x][tile.getGridy()-y];
                 nextTile.setOccupied(true);
-                System.out.println("set target");
             }
         }
     }
 
+    // Update weapon
     protected void updateWeapon(){
         getWeapon().update(getCenterX(), getCenterY());
     }
 
     protected boolean atTile(){
         return (getX()== nextTile.getX() && getY()== nextTile.getY());
-    }
-
-    public double getVx() {
-        return vx;
-    }
-
-    public double getVy() {
-        return vy;
     }
 
     public int getHp() {
@@ -85,6 +96,7 @@ public class Character extends TileObject {
         this.hp = hp;
     }
 
+    // Remove this character if hp = 0
     public void changeHp(int c){
         hp+=c;
         if(hp<=0){
@@ -93,6 +105,7 @@ public class Character extends TileObject {
         }
     }
 
+    // Remove this character
     @Override
     public void remove(){
         super.remove();

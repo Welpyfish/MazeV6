@@ -1,27 +1,33 @@
+/*
+ * Final Project
+ * Maze
+ * William Zhou
+ * 2023-06-19
+ * ICS4UI-4
+ *
+ * The Shooter class describes weapons that attack only by creating projectiles
+ */
+
 package model.weapon;
 
 import model.*;
-import model.Character;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-
-// A weapon the fires projectiles
 public class Shooter extends Weapon{
     // Current loaded projectile
     private Projectile projectile;
-    //
+    // Signals player how to reduce inventory values
     private int ammoUsed;
 
     public Shooter(WeaponStat weaponStat, Team team, Animation animation){
         super(weaponStat, team, animation);
         projectile = null;
-//        ammoUsed = 0;
     }
 
+    // Reset weapon
     @Override
     public void reset(){
         super.reset();
+        // Remove any existing projectiles
         if(projectile != null){
             projectile.remove();
             projectile = null;
@@ -36,7 +42,6 @@ public class Shooter extends Weapon{
             reset();
         }
         setProjectileType(projectileType);
-        System.out.println(projectileType);
     }
 
     // Return the number of projectiles fired in the current frame
@@ -47,6 +52,7 @@ public class Shooter extends Weapon{
         return temp;
     }
 
+    //Start charging the weapon
     @Override
     public void startCharge(){
         // Create a new projectile if there wasn't one originally
@@ -56,6 +62,7 @@ public class Shooter extends Weapon{
         super.startCharge();
     }
 
+    // Charge the weapon
     @Override
     protected void charge(int attackFrame, int attackTime){
         // Update any loaded projectile
