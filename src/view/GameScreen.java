@@ -14,6 +14,7 @@ import model.*;
 import model.Character;
 import model.item.*;
 import model.weapon.Projectile;
+import model.weapon.Weapon;
 
 import javax.swing.*;
 import java.awt.*;
@@ -70,6 +71,12 @@ public class GameScreen extends JLayeredPane {
         for(Sprite gameElement : map.gameElements){
             drawSprite(g2, reset, gameElement, (int) (gameElement.getX()+gameElement.getWidth()/2), (int) (gameElement.getY()+gameElement.getHeight()/2),
                     gameElement.getIntX(), gameElement.getIntY());
+            if(gameElement instanceof Turret){
+                Weapon weapon = ((Turret)gameElement).getWeapon();
+                drawSprite(g2, reset, weapon, weapon.getIntX(),
+                        weapon.getIntY(),
+                        weapon.getIntX(), weapon.getIntY()- weapon.getCurrentImage().getHeight()/2);
+            }
         }
 
         for(Item item : map.items){
@@ -85,7 +92,6 @@ public class GameScreen extends JLayeredPane {
         for(Character character : map.characters) {
             g2.drawString(character.getHp()+" ", character.getIntX(), character.getIntY());
             g2.setColor(Color.RED);
-            g2.drawRect(character.getIntX(), character.getIntY(), (int) character.getWidth(), (int) character.getHeight());
             drawSprite(g2, reset, character, character.getIntX(), character.getIntY(),
                     character.getIntX(), character.getIntY());
             drawSprite(g2, reset, character.getWeapon(), character.getWeapon().getIntX(),

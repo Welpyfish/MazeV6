@@ -27,9 +27,9 @@ public class ImageLoader {
 
     // Load time consuming resources
     public static void loadResources(){
-        animations.put("player", loadAnimation("player/player", 1, 1, 4, false));
-        animations.put("explosion", loadAnimation("explosion/image_part_0", 5, 5, 45, false));
-        animations.put("end_portal", loadAnimation("end_portal/image_part_0", 2, 2, 11, false));
+        //animations.put("player", loadAnimation("player/player", 1, 1, 4, false));
+        animations.put("explosion", loadAnimation("explosion/", 3, 3, 13, false));
+        //animations.put("end_portal", loadAnimation("end_portal/image_part_0", 2, 2, 11, false));
         animations.put("door", loadAnimation("door", 1, 1, 2, false));
     }
 
@@ -38,16 +38,19 @@ public class ImageLoader {
         Animation animation;
         // Set the time of animations
         switch (path){
-            case "player" -> animation = new Animation(animations.get(path), 0.4);
-            case "explosion" -> animation = new Animation(animations.get(path), 1);
-            case "end_portal" -> animation = new Animation(animations.get(path), 0.5);
+            //case "player" -> animation = new Animation(animations.get(path), 0.4);
+            case "explosion" -> animation = new Animation(animations.get(path), 0.5);
+            //case "end_portal" -> animation = new Animation(animations.get(path), 0.5);
             case "door" -> animation = new Animation(animations.get(path), 0);
             default -> {
                 // Load the animation if it hasn't been previously loaded
                 if(!animations.containsKey(path)){
                     switch (path){
-                        case "sword", "spear", "bow", "gun", "throwing_spear" ->
+                        case "spear", "throwing_spear" ->
                                 animations.put(path, loadAnimation(path, 2, 2, true));
+                        case "bow", "gun" -> animations.put(path, loadAnimation(path, 1, 1, true));
+                        case "sword" -> animations.put(path, loadAnimation(path, 1.5, 1, true));
+                        case "turret" -> animations.put(path, loadAnimation(path, 1, 0.5, false));
                         case "bomb", "endkey", "key", "coin", "heart" ->
                                 animations.put(path, loadAnimation(path, 1, 1, true));
                         case "arrow", "electric_arrow", "bomb_arrow", "bullet" ->
@@ -55,7 +58,7 @@ public class ImageLoader {
                         case "greatsword" -> animations.put(path, loadAnimation(path, 2.5, 1, true));
                         case "heart3", "coin3" -> animations.put(path, loadAnimation(path, 1.5, 1.5, true));
                         case "heart5" -> animations.put(path, loadAnimation(path, 2, 2, true));
-                        case "wall", "tile", "enemy" -> animations.put(path, loadAnimation(path, 1, 1, 1, false));
+//                        case "wall", "tile", "enemy", "player" -> animations.put(path, loadAnimation(path, 1, 1, 1, false));
                         default -> animations.put(path, loadAnimation(path, 1, 1, false));
                     }
                 }

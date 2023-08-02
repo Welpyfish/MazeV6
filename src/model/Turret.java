@@ -27,4 +27,8 @@ public class Turret extends TileObject{
         weapon.update(getCenterX(), getCenterY());
         super.update();
     }
+
+    public Weapon getWeapon() {
+        return weapon;
+    }
 }

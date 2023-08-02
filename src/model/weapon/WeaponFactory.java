@@ -28,7 +28,7 @@ public class WeaponFactory {
         switch (weaponType){
             case THROW -> weaponStat = new WeaponStat(5, 0,
                     new WeaponID(WeaponClass.THROW, weaponType)).ammoCost(1);
-            case SWORD -> weaponStat = new WeaponStat(2, 1,
+            case SWORD -> weaponStat = new WeaponStat(1.5, 1,
                     new WeaponID(WeaponClass.SWORD, weaponType)).attackTime(0.3).cooldownTime(0.2);
             case GREATSWORD -> weaponStat = new WeaponStat(2.5, 2,
                     new WeaponID(WeaponClass.SWORD, weaponType)).attackTime(0.35).cooldownTime(0.4);

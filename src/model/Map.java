@@ -275,6 +275,7 @@ public class Map {
                             TileObject newDoor = new TileObject(tileMap[x][y], true, GameObjectType.DOOR, ImageLoader.getAnimation("door"));
                             //tileMap[x][y].setOccupied(true);
                             gameElements.add(newDoor);
+                            sprites.add(newDoor);
                             doors.put(itemBlue&0xf, newDoor);
                         }
                         case 3 -> {
@@ -289,11 +290,11 @@ public class Map {
                             }
                             switch (itemRed&0xf){
                                 case 0 -> newSpike = new Spike(tileMap[x][y].getX(), tileMap[x][y].getY(), 36, 36, false, 0, angle,
-                                        GameObjectType.WALL, ImageLoader.getAnimation("spike"));
+                                        GameObjectType.WALL, ImageLoader.getAnimation("fake_spike"));
                                 case 1 -> newSpike = new Spike(tileMap[x][y].getX(), tileMap[x][y].getY(), 36, 36, true, 1, angle,
                                         GameObjectType.WALL, ImageLoader.getAnimation("spike"));
                                 case 2 -> newSpike = new Spike(tileMap[x][y].getX(), tileMap[x][y].getY(), 36, 36, false, 2, angle,
-                                        GameObjectType.WALL, ImageLoader.getAnimation("spike"));
+                                        GameObjectType.WALL, ImageLoader.getAnimation("fire"));
                                 default -> newSpike = new Spike(tileMap[x][y].getX(), tileMap[x][y].getY(), 36, 36, true, 1, angle,
                                         GameObjectType.WALL, ImageLoader.getAnimation("spike"));
                             }
@@ -313,13 +314,13 @@ public class Map {
                             Turret newTurret = new Turret(tileMap[x][y],
                                     WeaponFactory.createWeapon(WeaponType.TURRET, Team.ENEMY),
                                     getProjectileType((itemGreen & 0b1110000) >> 4, (itemBlue & 0b1110000) >> 4),
-                                    angle, ImageLoader.getAnimation("door2"));
+                                    angle, ImageLoader.getAnimation("turret_base"));
                             gameElements.add(newTurret);
                             sprites.add(newTurret);
                         }
                         case 6 -> {
                             TileObject newMine = new TileObject(tileMap[x][y].getIntX(),
-                                    tileMap[x][y].getIntY(), false, GameObjectType.MINE, ImageLoader.getAnimation("door2"));
+                                    tileMap[x][y].getIntY(), false, GameObjectType.MINE, ImageLoader.getAnimation("mine"));
                             gameElements.add(newMine);
                             sprites.add(newMine);
                         }
