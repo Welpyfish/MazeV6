@@ -15,21 +15,17 @@ import java.awt.*;
 public class TileObject extends Sprite{
     protected Tile tile;
     private Rectangle rect;
-    private GameObjectType gameObjectType;
 
-    public TileObject(Tile tile, Animation animation){
-        super(tile.getIntX(), tile.getIntY(), 36, 36, animation);
+    public TileObject(Tile tile, boolean collision, GameObjectType type, Animation animation){
+        super(tile.getIntX(), tile.getIntY(), 36, 36, collision, type, animation);
         this.tile = tile;
         rect = new Rectangle(getIntX(), getIntY(), 36, 36);
-        setCollision(true);
     }
 
-    public TileObject(int x, int y, GameObjectType type, Animation animation){
-        super(x, y, 36, 36, animation);
+    public TileObject(int x, int y, boolean collision, GameObjectType type, Animation animation){
+        super(x, y, 36, 36, collision, type, animation);
         this.tile = null;
-        this.gameObjectType = type;
         rect = new Rectangle(x, y, 36, 36);
-        setCollision(true);
     }
 
     @Override
@@ -78,9 +74,5 @@ public class TileObject extends Sprite{
 
     public int getGridy(){
         return tile.getGridy();
-    }
-
-    public GameObjectType getGameObjectType() {
-        return gameObjectType;
     }
 }

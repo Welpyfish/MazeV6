@@ -28,7 +28,7 @@ public class MapManager {
         // loadResources has to be called once before the game starts to load animations that take time
         ImageLoader.loadResources();
 
-        level = 1;
+        level = 0;
     }
 
     // Called from GameEngine to update mouse position

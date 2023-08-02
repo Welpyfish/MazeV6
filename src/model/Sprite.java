@@ -17,9 +17,12 @@ public class Sprite {
     private double width, height;
     private double vx;
     private double vy;
+    // Pointing direction (between positive x and positive y)
+    private double angle;
     private boolean collided;
     private boolean collision;
     private boolean remove;
+    private GameObjectType gameObjectType;
     private Animation animation;
 
     public Sprite(double x, double y){
@@ -33,16 +36,18 @@ public class Sprite {
         this.animation = animation;
     }
 
-    public Sprite(double x, double y, double width, double height, Animation animation){
+    public Sprite(double x, double y, double width, double height, boolean collision, GameObjectType type, Animation animation){
         this.x = x;
         this.y = y;
         this.width = width;
         this.height = height;
         this.vx = 0;
         this.vy = 0;
-        this.collision = false;
+        this.collision = collision;
         this.remove = false;
+        this.gameObjectType = type;
         this.animation = animation;
+        this.angle = 0;
     }
 
     // Update
@@ -82,19 +87,42 @@ public class Sprite {
         collided = true;
         if(horizontal){
             if(vx > 0){
-                this.x = collider.x - this.width;
+                while(collider.intersects(this)){
+                    x-=1;
+                }
             }else {//if(vx < 0){
-                this.x = collider.x + collider.width;
+                while(collider.intersects(this)){
+                    x+=1;
+                }
             }
             vx = 0;
         }else{
             if(vy < 0){
-                this.y = collider.y + collider.height;
+                while(collider.intersects(this)){
+                    y+=1;
+                }
             }else {//if(vy > 0){
-                this.y = collider.y - this.height;
+                while(collider.intersects(this)){
+                    y-=1;
+                }
             }
             vy = 0;
         }
+//        if(horizontal){
+//            if(vx > 0){
+//                this.x = collider.x - this.width;
+//            }else {//if(vx < 0){
+//                this.x = collider.x + collider.width;
+//            }
+//            vx = 0;
+//        }else{
+//            if(vy < 0){
+//                this.y = collider.y + collider.height;
+//            }else {//if(vy > 0){
+//                this.y = collider.y - this.height;
+//            }
+//            vy = 0;
+//        }
     }
 
     public double getX() {
@@ -187,5 +215,26 @@ public class Sprite {
 
     public void setCollided(boolean collided) {
         this.collided = collided;
+    }
+
+    public GameObjectType getGameObjectType() {
+        return gameObjectType;
+    }
+
+
+    public double getWidth() {
+        return width;
+    }
+
+    public double getHeight() {
+        return height;
+    }
+
+    public double getAngle() {
+        return angle;
+    }
+
+    protected void setAngle(double angle) {
+        this.angle = angle;
     }
 }

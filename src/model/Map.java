@@ -28,12 +28,13 @@ public class Map {
     public ArrayList<Sprite> sprites;
 
     public ArrayList<Character> characters;
-    public ArrayList<TileObject> gameElements;
+    public ArrayList<Sprite> gameElements;
     public ArrayList<Projectile> projectiles;
     public ArrayList<Item> items;
     public ArrayList<VisualEffect> effects;
 
-    private ConcurrentHashMap<Integer, TileObject> doors;
+    private ArrayList<Spike> spikes;
+    private ConcurrentHashMap<Integer, Sprite> doors;
 
     private Point mouse;
     private boolean gameOver;
@@ -49,6 +50,7 @@ public class Map {
         mouse = new Point(0, 0);
         new WeaponFactory(this);
 
+        spikes = new ArrayList<>();
         doors = new ConcurrentHashMap<>();
     }
 
@@ -63,7 +65,6 @@ public class Map {
     private void updateObjects(){
         for(Projectile projectile : projectiles){
             projectile.update();
-            updateSpriteLocation(projectile);
         }
 
         for(Character character : characters){
@@ -75,7 +76,7 @@ public class Map {
             effect.update();
         }
 
-        for(TileObject element : gameElements){
+        for(Sprite element : gameElements){
             element.update();
         }
 
@@ -84,20 +85,28 @@ public class Map {
         }
     }
 
-    private void updateSpriteLocation(Sprite sprite){
-        if(sprite.hasCollision()) {
+    private void updateSpriteLocation(Character sprite){
+        if(sprite.hasCollision() && sprite.getStun() == 0) {
             sprite.updateX();
             for(Sprite collider : sprites){
-                if(sprite!=collider && collider.hasCollision() && sprite.intersects(collider)){
+                if(sprite!=collider && collider.hasCollision() && collider.intersects(sprite)){
+                    manageCharacterCollisions(sprite, collider);
                     sprite.collide(collider, true);
                 }
             }
             sprite.updateY();
             for(Sprite collider : sprites){
-                if(sprite!=collider && collider.hasCollision() && sprite.intersects(collider)){
+                if(sprite!=collider && collider.hasCollision() && collider.intersects(sprite)){
+                    manageCharacterCollisions(sprite, collider);
                     sprite.collide(collider, false);
                 }
             }
+        }
+    }
+
+    private void manageCharacterCollisions(Character c, Sprite collider){
+        if(collider instanceof Spike){
+            c.changeHp(-((Spike)collider).getDamage());
         }
     }
 
@@ -132,11 +141,16 @@ public class Map {
             if(character.getWeapon() instanceof Melee){
                 weaponCollision((Melee) character.getWeapon());
             }
+            for(Spike spike : spikes){
+                if(spike.intersects(character)){
+                    character.changeHp(-spike.getDamage());
+                }
+            }
         }
 
-        for(TileObject tileObject : gameElements){
-            if(tileObject.getGameObjectType() == GameObjectType.MINE){
-                checkMine(tileObject);
+        for(Sprite sprite : gameElements){
+            if(sprite.getGameObjectType() == GameObjectType.MINE){
+                checkMine(sprite);
             }
         }
     }
@@ -145,9 +159,6 @@ public class Map {
     private void removeObjects(){
         for(int i=gameElements.size()-1; i>=0; i--){
             if(gameElements.get(i).removed()){
-                if(gameElements.get(i).hasCollision()) {
-                    tileMap[gameElements.get(i).getGridx()][gameElements.get(i).getGridy()].setOccupied(false);
-                }
                 if(gameElements.get(i).getGameObjectType() == GameObjectType.MINE){
                     Projectile explosion = WeaponFactory.createProjectile(ProjectileType.BOMB, Team.ENEMY);
                     explosion.updateWhenLoaded(gameElements.get(i).getCenterX(), gameElements.get(i).getCenterY(), 0);
@@ -218,9 +229,9 @@ public class Map {
         characters.clear();
         items.clear();
         effects.clear();
+        spikes.clear();
         doors.clear();
         //portals.clear();
-        HashMap<Integer, Tile> p = new HashMap<>();
         // Load the image for level map which includes characters and game elements (walls)
         BufferedImage levelMap = ImageLoader.loadImage("media/level"+level+".png");
         // Load the second layer that contains information about items and weapons
@@ -244,41 +255,71 @@ public class Map {
                 if(levelRed == levelGreen && levelGreen == levelBlue){
                     switch (levelRed){
                         case 0 -> {
-                            TileObject newWall = new TileObject(tileMap[x][y], ImageLoader.getAnimation("wall"));
-                            newWall.setCollision(true);
+                            TileObject newWall;
+                            if((itemBlue & 0b1) == 0){
+                                newWall = new TileObject(tileMap[x][y], true, GameObjectType.WALL, ImageLoader.getAnimation("wall"));
+                            }else{
+                                newWall = new TileObject(tileMap[x][y], false, GameObjectType.FAKE_WALL, ImageLoader.getAnimation("fake_wall"));
+                            }
                             //tileMap[x][y].setOccupied(true);
                             gameElements.add(newWall);
                             sprites.add(newWall);
                         }
                         case 1 -> {
-                            endPortal = new TileObject(tileMap[x][y], ImageLoader.getAnimation("end_portal"));
+                            endPortal = new TileObject(tileMap[x][y], false, GameObjectType.END_PORTAL, ImageLoader.getAnimation("end_portal"));
                             endPortal.getAnimation().play();
                             gameElements.add(endPortal);
                             sprites.add(endPortal);
                         }
                         case 2 -> {
-                            TileObject newDoor = new TileObject(tileMap[x][y], ImageLoader.getAnimation("door"));
-                            newDoor.setCollision(true);
+                            TileObject newDoor = new TileObject(tileMap[x][y], true, GameObjectType.DOOR, ImageLoader.getAnimation("door"));
                             //tileMap[x][y].setOccupied(true);
                             gameElements.add(newDoor);
                             doors.put(itemBlue&0xf, newDoor);
                         }
                         case 3 -> {
-                            TileObject newWall = new TileObject(tileMap[x][y], ImageLoader.getAnimation("fake_wall"));
-                            tileMap[x][y].setOccupied(false);
-                            gameElements.add(newWall);
-                            sprites.add(newWall);
+                            Spike newSpike;
+                            double angle = 0;
+                            switch (itemBlue & 0b1111){
+                                case 1 -> angle = 0;
+                                case 2 -> angle = Math.PI/2;
+                                case 3 -> angle = Math.PI;
+                                case 4 -> angle = 3*Math.PI/2;
+                                case 5 -> angle = -1;
+                            }
+                            switch (itemRed&0xf){
+                                case 0 -> newSpike = new Spike(tileMap[x][y].getX(), tileMap[x][y].getY(), 36, 36, false, 0, angle,
+                                        GameObjectType.WALL, ImageLoader.getAnimation("spike"));
+                                case 1 -> newSpike = new Spike(tileMap[x][y].getX(), tileMap[x][y].getY(), 36, 36, true, 1, angle,
+                                        GameObjectType.WALL, ImageLoader.getAnimation("spike"));
+                                case 2 -> newSpike = new Spike(tileMap[x][y].getX(), tileMap[x][y].getY(), 36, 36, false, 2, angle,
+                                        GameObjectType.WALL, ImageLoader.getAnimation("spike"));
+                                default -> newSpike = new Spike(tileMap[x][y].getX(), tileMap[x][y].getY(), 36, 36, true, 1, angle,
+                                        GameObjectType.WALL, ImageLoader.getAnimation("spike"));
+                            }
+                            gameElements.add(newSpike);
+                            spikes.add(newSpike);
+                            sprites.add(newSpike);
                         }
                         case 5 -> {
+                            double angle = 0;
+                            switch (itemBlue & 0b1111){
+                                case 1 -> angle = 0;
+                                case 2 -> angle = Math.PI/2;
+                                case 3 -> angle = Math.PI;
+                                case 4 -> angle = 3*Math.PI/2;
+                                case 5 -> angle = -1;
+                            }
                             Turret newTurret = new Turret(tileMap[x][y],
                                     WeaponFactory.createWeapon(WeaponType.TURRET, Team.ENEMY),
-                                    getProjectileType((itemGreen & 0b1110000) >> 4, (itemBlue & 0b1110000) >> 4), ImageLoader.getAnimation("door2"));
+                                    getProjectileType((itemGreen & 0b1110000) >> 4, (itemBlue & 0b1110000) >> 4),
+                                    angle, ImageLoader.getAnimation("door2"));
                             gameElements.add(newTurret);
                             sprites.add(newTurret);
                         }
                         case 6 -> {
                             TileObject newMine = new TileObject(tileMap[x][y].getIntX(),
-                                    tileMap[x][y].getIntY(), GameObjectType.MINE, ImageLoader.getAnimation("door2"));
+                                    tileMap[x][y].getIntY(), false, GameObjectType.MINE, ImageLoader.getAnimation("door2"));
                             gameElements.add(newMine);
                             sprites.add(newMine);
                         }
@@ -445,15 +486,15 @@ public class Map {
     // Check projectile collisions
     private void projectileCollision(Projectile projectile){
         // Collisions with game elements
-        for (TileObject collider : gameElements) {
-            if (collider.hasCollision() && collider.getRect().contains(projectile.getIntX(), projectile.getIntY())) {
+        for (Sprite collider : gameElements) {
+            if (collider.hasCollision() && collider.intersects(projectile)) {
                 projectile.remove();
             }
         }
         // Collisions with characters
         for(Character character : characters){
             if (projectile.getTeam() != character.getWeapon().getTeam() &&
-                    character.getRect().contains(projectile.getIntX(), projectile.getIntY())) {
+                    character.intersects(projectile)) {
                 projectile.remove();
                 character.changeHp(-projectile.getDamage());
                 character.setStun(projectile.getStun());
@@ -463,10 +504,10 @@ public class Map {
 
     // Create an explosion from a projectile
     private void createExplosion(Projectile projectile){
-        projectile.setVx(-projectile.getVx());
-        projectile.setVy(-projectile.getVy());
-        projectile.updateX();
-        projectile.updateY();
+//        projectile.setVx(-projectile.getVx());
+//        projectile.setVy(-projectile.getVy());
+//        projectile.updateX();
+//        projectile.updateY();
 //        projectile.setCollision(true);
 //        projectile.setVx(-projectile.getVx());
 //        projectile.setVy(-projectile.getVy());
@@ -502,7 +543,7 @@ public class Map {
     private void checkDoors(Player player){
         if(player.isAttacking()){
             for(Integer id : doors.keySet()){
-                TileObject door = doors.get(id);
+                Sprite door = doors.get(id);
                 if(Math.abs(door.getIntX()-player.getIntX())+Math.abs(door.getIntY()-player.getIntY()) <= GameConstants.tileSize
                         && player.inventory.getKeys().contains(id)){
                     player.inventory.getKeys().remove(id);
@@ -510,7 +551,6 @@ public class Map {
                     door.getAnimation().play();
                     door.getAnimation().update();
                     door.getAnimation().pause();
-                    tileMap[door.getGridx()][door.getGridy()].setOccupied(false);
                 }
             }
         }
@@ -519,8 +559,8 @@ public class Map {
     // Check if 2 points have no game elements between them
     private boolean inLineOfSight(Point2D p1, Point2D p2) {
         Line2D line = new Line2D.Double(p1.getX(), p1.getY(), p2.getX(), p2.getY());
-        for (TileObject collider : gameElements) {
-            if (collider.hasCollision() && line.intersects(collider.getRect())) {
+        for (Sprite collider : gameElements) {
+            if (collider.hasCollision() && line.intersects(collider.getX(), collider.getY(), collider.getWidth(), collider.getHeight())) {
                 return false;
             }
         }
@@ -567,7 +607,7 @@ public class Map {
         return null;
     }
 
-    private void checkMine(TileObject mine){
+    private void checkMine(Sprite mine){
         if(player.intersects(mine)){
             mine.remove();
         }

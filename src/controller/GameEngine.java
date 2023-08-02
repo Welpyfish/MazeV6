@@ -74,7 +74,8 @@ public class GameEngine implements Runnable{
                 }
                 else if(gameState == GameState.RESTART){
                     setGameState(GameState.GAME);
-                    mapManager.setLevel(1);
+                    //mapManager.setLevel(1);
+                    mapManager.setLevel(0);
                     mapManager.startGame();
                 }
                 delta--;

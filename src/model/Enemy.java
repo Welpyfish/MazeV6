@@ -55,15 +55,18 @@ public class Enemy extends Character {
     public void move(){
         // Move only when delay is over
         if(movementDelay <= 0) {
-            // Move towards player if out of range, away if too close
-            if (Math.hypot(getIntX() - map.player.getIntX(), getIntY() - map.player.getIntY()) > getWeapon().getMaxRange()-GameConstants.tileSize*2) {
-                moveTowards(map.player.getIntX(), map.player.getIntY());
-            } else if (Math.hypot(getIntX() - map.player.getIntX(), getIntY() - map.player.getIntY()) < getWeapon().getMinRange()) {
-                moveAway(map.player.getIntX(), map.player.getIntY());
+            if(getVx() == 0 && getVy() == 0) {
+                // Move towards player if out of range, away if too close
+                if (Math.hypot(getIntX() - map.player.getIntX(), getIntY() - map.player.getIntY()) > Math.max(getWeapon().getMaxRange() - GameConstants.tileSize, 0)) {
+                    moveTowards(map.player.getIntX(), map.player.getIntY());
+                } else if (Math.hypot(getIntX() - map.player.getIntX(), getIntY() - map.player.getIntY()) < getWeapon().getMinRange()) {
+                    moveAway(map.player.getIntX(), map.player.getIntY());
+                }
+                movementDelay = (int) (movementDelayTime + 0.2*Math.random()*GameConstants.fps);
             }else{
                 updateMovement(0, 0);
+                movementDelay = (int) (movementDelayTime + 1.8*Math.random()*GameConstants.fps);
             }
-            movementDelay = (int) (movementDelayTime + 2*Math.random()*GameConstants.fps);
         }else {
             movementDelay--;
         }

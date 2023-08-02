@@ -15,8 +15,6 @@ import model.*;
 import java.awt.*;
 
 public class Weapon extends Sprite {
-    // Pointing direction (between positive x and positive y)
-    private double angle;
     // Range of weapon attack
     private int currentRange, minRange, maxRange;
     // Base damage
@@ -164,10 +162,6 @@ public class Weapon extends Sprite {
 
     // Getter methods
 
-    public double getAngle() {
-        return angle;
-    }
-
     public int getDamage() {
         return damage;
     }
@@ -212,7 +206,7 @@ public class Weapon extends Sprite {
 
     public void setTarget(Point target, Point character){
         // Set the aiming angle
-        angle = Math.atan2(target.y-character.y, target.x - character.x);
+        setAngle(Math.atan2(target.y-character.y, target.x - character.x));
     }
 
     public void setTrigger(boolean triggered) {
@@ -224,10 +218,6 @@ public class Weapon extends Sprite {
 
     protected void setCurrentRange(int currentRange) {
         this.currentRange = currentRange;
-    }
-
-    protected void setAngle(double angle) {
-        this.angle = angle;
     }
 
     // For shooter weapons

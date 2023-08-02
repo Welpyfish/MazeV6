@@ -31,12 +31,10 @@ public class Projectile extends Sprite {
     private double speed;
     // Launch position
     private int xi, yi;
-    // Angle the projectile is facing
-    private double angle;
 
     // Create a projectile
     public Projectile(ProjectileStat projectileStat, Team team, Animation animation){
-        super(0, 0, 1, 1, animation);
+        super(0, 0, 1, 1, false, GameObjectType.PROJECTILE, animation);
         this.team = team;
         this.damage = projectileStat.getDamage();
         this.speed = projectileStat.getSpeed();
@@ -45,7 +43,6 @@ public class Projectile extends Sprite {
         this.explosionDamage = projectileStat.getExplosionDamage();
         this.stun = projectileStat.getStun();
         active = false;
-        setCollision(false);
     }
 
     // Update
@@ -63,9 +60,16 @@ public class Projectile extends Sprite {
         updateY();
     }
 
+    @Override
+    public void remove(){
+        super.remove();
+        changeX(-getVx());
+        changeY(-getVy());
+    }
+
     // Called from the Shooter class to update location and angle
     public void updateWhenLoaded(int x, int y, double angle){
-        this.angle = angle;
+        setAngle(angle);
         setX(x);
         setY(y);
     }
@@ -77,15 +81,11 @@ public class Projectile extends Sprite {
         yi = getIntY();
         this.range = Math.max(this.range, range) - getCurrentImage().getWidth();
         damage += baseDamage;
-        setVx(speed*Math.cos(angle));
-        setVy(speed*Math.sin(angle));
+        setVx(speed*Math.cos(getAngle()));
+        setVy(speed*Math.sin(getAngle()));
     }
 
     // Getters
-
-    public double getAngle(){
-        return angle;
-    }
 
     public int getDamage(){
         return damage;

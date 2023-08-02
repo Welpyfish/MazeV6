@@ -53,13 +53,6 @@ public class Player extends Character {
         super.update();
     }
 
-    @Override
-    protected void updateMovement(int x, int y){
-        super.updateMovement(x, y);
-        setVx(3*x);
-        setVy(-3*y);
-    }
-
     // Update weapon
     @Override
     protected void updateWeapon(){

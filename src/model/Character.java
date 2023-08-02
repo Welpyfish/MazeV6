@@ -26,7 +26,7 @@ public class Character extends TileObject {
     private int stun;
 
     public Character(Tile tile, Weapon weapon, Animation animation){
-        super(tile, animation);
+        super(tile, true, GameObjectType.CHARACTER, animation);
         nextTile = tile;
         tile.setOccupied(true);
         this.weapon = weapon;
@@ -77,6 +77,8 @@ public class Character extends TileObject {
                 nextTile.setOccupied(true);
             }
         }
+        setVx(3*x);
+        setVy(-3*y);
     }
 
     // Update weapon
@@ -142,5 +144,9 @@ public class Character extends TileObject {
 
     public void setStun(int stun) {
         this.stun = stun;
+    }
+
+    public int getStun() {
+        return stun;
     }
 }

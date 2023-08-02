@@ -67,40 +67,62 @@ public class GameScreen extends JLayeredPane {
 
         drawGrid(g2);
 
-        for(TileObject gameElement : map.gameElements){
-            g2.drawImage(gameElement.getCurrentImage(), gameElement.getIntX(), gameElement.getIntY(), null);
+        for(Sprite gameElement : map.gameElements){
+            drawSprite(g2, reset, gameElement, (int) (gameElement.getX()+gameElement.getWidth()/2), (int) (gameElement.getY()+gameElement.getHeight()/2),
+                    gameElement.getIntX(), gameElement.getIntY());
         }
 
         for(Item item : map.items){
-            g2.drawImage(item.getCurrentImage(), item.getIntX()-item.getCurrentImage().getWidth()/2,
-                    item.getIntY()-item.getCurrentImage().getHeight()/2, null);
+            drawSprite(g2, reset, item, item.getIntX(), item.getIntY(),
+                    item.getIntX()-item.getCurrentImage().getWidth()/2, item.getIntY()-item.getCurrentImage().getHeight()/2);
+
             if(item.getItemType() == ItemType.PROJECTILE && item.getAmount()>1){
                 g2.drawString(item.getAmount()+"",
                         item.getIntX()-item.getCurrentImage().getWidth()/2, item.getIntY());
             }
         }
 
-        g2.setTransform(reset);
-        AffineTransform transform = new AffineTransform();
         for(Character character : map.characters) {
-            drawCharacter(g2, character);
-            g2.setTransform(reset);
+            g2.drawString(character.getHp()+" ", character.getIntX(), character.getIntY());
+            g2.setColor(Color.RED);
+            g2.drawRect(character.getIntX(), character.getIntY(), (int) character.getWidth(), (int) character.getHeight());
+            drawSprite(g2, reset, character, character.getIntX(), character.getIntY(),
+                    character.getIntX(), character.getIntY());
+            drawSprite(g2, reset, character.getWeapon(), character.getWeapon().getIntX(),
+                    character.getWeapon().getIntY(),
+                    character.getWeapon().getIntX(), character.getWeapon().getIntY()- character.getWeapon().getCurrentImage().getHeight()/2);
+            g2.setColor(Color.BLACK);
         }
 
         for(Projectile projectile : map.projectiles){
-            transform = new AffineTransform();
-            transform.rotate(projectile.getAngle(), projectile.getX(), projectile.getY());
-            g2.transform(transform);
-            g2.drawImage(projectile.getCurrentImage(), projectile.getIntX()-projectile.getCurrentImage().getWidth(),
-                    projectile.getIntY()-projectile.getCurrentImage().getHeight()/2, null);
-            g2.setTransform(reset);
+            drawSprite(g2, reset, projectile, projectile.getIntX(),
+                    projectile.getIntY(),
+                    projectile.getIntX()-projectile.getCurrentImage().getWidth(), projectile.getIntY()-projectile.getCurrentImage().getHeight()/2);
         }
 
         for(VisualEffect effect : map.effects){
-            g2.drawImage(effect.getCurrentImage(), effect.getIntX(), effect.getIntY(), null);
+            drawSprite(g2, reset, effect, (int) (effect.getX()+effect.getWidth()/2), (int) (effect.getY()+effect.getHeight()/2),
+                    effect.getIntX(), effect.getIntY());
         }
 
         g2.translate(camera.getX(), camera.getY());
+    }
+
+    private void drawSprite(Graphics2D g2, AffineTransform reset, Sprite sprite, int cx, int cy, int x, int y){
+        BufferedImage image = sprite.getCurrentImage();
+        if(sprite.getAngle() != 0) {
+            AffineTransform transform = new AffineTransform();
+            transform.rotate(sprite.getAngle(), cx, cy);
+            g2.transform(transform);
+            if (Math.cos(sprite.getAngle()) >= 0) {
+                g2.drawImage(image, x, y, null);
+            } else {
+                g2.drawImage(image, x, y + image.getHeight(), image.getWidth(), -image.getHeight(), null);
+            }
+            g2.setTransform(reset);
+        }else{
+            g2.drawImage(image, x, y, null);
+        }
     }
 
     // Draw tiles
@@ -110,43 +132,5 @@ public class GameScreen extends JLayeredPane {
                 g2.drawImage(tile.getCurrentImage(), tile.getIntX(), tile.getIntY(), null);
             }
         }
-    }
-
-    // Draw a character and its weapon
-    private void drawCharacter(Graphics2D g2, Character character){
-        AffineTransform transform = new AffineTransform();
-        g2.drawString(character.getHp()+" ", character.getIntX(), character.getIntY());
-        g2.setColor(Color.RED);
-        BufferedImage weaponImage = character.getWeapon().getCurrentImage();
-        if(Math.cos(character.getWeapon().getAngle())<0){
-            g2.drawImage(character.getCurrentImage(),
-                    character.getIntX()+character.getCurrentImage().getWidth(),
-                    character.getIntY(),
-                    -character.getCurrentImage().getWidth(),
-                    character.getCurrentImage().getHeight(), null);
-            transform.rotate(character.getWeapon().getAngle(),
-                    character.getWeapon().getX(),
-                    character.getWeapon().getY());
-            g2.transform(transform);
-            g2.drawImage(weaponImage,
-                    character.getWeapon().getIntX(),
-                    character.getWeapon().getIntY() - weaponImage.getHeight() / 2 + weaponImage.getHeight(),
-                    weaponImage.getWidth(),
-                    -weaponImage.getHeight(), null);
-        }else {
-            g2.drawImage(character.getCurrentImage(),
-                    character.getIntX(),
-                    character.getIntY(),
-                    null);
-            transform.rotate(character.getWeapon().getAngle(),
-                    character.getWeapon().getX(),
-                    character.getWeapon().getY());
-            g2.transform(transform);
-            g2.drawImage(weaponImage,
-                    character.getWeapon().getIntX(),
-                    character.getWeapon().getIntY() - weaponImage.getHeight() / 2,
-                    null);
-        }
-        g2.setColor(Color.BLACK);
     }
 }

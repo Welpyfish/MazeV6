@@ -42,7 +42,6 @@ public class Inventory {
         projectiles.clear();
         selectedProjectile = null;
         coins = 0;
-        projectiles.put(ProjectileType.BOMB, 500);
     }
 
     // Called by player to load a projectile onto a shooter weapon
