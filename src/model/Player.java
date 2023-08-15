@@ -20,8 +20,8 @@ public class Player extends Character {
     private boolean attacking;
     private Point movementDirection;
 
-    public Player(Tile tile, Animation animation, Map map) {
-        super(tile, null, animation, map);
+    public Player(double x, double y, Animation animation, Map map) {
+        super(x, y, null, animation, map);
         inventory = new Inventory();
         reset();
     }
@@ -38,7 +38,7 @@ public class Player extends Character {
         setWeapon(inventory.getWeapon(WeaponType.THROW));
 
         setHp(50);
-        setSightRange(GameConstants.tileSize*15);
+        setSightRange(Constants.tileSize*15);
         movementDirection = new Point(0, 0);
 
         setCollision(true);

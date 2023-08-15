@@ -27,6 +27,8 @@ public class WeaponFactory {
         // Determine weapon stats
         switch (weaponType){
             case THROW -> weaponStat = new WeaponStat(5, 0,
+                    new WeaponID(WeaponClass.THROW, weaponType)).ammoCost(1).minRange(Constants.characterSize);
+            case DROP -> weaponStat = new WeaponStat(0, 0,
                     new WeaponID(WeaponClass.THROW, weaponType)).ammoCost(1);
             case SWORD -> weaponStat = new WeaponStat(1.5, 1,
                     new WeaponID(WeaponClass.SWORD, weaponType)).attackTime(0.3).cooldownTime(0.2);
@@ -56,6 +58,13 @@ public class WeaponFactory {
                     weapon = new Gun(weaponStat.chargeTime(0.4), team, animation);
                 }
             }
+            case DROP -> {
+                if(team == Team.PLAYER) {
+                    weapon = new Throw(weaponStat, team, animation);
+                }else{
+                    weapon = new Gun(weaponStat, team, animation);
+                }
+            }
             case SWORD, GREATSWORD -> weapon = new Sword(weaponStat, team, animation);
             case SPEAR -> weapon = new Spear(weaponStat, team, animation);
             case BOW -> {
@@ -83,6 +92,7 @@ public class WeaponFactory {
             case BULLET -> projectileStat = new ProjectileStat(2, 20);
             case BOMB -> projectileStat = new ProjectileStat(0, 5).hitRadius(1.5).explosionDamage(2);
             case THROWING_SPEAR -> projectileStat = new ProjectileStat(3, 10).range(8);
+            case SELF_DESTRUCT -> projectileStat = new ProjectileStat(0, 0).range(0).hitRadius(2).explosionDamage(3);
         }
 
         // Get projectile animation

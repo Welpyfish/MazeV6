@@ -92,6 +92,7 @@ public class GameScreen extends JLayeredPane {
         for(Character character : map.characters) {
             g2.drawString(character.getHp()+" ", character.getIntX(), character.getIntY());
             g2.setColor(Color.RED);
+//         s   g2.drawRect(character.getIntX(), character.getIntY(), (int)character.getWidth(), (int)character.getHeight());
             drawSprite(g2, reset, character, character.getIntX(), character.getIntY(),
                     character.getIntX(), character.getIntY());
             drawSprite(g2, reset, character.getWeapon(), character.getWeapon().getIntX(),

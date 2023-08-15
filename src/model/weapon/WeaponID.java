@@ -32,7 +32,7 @@ public record WeaponID(WeaponClass weaponClass, WeaponType weaponType) {
             case BULLET -> {
                 return weaponClass == GUN;
             }
-            case BOMB, THROWING_SPEAR -> {
+            case BOMB, THROWING_SPEAR, SELF_DESTRUCT -> {
                 return weaponClass == THROW;
             }
             default -> {

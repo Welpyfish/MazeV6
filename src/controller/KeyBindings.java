@@ -51,6 +51,10 @@ public class KeyBindings {
         addInput(uiManager, GameState.GAME, "released ESCAPE", "Pause");
         addInput(uiManager, GameState.PAUSE, "released ESCAPE", "Resume");
 
+        //Temporary healing controls (probably should be made into button/part of shop
+        addInput(uiManager, GameState.GAME, "H", "Heal");
+        addInput(uiManager, GameState.PAUSE, "H", "Heal");
+
         // Movement actions
         addAction(uiManager, GameState.GAME ,"Move up", new Move(map.player, 0, 1));
         addAction(uiManager, GameState.GAME ,"Stop move up", new StopMove(map.player, 0, 1));
@@ -68,6 +72,9 @@ public class KeyBindings {
         // Pause actions
         addAction(uiManager, GameState.GAME ,"Pause", new SetState(GameState.PAUSE));
         addAction(uiManager, GameState.PAUSE ,"Resume", new SetState(GameState.GAME));
+
+        //Temporary healing
+        addAction(uiManager, GameState.GAME ,"Heal", new TempHp(map.player));
     }
 
     // Add an action key to the input map of a component based on the game state associated with that component

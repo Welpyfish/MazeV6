@@ -59,7 +59,7 @@ public class MapManager {
                         timer.cancel();
                     }
                 }, 2000);
-            }else if(level == GameConstants.levelCount){
+            }else if(level == Constants.levelCount){
                 timer.schedule(new TimerTask() {
                     @Override
                     public void run() {

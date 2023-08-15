@@ -27,15 +27,15 @@ public class Enemy extends Character {
     private boolean dropWeapon;
     private int coinValue;
 
-    public Enemy(Tile tile, Weapon weapon, ProjectileType projectileType, Animation animation, Map map) {
-        super(tile, weapon, animation, map);
+    public Enemy(double x, double y, Weapon weapon, ProjectileType projectileType, Animation animation, Map map) {
+        super(x, y, weapon, animation, map);
         setWeapon(weapon);
         this.projectileType = projectileType;
         changeHp(3);
-        setSightRange(Math.max(GameConstants.tileSize*10, getWeapon().getMaxRange()+GameConstants.tileSize*3));
-        attackDelayTime = (int) (getSightRange()*GameConstants.fps/(GameConstants.tileSize*3));
-        movementDelayTime = (int) (0.1*GameConstants.fps);
-        attackDelay = (int) GameConstants.fps;
+        setSightRange(Math.max(Constants.tileSize*10, getWeapon().getMaxRange()+Constants.tileSize*3));
+        attackDelayTime = (int) (getSightRange()*Constants.fps/(Constants.tileSize*3));
+        movementDelayTime = (int) (0.1*Constants.fps);
+        attackDelay = (int) Constants.fps;
 
         dropWeapon = true;
         coinValue = 1;
@@ -57,15 +57,16 @@ public class Enemy extends Character {
         if(movementDelay <= 0) {
             if(getVx() == 0 && getVy() == 0) {
                 // Move towards player if out of range, away if too close
-                if (Math.hypot(getIntX() - map.player.getIntX(), getIntY() - map.player.getIntY()) > Math.max(getWeapon().getMaxRange() - GameConstants.tileSize, 0)) {
+                if (Math.hypot(getIntX() - map.player.getIntX(), getIntY() - map.player.getIntY()) > Math.max(getWeapon().getMaxRange() - Constants.tileSize, 0)) {
                     moveTowards(map.player.getIntX(), map.player.getIntY());
                 } else if (Math.hypot(getIntX() - map.player.getIntX(), getIntY() - map.player.getIntY()) < getWeapon().getMinRange()) {
                     moveAway(map.player.getIntX(), map.player.getIntY());
+                    System.out.println(getWeapon().getMinRange());
                 }
-                movementDelay = (int) (movementDelayTime + 0.2*Math.random()*GameConstants.fps);
+                movementDelay = (int) (movementDelayTime + 0.2*Math.random()*Constants.fps);
             }else{
                 updateMovement(0, 0);
-                movementDelay = (int) (movementDelayTime + 1.8*Math.random()*GameConstants.fps);
+                movementDelay = (int) (movementDelayTime + 1.8*Math.random()*Constants.fps);
             }
         }else {
             movementDelay--;
@@ -79,7 +80,7 @@ public class Enemy extends Character {
         Point target = map.findClosestTarget(getCenter(), getSightRange(), Team.ENEMY);
         if(target != null){
             // Only attack if the delay time is finished
-            if(attackDelay <= 0) {
+            if(attackDelay <= 0 && Math.hypot(getCenterX()-target.getX(), getCenterY()-target.getY())<=getWeapon().getMaxRange()+1.4*Constants.tileSize) {
                 startAttack();
             }else{
                 getWeapon().setTrigger(false);
@@ -103,7 +104,7 @@ public class Enemy extends Character {
         // Reduce attack delay if attacked and player is in sight
         // Makes it harder to avoid trading hp
         if(getHp()>0 && c < 0 && map.findClosestTarget(getCenter(), getSightRange(), Team.ENEMY)!=null){
-            attackDelay-=1.5*GameConstants.fps;
+            attackDelay-=1.5*Constants.fps;
         }
     }
 
@@ -112,7 +113,7 @@ public class Enemy extends Character {
         getWeapon().setProjectile(projectileType);
         getWeapon().setTrigger(true);
         // Wait a short time before allowing another attack
-        attackDelay = (int) (attackDelayTime + Math.random()*GameConstants.fps);
+        attackDelay = (int) (attackDelayTime + Math.random()*Constants.fps);
     }
 
     // Move towards a point

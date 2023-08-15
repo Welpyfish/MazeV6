@@ -16,6 +16,7 @@ public enum WeaponType {
     SPEAR,
     BOW,
     GUN,
+    DROP,
     TURRET,
     THROW;
 

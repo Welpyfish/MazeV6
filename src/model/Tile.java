@@ -15,7 +15,7 @@ public class Tile extends Sprite{
     private boolean occupied;
 
     public Tile(int x, int y){
-        super(GameConstants.tileSize*x, GameConstants.tileSize*y, ImageLoader.getAnimation("tile"));
+        super(Constants.tileSize*(x+0.5), Constants.tileSize*(y+0.5), Constants.tileSize, Constants.tileSize, false, GameObjectType.FAKE_WALL, ImageLoader.getAnimation("tile"));
         this.gridx = x;
         this.gridy = y;
         occupied = false;

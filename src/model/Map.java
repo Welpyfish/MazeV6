@@ -23,7 +23,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class Map {
     public Tile[][] tileMap;
     public Player player;
-    private TileObject endPortal;
+    private Sprite endPortal;
 
     public ArrayList<Sprite> sprites;
 
@@ -120,12 +120,12 @@ public class Map {
 
         checkDoors(player);
         // Check end portal
-        if(endPortal.getRect().contains(player.getRect())){
+        if(endPortal.intersects(player)){
             gameOver = true;
         }
 
         // Collect items
-        Item item = checkItems(player.getRect());
+        Item item = checkItems(player);
         if(item!=null){
             switch (item.getItemType()){
                 case WEAPON -> player.addWeapon(item.getWeaponType());
@@ -188,10 +188,10 @@ public class Map {
             // Enemies drop weapons if the player doesn't have the weapon yet
             if(characters.get(i).removed() && characters.get(i) instanceof Enemy){
                 Enemy enemy = (Enemy) characters.get(i);
-                WeaponType weaponType =enemy.getWeapon().getWeaponID().weaponType();
-                if (player.inventory.getWeapon(weaponType) == null && weaponType != WeaponType.THROW && enemy.isDropWeapon()) {
+                WeaponID weaponID =enemy.getWeapon().getWeaponID();
+                if (player.inventory.getWeapon(weaponID.weaponType()) == null && weaponID.weaponClass() != WeaponClass.THROW && enemy.isDropWeapon()) {
                     items.add(new Item(enemy.getCenterX(), enemy.getCenterY(), ItemType.WEAPON,
-                            ImageLoader.getAnimation(weaponType.toString())).weaponType(weaponType));
+                            ImageLoader.getAnimation(weaponID.weaponType().toString())).weaponType(weaponID.weaponType()));
                 }
                 items.add(new Item(enemy.getCenterX(), enemy.getCenterY(), ItemType.COIN,
                         ImageLoader.getAnimation("coin"+enemy.getCoinValue())).amount(enemy.getCoinValue()));
@@ -233,9 +233,9 @@ public class Map {
         doors.clear();
         //portals.clear();
         // Load the image for level map which includes characters and game elements (walls)
-        BufferedImage levelMap = ImageLoader.loadImage("media/level"+level+".png");
+        BufferedImage levelMap = ImageLoader.loadImage("media/levels/level"+level+".png");
         // Load the second layer that contains information about items and weapons
-        BufferedImage itemMap = ImageLoader.loadImage("media/level"+level+"items.png");
+        BufferedImage itemMap = ImageLoader.loadImage("media/levels/level"+level+"items.png");
         tileMap = new Tile[levelMap.getWidth()][levelMap.getHeight()];
         for(int y=0; y< levelMap.getHeight(); y++){
             for(int x=0; x<levelMap.getWidth(); x++){
@@ -251,28 +251,31 @@ public class Map {
                 int itemGreen = (itemColor & 0xff00) >> 8;
                 int itemBlue = itemColor & 0xff;
 
+                double cx = Constants.tileSize*(x+0.5);
+                double cy = Constants.tileSize*(y+0.5);
+
                 // Black creates game elements
                 if(levelRed == levelGreen && levelGreen == levelBlue){
                     switch (levelRed){
                         case 0 -> {
-                            TileObject newWall;
+                            Sprite newWall;
                             if((itemBlue & 0b1) == 0){
-                                newWall = new TileObject(tileMap[x][y], true, GameObjectType.WALL, ImageLoader.getAnimation("wall"));
+                                newWall = new Sprite(cx, cy, Constants.tileSize, Constants.tileSize, true, GameObjectType.WALL, ImageLoader.getAnimation("wall"));
                             }else{
-                                newWall = new TileObject(tileMap[x][y], false, GameObjectType.FAKE_WALL, ImageLoader.getAnimation("fake_wall"));
+                                newWall = new Sprite(cx, cy, Constants.tileSize, Constants.tileSize, false, GameObjectType.FAKE_WALL, ImageLoader.getAnimation("fake_wall"));
                             }
                             //tileMap[x][y].setOccupied(true);
                             gameElements.add(newWall);
                             sprites.add(newWall);
                         }
                         case 1 -> {
-                            endPortal = new TileObject(tileMap[x][y], false, GameObjectType.END_PORTAL, ImageLoader.getAnimation("end_portal"));
+                            endPortal = new Sprite(cx, cy, Constants.tileSize, Constants.tileSize, false, GameObjectType.END_PORTAL, ImageLoader.getAnimation("end_portal"));
                             endPortal.getAnimation().play();
                             gameElements.add(endPortal);
                             sprites.add(endPortal);
                         }
                         case 2 -> {
-                            TileObject newDoor = new TileObject(tileMap[x][y], true, GameObjectType.DOOR, ImageLoader.getAnimation("door"));
+                            Sprite newDoor = new Sprite(cx, cy, Constants.tileSize, Constants.tileSize, true, GameObjectType.DOOR, ImageLoader.getAnimation("door"));
                             //tileMap[x][y].setOccupied(true);
                             gameElements.add(newDoor);
                             sprites.add(newDoor);
@@ -289,15 +292,16 @@ public class Map {
                                 case 5 -> angle = -1;
                             }
                             switch (itemRed&0xf){
-                                case 0 -> newSpike = new Spike(tileMap[x][y].getX(), tileMap[x][y].getY(), 36, 36, false, 0, angle,
+                                case 0 -> newSpike = new Spike(cx, cy, Constants.tileSize, Constants.tileSize, false, 0, angle,
                                         GameObjectType.WALL, ImageLoader.getAnimation("fake_spike"));
-                                case 1 -> newSpike = new Spike(tileMap[x][y].getX(), tileMap[x][y].getY(), 36, 36, true, 1, angle,
+                                case 1 -> newSpike = new Spike(cx, cy, Constants.tileSize, Constants.tileSize, true, 1, angle,
                                         GameObjectType.WALL, ImageLoader.getAnimation("spike"));
-                                case 2 -> newSpike = new Spike(tileMap[x][y].getX(), tileMap[x][y].getY(), 36, 36, false, 2, angle,
+                                case 2 -> newSpike = new Spike(cx, cy, Constants.tileSize, Constants.tileSize, false, 2, angle,
                                         GameObjectType.WALL, ImageLoader.getAnimation("fire"));
-                                default -> newSpike = new Spike(tileMap[x][y].getX(), tileMap[x][y].getY(), 36, 36, true, 1, angle,
+                                default -> newSpike = new Spike(cx, cy, Constants.tileSize, Constants.tileSize, true, 1, angle,
                                         GameObjectType.WALL, ImageLoader.getAnimation("spike"));
                             }
+                            newSpike.getAnimation().play();
                             gameElements.add(newSpike);
                             spikes.add(newSpike);
                             sprites.add(newSpike);
@@ -319,8 +323,7 @@ public class Map {
                             sprites.add(newTurret);
                         }
                         case 6 -> {
-                            TileObject newMine = new TileObject(tileMap[x][y].getIntX(),
-                                    tileMap[x][y].getIntY(), false, GameObjectType.MINE, ImageLoader.getAnimation("mine"));
+                            Sprite newMine = new Sprite(cx, cy, Constants.tileSize, Constants.tileSize, false, GameObjectType.MINE, ImageLoader.getAnimation("mine"));
                             gameElements.add(newMine);
                             sprites.add(newMine);
                         }
@@ -328,14 +331,19 @@ public class Map {
                 }
                 // Red creates enemies
                 else if(levelRed == 255 && levelGreen < 128 && levelBlue < 128){
-                    Weapon weapon = WeaponFactory.createWeapon(getWeaponType((itemGreen & 0b1110000) >> 4, itemGreen & 0b111),
-                            Team.ENEMY);
-                    ProjectileType projectileType = getProjectileType((itemGreen & 0b1110000) >> 4, (itemBlue & 0b1110000) >> 4);
-                    if(levelBlue == 4){
-
-                    }else {
+                    if(levelBlue == 1){
                         // The enemy weapon is found from the item map
-                        Enemy newEnemy = new Enemy(tileMap[x][y], weapon, projectileType, ImageLoader.getAnimation("enemy"),
+                        Enemy newEnemy = new Enemy(cx, cy, WeaponFactory.createWeapon(WeaponType.DROP, Team.ENEMY),
+                                ProjectileType.SELF_DESTRUCT, ImageLoader.getAnimation("suicide_bomb"),
+                                this);
+                        characters.add(newEnemy);
+                        sprites.add(newEnemy);
+                    }else {
+                        Weapon weapon = WeaponFactory.createWeapon(getWeaponType((itemGreen & 0b1110000) >> 4, itemGreen & 0b111),
+                                Team.ENEMY);
+                        ProjectileType projectileType = getProjectileType((itemGreen & 0b1110000) >> 4, (itemBlue & 0b1110000) >> 4);
+                        // The enemy weapon is found from the item map
+                        Enemy newEnemy = new Enemy(cx, cy, weapon, projectileType, ImageLoader.getAnimation("enemy"),
                                 this);
                         characters.add(newEnemy);
                         sprites.add(newEnemy);
@@ -344,7 +352,7 @@ public class Map {
                 // Green creates player
                 else if(levelGreen == 255 && levelRed < 128 && levelBlue < 128){
                     if(player == null) {
-                        player = new Player(tileMap[x][y], ImageLoader.getAnimation("player"), this);
+                        player = new Player(cx, cy, ImageLoader.getAnimation("player"), this);
                     }else{
                         player.reset();
                         player.setLocation(tileMap[x][y]);
@@ -359,16 +367,14 @@ public class Map {
                     if(itemRed == 255){
                         if(amount == 0){
                             WeaponType weaponType = getWeaponType((itemGreen&0b1110000)>>4, itemGreen&0b111);
-                            Item newItem = new Item(tileMap[x][y].getIntX()+GameConstants.tileSize/2,
-                                    tileMap[x][y].getIntY()+GameConstants.tileSize/2,
+                            Item newItem = new Item(cx, cy,
                                     ItemType.WEAPON,
                                     ImageLoader.getAnimation(weaponType.toString())).weaponType(weaponType);
                             items.add(newItem);
                             sprites.add(newItem);
                         }else{
                             ProjectileType projectileType = getProjectileType((itemGreen&0b1110000)>>4, (itemBlue&0b1110000)>>4);
-                            Item newItem = new Item(tileMap[x][y].getIntX()+GameConstants.tileSize/2,
-                                    tileMap[x][y].getIntY()+GameConstants.tileSize/2,
+                            Item newItem = new Item(cx, cy,
                                     ItemType.PROJECTILE,
                                     ImageLoader.getAnimation(projectileType.toString())).amount(amount).projectileType(projectileType);
                             items.add(newItem);
@@ -379,15 +385,13 @@ public class Map {
                     else if(itemGreen == 255){
                         int type = itemRed&0b1111111;
                         if(type == 2){
-                            Item newItem = new Item(tileMap[x][y].getIntX()+GameConstants.tileSize/2,
-                                    tileMap[x][y].getIntY()+GameConstants.tileSize/2,
+                            Item newItem = new Item(cx, cy,
                                     ItemType.HP, ImageLoader.getAnimation("heart"+amount)).amount(amount);
                             items.add(newItem);
                             sprites.add(newItem);
                         }
                         else if(type == 3){
-                            Item newItem = new Item(tileMap[x][y].getIntX()+GameConstants.tileSize/2,
-                                    tileMap[x][y].getIntY()+GameConstants.tileSize/2,
+                            Item newItem = new Item(cx, cy,
                                     ItemType.COIN, ImageLoader.getAnimation("coin"+amount)).amount(amount);
                             items.add(newItem);
                             sprites.add(newItem);
@@ -400,8 +404,7 @@ public class Map {
                             }else if(amount > 100){
                                 path = "cagekey";
                             }
-                            Item newItem = new Item(tileMap[x][y].getIntX()+GameConstants.tileSize/2,
-                                    tileMap[x][y].getIntY()+GameConstants.tileSize/2,
+                            Item newItem = new Item(cx, cy,
                                     ItemType.KEY, ImageLoader.getAnimation(path)).amount(amount);
                             items.add(newItem);
                             sprites.add(newItem);
@@ -417,7 +420,10 @@ public class Map {
         WeaponType weaponType = null;
         switch (weaponClassCode){
             case 0 -> {
-                weaponType = WeaponType.THROW;
+                switch (weaponTypeCode){
+                    case 0 -> weaponType = WeaponType.DROP;
+                    default -> weaponType = WeaponType.THROW;
+                }
             }
             case 1 -> {
                 switch (weaponTypeCode){
@@ -532,7 +538,7 @@ public class Map {
                     weapon.getIntY() + weapon.getCurrentImage().getWidth() * Math.sin(weapon.getAngle()));
             for (Character character : characters) {
                 if (weapon.getTeam() != character.getWeapon().getTeam() &&
-                        weaponLine.intersects(character.getRect()) &&
+                        weaponLine.intersects(character.getX(), character.getY(), character.getWidth(), character.getHeight()) &&
                         inLineOfSight(weaponLine.getP1(), character.getCenter()) &&
                         weapon.addTarget(character)) {
                     character.changeHp(-weapon.getDamage());
@@ -545,7 +551,7 @@ public class Map {
         if(player.isAttacking()){
             for(Integer id : doors.keySet()){
                 Sprite door = doors.get(id);
-                if(Math.abs(door.getIntX()-player.getIntX())+Math.abs(door.getIntY()-player.getIntY()) <= GameConstants.tileSize
+                if(Math.abs(door.getIntX()-player.getIntX())+Math.abs(door.getIntY()-player.getIntY()) <= Constants.tileSize
                         && player.inventory.getKeys().contains(id)){
                     player.inventory.getKeys().remove(id);
                     door.setCollision(false);
@@ -564,6 +570,7 @@ public class Map {
             if (collider.hasCollision() && line.intersects(collider.getX(), collider.getY(), collider.getWidth(), collider.getHeight())) {
                 return false;
             }
+            // change to make fake elements block sight?
         }
         return true;
     }
@@ -598,7 +605,7 @@ public class Map {
     }
 
     // Check item and player interaction
-    public Item checkItems(Rectangle playerRectangle){
+    public Item checkItems(Player player){
         for(Item item : items){
             if(player.intersects(item)){
                 item.remove();

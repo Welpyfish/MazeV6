@@ -10,8 +10,9 @@
 
 package model;
 
-public class GameConstants {
+public class Constants {
     public static final int tileSize = 36;
+    public static final int characterSize = (int) (tileSize*0.8);
     public static final int iconSize = 50;
     public static final double fps = 60;
     public static final int levelCount = 2;

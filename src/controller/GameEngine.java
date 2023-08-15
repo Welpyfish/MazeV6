@@ -54,7 +54,7 @@ public class GameEngine implements Runnable{
     public void run() {
         // Set frame count variables
         long lastTime = System.nanoTime();
-        double nsFrame = 1000000000 / GameConstants.fps;
+        double nsFrame = 1000000000 / Constants.fps;
         double delta = 0;
 
         // Loop to run the game every frame (60 fps)

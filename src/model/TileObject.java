@@ -12,6 +12,7 @@ package model;
 
 import java.awt.*;
 
+//unused/removed
 public class TileObject extends Sprite{
     protected Tile tile;
     private Rectangle rect;
@@ -34,7 +35,7 @@ public class TileObject extends Sprite{
     }
 
     // Find the shortest distance from this rectangle to a point
-    public double distance(int x, int y) {
+    private double distance(int x, int y) {
         int dx = Math.max(Math.max(rect.x - x, 0), x - rect.x-rect.width);
         int dy = Math.max(Math.max(rect.y - y, 0), y - rect.y-rect.height);
         return Math.hypot(dx, dy);

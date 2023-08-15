@@ -16,22 +16,22 @@ public class Spike extends Sprite{
 
         triangle = new Polygon();
         if(direction == 0){
-            triangle.addPoint((int) x, (int) y);
-            triangle.addPoint((int) (x + length), (int) (y + width/2));
-            triangle.addPoint((int) x, (int) (y + width));
+            triangle.addPoint((int) getX(), (int) getY());
+            triangle.addPoint((int) (getX() + length), (int) (getY() + width/2));
+            triangle.addPoint((int) getX(), (int) (getY() + width));
         } else if(direction == Math.PI/2){
-            triangle.addPoint((int) x, (int) (y + length));
-            triangle.addPoint((int) (x + width/2), (int) y);
-            triangle.addPoint((int) (x + width), (int) (y + length));
+            triangle.addPoint((int) getX(), (int) (getY() + length));
+            triangle.addPoint((int) (getX() + width/2), (int) getY());
+            triangle.addPoint((int) (getX() + width), (int) (getY() + length));
             setAngle(3*Math.PI/2);
         } else if(direction == Math.PI){
-            triangle.addPoint((int) (x + length), (int) y);
-            triangle.addPoint((int) x, (int) (y + width/2));
-            triangle.addPoint((int) (x + length), (int) (y + width));
+            triangle.addPoint((int) (getX() + length), (int) getY());
+            triangle.addPoint((int) getX(), (int) (getY() + width/2));
+            triangle.addPoint((int) (getX() + length), (int) (getY() + width));
         } else if(direction == 3*Math.PI/2){
-            triangle.addPoint((int) x, (int) y);
-            triangle.addPoint((int) (x + width/2), (int) (y + length));
-            triangle.addPoint((int) (x + width), (int) y);
+            triangle.addPoint((int) getX(), (int) getY());
+            triangle.addPoint((int) (getX() + width/2), (int) (getY() + length));
+            triangle.addPoint((int) (getX() + width), (int) getY());
             setAngle(Math.PI/2);
         }
     }

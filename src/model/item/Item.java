@@ -21,7 +21,7 @@ public class Item extends Sprite {
     private ProjectileType projectileType;
     private int amount;
 
-    public Item(int x, int y, ItemType itemType, Animation animation) {
+    public Item(double x, double y, ItemType itemType, Animation animation) {
         super(x, y, animation);
         this.itemType = itemType;
         weaponType = null;

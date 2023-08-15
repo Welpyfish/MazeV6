@@ -79,10 +79,11 @@ public class Projectile extends Sprite {
         active = true;
         xi = getIntX();
         yi = getIntY();
-        this.range = Math.max(this.range, range) - getCurrentImage().getWidth();
+        this.range = (this.range==-1)?range:this.range - getCurrentImage().getWidth();
         damage += baseDamage;
         setVx(speed*Math.cos(getAngle()));
         setVy(speed*Math.sin(getAngle()));
+        update();
     }
 
     // Getters

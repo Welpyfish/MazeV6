@@ -21,7 +21,7 @@ public class Animation {
 
     public Animation(BufferedImage[] images, double time){
         this(images);
-        this.frameTime = (int) (time*GameConstants.fps/images.length);
+        this.frameTime = (int) (time*Constants.fps/images.length);
     }
 
     public Animation(BufferedImage[] images) {

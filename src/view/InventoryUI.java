@@ -79,7 +79,7 @@ public class InventoryUI extends JPanel {
         this.add(weaponPanel, new GBCB(0, 3).weightx(0.8).weighty(0.8).anchor(GridBagConstraints.NORTHWEST).insets(40, 20, 60, 20));
 
         // Controls
-        this.add(new JLabel(ImageLoader.getIcon("controls")), new GBCB(0, 4).weighty(0.1).anchor(GridBagConstraints.SOUTHWEST));
+        //this.add(new JLabel(ImageLoader.getIcon("controls")), new GBCB(0, 4).weighty(0.1).anchor(GridBagConstraints.SOUTHWEST));
 
         this.setBorder(new LineBorder(Color.black, 3, false));
 

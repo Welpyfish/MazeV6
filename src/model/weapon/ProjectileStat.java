@@ -12,7 +12,7 @@
 
 package model.weapon;
 
-import model.GameConstants;
+import model.Constants;
 
 public class ProjectileStat {
     private double speed;
@@ -25,15 +25,16 @@ public class ProjectileStat {
     public ProjectileStat(int damage, int speed){
         this.damage = damage;
         this.speed = speed;
+        this.range = -1;
     }
 
     public ProjectileStat range(double range){
-        this.range = (int) (GameConstants.tileSize*range);
+        this.range = (int) (Constants.tileSize*range);
         return this;
     }
 
     public ProjectileStat hitRadius(double hitRadius){
-        this.hitRadius = (int) (GameConstants.tileSize *hitRadius);
+        this.hitRadius = (int) (Constants.tileSize *hitRadius);
         return this;
     }
 
@@ -43,7 +44,7 @@ public class ProjectileStat {
     }
 
     public ProjectileStat stun(double stun){
-        this.stun = (int) (GameConstants.fps*stun);
+        this.stun = (int) (Constants.fps*stun);
         return this;
     }
 

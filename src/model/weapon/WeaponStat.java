@@ -12,7 +12,7 @@
 
 package model.weapon;
 
-import model.GameConstants;
+import model.Constants;
 
 public class WeaponStat {
     private int minRange, maxRange, startRange;
@@ -22,8 +22,8 @@ public class WeaponStat {
     private int ammoCost;
 
     public WeaponStat(double maxRange, int damage, WeaponID weaponID){
-        this.maxRange = (int) (GameConstants.tileSize*maxRange);
-        minRange = Math.max(GameConstants.tileSize, this.maxRange-4* GameConstants.tileSize);
+        this.maxRange = (int) (Constants.tileSize*maxRange);
+        minRange = Math.max(Constants.characterSize, this.maxRange-4* Constants.tileSize);
         startRange = this.maxRange;
         this.damage = damage;
         this.weaponID = weaponID;
@@ -33,27 +33,27 @@ public class WeaponStat {
     }
 
     public WeaponStat startRange(double startRange){
-        this.startRange = (int) (GameConstants.tileSize*startRange);
+        this.startRange = (int) (Constants.tileSize*startRange);
         return this;
     }
 
     public WeaponStat minRange(double minRange){
-        this.minRange = (int) (GameConstants.tileSize*minRange);
+        this.minRange = (int) (Constants.tileSize*minRange);
         return this;
     }
 
     public WeaponStat chargeTime(double chargeTime){
-        this.chargeTime = (int) (GameConstants.fps*chargeTime);
+        this.chargeTime = (int) (Constants.fps*chargeTime);
         return this;
     }
 
     public WeaponStat attackTime(double attackTime){
-        this.attackTime = (int) (GameConstants.fps*attackTime);
+        this.attackTime = (int) (Constants.fps*attackTime);
         return this;
     }
 
     public WeaponStat cooldownTime(double cooldownTime){
-        this.cooldownTime = (int) (GameConstants.fps*cooldownTime);
+        this.cooldownTime = (int) (Constants.fps*cooldownTime);
         return this;
     }
 

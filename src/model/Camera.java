@@ -33,16 +33,16 @@ public class Camera {
         double dy = 0;
         // If the player is at a boundary, move the same amount as the player
         if(map.player.getVx() > 0 &&
-                map.player.getX()+map.player.getRect().width >= r-rm &&
-                l < map.tileMap.length*GameConstants.tileSize - width){
+                map.player.getX()+map.player.getWidth() >= r-rm &&
+                l < map.tileMap.length*Constants.tileSize - width){
             dx = map.player.getVx();
         } else if(map.player.getVx() < 0 && map.player.getX() <= l+lm &&
                 l > 0){
             dx = map.player.getVx();
         }
         if(map.player.getVy() > 0 &&
-                map.player.getY() +map.player.getRect().height >= b-bm &&
-                t < map.tileMap[0].length*GameConstants.tileSize - height){
+                map.player.getY() +map.player.getHeight() >= b-bm &&
+                t < map.tileMap[0].length*Constants.tileSize - height){
             dy = map.player.getVy();
         } else if(map.player.getVy() < 0 &&
                 map.player.getY() <= t+tm &&

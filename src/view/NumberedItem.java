@@ -10,7 +10,7 @@
 
 package view;
 
-import model.GameConstants;
+import model.Constants;
 
 import javax.swing.*;
 import java.awt.*;
@@ -20,7 +20,7 @@ public class NumberedItem extends JButton {
 
     public NumberedItem(AbstractAction action){
         super(action);
-        setPreferredSize(new Dimension(GameConstants.iconSize, GameConstants.iconSize));
+        setPreferredSize(new Dimension(Constants.iconSize, Constants.iconSize));
         setHorizontalTextPosition(AbstractButton.CENTER);
         setVerticalTextPosition(AbstractButton.BOTTOM);
         setFocusPainted(false);

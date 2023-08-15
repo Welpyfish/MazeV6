@@ -37,8 +37,9 @@ public class Sprite {
     }
 
     public Sprite(double x, double y, double width, double height, boolean collision, GameObjectType type, Animation animation){
-        this.x = x;
-        this.y = y;
+        // Center x and y
+        this.x = x-width/2;
+        this.y = y-height/2;
         this.width = width;
         this.height = height;
         this.vx = 0;

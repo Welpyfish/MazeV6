@@ -12,12 +12,13 @@ package model;
 
 import model.weapon.Weapon;
 
-public class Character extends TileObject {
+import java.awt.*;
+
+public class Character extends Sprite {
     private Weapon weapon;
     private int hp;
     private double sightRange;
-    // Target tile for movement
-    private Tile nextTile;
+
     protected Map map;
 
     protected int movementSpeed;
@@ -25,16 +26,14 @@ public class Character extends TileObject {
     // Special effect timers
     private int stun;
 
-    public Character(Tile tile, Weapon weapon, Animation animation){
-        super(tile, true, GameObjectType.CHARACTER, animation);
-        nextTile = tile;
-        tile.setOccupied(true);
+    public Character(double x, double y, Weapon weapon, Animation animation){
+        super(x, y, Constants.characterSize, Constants.characterSize, true, GameObjectType.CHARACTER, animation);
         this.weapon = weapon;
         this.movementSpeed = 3;
     }
 
-    public Character(Tile tile, Weapon weapon, Animation animation, Map map){
-        this(tile, weapon, animation);
+    public Character(double x, double y, Weapon weapon, Animation animation, Map map){
+        this(x, y, weapon, animation);
         this.map = map;
     }
 
@@ -43,22 +42,11 @@ public class Character extends TileObject {
     public void update(){
         // Only move and update weapon when not stunned
         if(stun == 0) {
-            // Move according to velocity
-//            vx = (nextTile.getGridx() - tile.getGridx()) * movementSpeed;
-//            vy = -(nextTile.getGridy() - tile.getGridy()) * movementSpeed;
-//            changeX(vx);
-//            changeY(-vy);
             // Play movement animation when moving
             if(getVx() == 0 && getVy() == 0){
                 getAnimation().pause();
             }else{
                 getAnimation().play();
-            }
-            // Update tile occupation
-            if(atTile()){
-                tile.setOccupied(false);
-                nextTile.setOccupied(true);
-                tile = nextTile;
             }
             // Update weapon
             updateWeapon();
@@ -70,24 +58,13 @@ public class Character extends TileObject {
 
     // Set target movement
     protected void updateMovement(int x, int y){
-        // When at a tile, start moving towards the next target tile
-        if(atTile()){
-            if(!map.tileMap[tile.getGridx()+x][tile.getGridy()-y].isOccupied()){
-                nextTile = map.tileMap[tile.getGridx()+x][tile.getGridy()-y];
-                nextTile.setOccupied(true);
-            }
-        }
-        setVx(3*x);
-        setVy(-3*y);
+        setVx(movementSpeed*x);
+        setVy(-movementSpeed*y);
     }
 
     // Update weapon
     protected void updateWeapon(){
         getWeapon().update(getCenterX(), getCenterY());
-    }
-
-    protected boolean atTile(){
-        return (getX()== nextTile.getX() && getY()== nextTile.getY());
     }
 
     public int getHp() {
@@ -111,8 +88,6 @@ public class Character extends TileObject {
     @Override
     public void remove(){
         super.remove();
-        tile.setOccupied(false);
-        nextTile.setOccupied(false);
         weapon.reset();
     }
 
@@ -127,11 +102,12 @@ public class Character extends TileObject {
 
     // Set current location to a tile
     public void setLocation(Tile tile){
-        this.tile = tile;
-        tile.setOccupied(true);
-        setX(tile.getX());
-        setY(tile.getY());
-        nextTile = tile;
+        setX(tile.getCenterX()-getWidth()/2);
+        setY(tile.getCenterY()-getHeight()/2);
+    }
+
+    public Point getCenter(){
+        return new Point(getCenterX(), getCenterY());
     }
 
     protected double getSightRange() {
